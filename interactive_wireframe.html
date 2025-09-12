@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Sky Up B - Digital Skills Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header, footer { background: #004080; color: white; padding: 1em; text-align: center; }
+        nav { display: flex; justify-content: center; gap: 1em; margin-top: 0.5em; }
+        nav a { color: white; text-decoration: none; font-weight: bold; }
+        .hero { background: #e0f7fa; padding: 2em; text-align: center; }
+        .features, .tutorials, .certification, .map { padding: 2em; }
+        .feature-box { display: flex; justify-content: space-around; margin-top: 1em; }
+        .feature { width: 30%; background: #f0f0f0; padding: 1em; border-radius: 8px; }
+        .tutorial-card { background: #f9f9f9; padding: 1em; margin: 1em 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 0.5em 1em; margin-top: 1em; background: #004080; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0066cc; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sky Up B</h1>
+        <nav>
+            <a href="#hero">Home</a>
+            <a href="#tutorials">Tutorials</a>
+            <a href="#certification">Certifications</a>
+            <a href="#map">Find Support</a>
+        </nav>
+    </header>
+
+    <section class='hero' id='hero'>
+        <h2>Build Your Digital Skills Today</h2>
+        <p>Free tutorials, videos, and interactive exercises to help you get started online.</p>
+        <button onclick="alert('Starting your learning journey!')">Start Learning</button>
+    </section>
+
+    <section class='features'>
+        <h2>Features</h2>
+        <div class='feature-box'>
+            <div class='feature'>📹 <strong>Video Tutorials</strong><br>Step-by-step guides embedded from YouTube.</div>
+            <div class='feature'>🧠 <strong>Interactive Quizzes</strong><br>Test your knowledge and earn certifications.</div>
+            <div class='feature'>🗺️ <strong>Find Local Support</strong><br>Connect with nearby help centers.</div>
+        </div>
+    </section>
+
+    <section class='tutorials' id='tutorials'>
+        <h2>Tutorials</h2>
+        <div class='tutorial-card'>
+            <h3>How to Set Up Email</h3>
+            <p>Learn how to create and manage your email account.</p>
+            <button onclick="alert('Opening email tutorial...')">Start Tutorial</button>
+        </div>
+        <div class='tutorial-card'>
+            <h3>Using Social Media Safely</h3>
+            <p>Tips and tricks to stay safe online.</p>
+            <button onclick="alert('Opening social media tutorial...')">Start Tutorial</button>
+        </div>
+    </section>
+
+    <section class='certification' id='certification'>
+        <h2>Certifications</h2>
+        <p>Complete quizzes and earn simple certifications to showcase your skills.</p>
+        <button onclick="alert('Viewing certification path...')">View Certification Path</button>
+    </section>
+
+    <section class='map' id='map'>
+        <h2>Find Local Support</h2>
+        <input type='text' placeholder='Enter your postcode' />
+        <button onclick="alert('Searching for local support...')">Search</button>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Sky Up B | <a href='#' style='color:white;'>Privacy Policy</a> | <a href='#' style='color:white;'>Contact Us</a></p>
+    </footer>
+</body>
+</html>
