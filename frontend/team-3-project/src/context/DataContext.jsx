@@ -2,7 +2,7 @@ import { createContext } from "react";
 import placeholderData from "../data/placeholder.json";
 
 console.log("Placeholder Data:", placeholderData);
-const dataContext = createContext();
+const dataContext = createContext(placeholderData);
 
 const DataProvider = ({ children }) => {
   return (
