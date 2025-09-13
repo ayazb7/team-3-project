@@ -9,7 +9,7 @@ createRoot(document.getElementById("root")).render(
   <>
     <StrictMode>
       <DataProvider>
-        <VideoCard />
+        <App />
       </DataProvider>
     </StrictMode>
   </>
