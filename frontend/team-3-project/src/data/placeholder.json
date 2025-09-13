@@ -1,0 +1,24 @@
+{
+    "videos": [
+        {
+            "id": 1,
+            "title": "Social Media Safety Basics",
+            "description": "Learn essential tips to keep your social media accounts secure and protect your personal information online."
+        },
+        {
+            "id": 2,
+            "title": "How to Set Up Your Email Account",
+            "description": "A step-by-step guide to creating and configuring your email account for safe and efficient communication."
+        },
+        {
+            "id": 3,
+            "title": "Recognizing Online Scams",
+            "description": "Understand common online scams and learn how to identify suspicious messages and links."
+        },
+        {
+            "id": 4,
+            "title": "Privacy Settings on Social Platforms",
+            "description": "Discover how to adjust privacy settings on popular social media platforms to control who sees your information."
+        }
+    ]
+}
