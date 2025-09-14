@@ -3,7 +3,7 @@ import VideoCard from "./VideoCard";
 
 const VideoCardList = ({ videos }) => {
   return (
-    <div className="flex flex-wrap flex-row justify-center gap-4 p-4">
+    <div className="h-full flex flex-wrap flex-row justify-center items-center gap-4 p-4 items-stretch">
       {videos.map((video) => (
         <VideoCard
           key={video.id}
