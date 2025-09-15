@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import skyLogo from "../assets/Sky_Group_logo_2020.svg.png";
+import LanguageDropDown  from "./LanguageDropDown";
 
 const NavBar = () => {
   return (
@@ -61,6 +62,7 @@ const NavBar = () => {
             </a>
           </li>
         </ul>
+        <LanguageDropDown />
         <Link
           to="/Login"
           className="bg-green-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
