@@ -5,6 +5,7 @@ import "./App.css";
 import placeholderData from "./data/placeholder.json";
 import { DataProvider, dataContext } from "./context/DataContext";
 import VideoCardList from "./components/VideoCardList";
+import { FeatureBlock } from "./components";
 
 {
   /* All work is proof of concept and will need to be refactored and optimized later */
@@ -26,23 +27,23 @@ function App() {
       {/* alot of repated flex definitions here, could create custom class later */}
       <div className="flex flex-col gap-4 justify-center items-center w-full min-h-3/4 text-gray-700">
         <div className="flex w-full flex-col justify-center items-center text-center gap-4 md:p-4 md:flex-row items-stretch">
-          <div className="flex flex-col justify-center items-center w-full text-center gap-4 bg-gray-200 p-10 rounded">
-            <p className="text-4xl">📸</p>
-            <p className="text-lg">VIDEO TUTORIALS</p>
-            <p className="font-thin">Watch step-by-step guides</p>
-          </div>
+          <FeatureBlock
+            icon="💻"
+            title="VIDEO TUTORIALS"
+            description="Learn at your own pace"
+          />
 
-          <div className="flex flex-col justify-center items-center w-full text-center gap-4 bg-gray-200 p-10 rounded">
-            <p className="text-4xl">🧠</p>
-            <p className="text-lg">INTERACTIVE QUIZZES</p>
-            <p className="font-thin">Test your knowledge</p>
-          </div>
+          <FeatureBlock
+            icon="🧠"
+            title="INTERACTIVE QUIZZES"
+            description="Test your knowledge"
+          />
 
-          <div className="flex flex-col justify-center items-center w-full text-center gap-4 bg-gray-200 p-10 rounded">
-            <p className="text-4xl">🗺️</p>
-            <p className="text-lg">FIND LOCAL SUPPORT</p>
-            <p className="font-thin">Connect with nearby help</p>
-          </div>
+          <FeatureBlock
+            icon="🗺️"
+            title="FIND LOCAL SUPPORT"
+            description="Connect with nearby help"
+          />
         </div>
         <p className="h-full text-xl text-gray-700 font-medium">
           TUTORIAL PREVIEW
