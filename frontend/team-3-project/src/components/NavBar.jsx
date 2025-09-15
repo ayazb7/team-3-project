@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import skyLogo from "../assets/Sky_Group_logo_2020.svg.png";
 
 const NavBar = () => {
@@ -8,7 +9,7 @@ const NavBar = () => {
       style={{ backgroundColor: "#489ee0ff" }}
     >
       {/* Left: Site Title */}
-      <div className="font-bold text-2xl tracking-wide text-white uppercase flex-1 text-left">
+      <div className="font-bold text-3xl tracking-wide text-white uppercase flex-1 text-left">
         Digital Skills Training
       </div>
       {/* Center: Sky logo */}
@@ -60,13 +61,13 @@ const NavBar = () => {
             </a>
           </li>
         </ul>
-        <a
-          href="#"
+        <Link
+          to="/Login"
           className="bg-green-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
           style={{ color: "#fff" }}
         >
           Login
-        </a>
+        </Link>
       </div>
     </nav>
   );

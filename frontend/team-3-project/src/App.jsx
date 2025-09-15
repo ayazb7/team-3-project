@@ -18,7 +18,7 @@ function App() {
       <NavBar />
       <div className="flex flex-col justify-center gap-5 text-gray-700 items-center w-full min-h-1/3 bg-gray-300 p-10">
         <h1 className="text-black font-bold">
-          BUILD YOUR DIGITAL SKILLS TODAY!!
+          BUILD YOUR DIGITAL SKILLS TODAY
         </h1>
         <p className="p-5">
           Free tutorials, videos, and interactive exercises to help you get
@@ -67,7 +67,6 @@ function App() {
           <p className="text-sm">
             &copy; 2024 Digital Skills Training. All rights reserved.
           </p>
-          <Link to="/Login">Login</Link>
         </footer>
       </div>
     </div>
