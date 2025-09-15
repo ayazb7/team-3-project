@@ -6,6 +6,7 @@ import placeholderData from "./data/placeholder.json";
 import { DataProvider, dataContext } from "./context/DataContext";
 import { FeatureBlock, VideoCardList } from "./components";
 import { Link } from "react-router-dom";
+import NavBar from "./components/NavBar";
 
 {
   /* All work is proof of concept and will need to be refactored and optimized later */
@@ -14,9 +15,10 @@ function App() {
   const data = useContext(dataContext);
   return (
     <div className="flex flex-col justify-center items-center gap-10 min-h-screen w-full">
+      <NavBar />
       <div className="flex flex-col justify-center gap-5 text-gray-700 items-center w-full min-h-1/3 bg-gray-300 p-10">
         <h1 className="text-black font-bold">
-          BUILD YOUR DIGITAL SKILLS TODAY
+          BUILD YOUR DIGITAL SKILLS TODAY!!
         </h1>
         <p className="p-5">
           Free tutorials, videos, and interactive exercises to help you get
