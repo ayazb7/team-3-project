@@ -61,3 +61,27 @@ def login():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+''' ---TESTING---
+
+curl -X POST http://127.0.0.1:5000/register \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_api_key_here" \
+  -d '{
+    "name": "Test User",
+    "email": "testuser@example.com",
+    "password": "securepassword123"
+  }'
+
+
+curl -X POST http://127.0.0.1:5000/login \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your_api_key_here" \
+  -d '{
+    "email": "testuser@example.com",
+    "password": "securepassword123"
+  }'
+
+'''
