@@ -4,8 +4,8 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import placeholderData from "./data/placeholder.json";
 import { DataProvider, dataContext } from "./context/DataContext";
-import VideoCardList from "./components/VideoCardList";
-import { FeatureBlock } from "./components";
+import { FeatureBlock, VideoCardList } from "./components";
+import { Link } from "react-router-dom";
 
 {
   /* All work is proof of concept and will need to be refactored and optimized later */
@@ -61,10 +61,11 @@ function App() {
         </button>
       </div>
       <div className="w-full ">
-        <footer className="w-full h-full bg-gray-300 flex justify-center items-center p-4 text-gray-700">
+        <footer className="flex flex-col gap-4 w-full h-full bg-gray-300 flex justify-center items-center p-4 text-gray-700">
           <p className="text-sm">
             &copy; 2024 Digital Skills Training. All rights reserved.
           </p>
+          <Link to="/Login">Login</Link>
         </footer>
       </div>
     </div>

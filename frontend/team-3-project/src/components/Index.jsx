@@ -1,5 +1,6 @@
 import VideoCard from "./VideoCard";
-import VideoList from "./VideoCardList";
+import VideoCardList from "./VideoCardList";
 import FeatureBlock from "./FeatureBlock";
+import Button from "./Button";
 
-export { VideoCard, VideoList, FeatureBlock };
+export { VideoCard, VideoCardList, FeatureBlock, Button };
