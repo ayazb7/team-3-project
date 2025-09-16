@@ -30,34 +30,46 @@ def require_api_key(func):
 @app.route('/register', methods=['POST'])
 @require_api_key
 def register():
-    data = request.get_json()
-    name = data['name']
-    email = data['email']
-    password = hashlib.sha256(data['password'].encode()).hexdigest()
+  data = request.get_json()
+  # Input validation
+  if not data or not all(k in data for k in ("name", "email", "password")):
+    return jsonify({'error': 'Missing required fields'}), 400
+  name = data['name']
+  email = data['email']
+  password = hashlib.sha256(data['password'].encode()).hexdigest()
 
-    cursor = mysql.connection.cursor()
-    cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)", (name, email, password))
-    mysql.connection.commit()
+  cursor = mysql.connection.cursor()
+  # Check if user already exists
+  cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+  if cursor.fetchone():
     cursor.close()
+    return jsonify({'error': 'User with this email already exists'}), 409
+  # Insert new user
+  cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)", (name, email, password))
+  mysql.connection.commit()
+  cursor.close()
 
-    return jsonify({'message': 'User registered successfully'}), 201
+  return jsonify({'message': 'User registered successfully'}), 201
 
 @app.route('/login', methods=['POST'])
 @require_api_key
 def login():
-    data = request.get_json()
-    email = data['email']
-    password = hashlib.sha256(data['password'].encode()).hexdigest()
+  data = request.get_json()
+  # Input validation
+  if not data or not all(k in data for k in ("email", "password")):
+    return jsonify({'error': 'Missing required fields'}), 400
+  email = data['email']
+  password = hashlib.sha256(data['password'].encode()).hexdigest()
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users WHERE email = %s AND password_hash = %s", (email, password))
-    user = cursor.fetchone()
-    cursor.close()
+  cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  cursor.execute("SELECT * FROM users WHERE email = %s AND password_hash = %s", (email, password))
+  user = cursor.fetchone()
+  cursor.close()
 
-    if user:
-        return jsonify({'message': 'Login successful', 'user': user}), 200
-    else:
-        return jsonify({'message': 'Invalid credentials'}), 401
+  if user:
+    return jsonify({'message': 'Login successful', 'user': user}), 200
+  else:
+    return jsonify({'message': 'Invalid credentials'}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)
