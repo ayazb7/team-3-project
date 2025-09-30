@@ -10,7 +10,8 @@ function App() {
     <>
       <div>
         <ModelViewer
-          url="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/ToyCar/glTF-Binary/ToyCar.glb"
+          //url="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/ToyCar/glTF-Binary/ToyCar.glb"
+          url="./public/book.glb"   
           width={400}
           height={400}
         />
