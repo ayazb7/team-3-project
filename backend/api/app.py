@@ -7,6 +7,7 @@ Project Group: Flow State (Team 3)
 """
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import bcrypt
@@ -24,6 +25,7 @@ from flask_jwt_extended import (
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Load MySQL config from .env
 app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
