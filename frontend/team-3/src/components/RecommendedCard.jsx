@@ -1,7 +1,7 @@
 const RecommendedCard = ({ title, rating}) => (
-  <div className = "transform transition-all duration-300 hover:scale-105">
-    <a href="#" className="shadow-sm overflow-hidden group">
-      <div className="bg-white block rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+  <div className = "transform transition-all duration-300 hover:scale-105 shadow-lg">
+    <a href="#" className="overflow-hidden group">
+      <div className="bg-white block rounded-xl p-6 hover:shadow-lg transition-all">
         <div className="text-center mb-4 ">
           <h3 className="text-gray-900 mb-1">{title}</h3>
           <p className="text-sm text-gray-500">{rating}</p>
