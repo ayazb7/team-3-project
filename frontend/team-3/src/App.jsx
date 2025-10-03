@@ -1,18 +1,14 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard";
 import ModelViewer from "./components/ModelViewer";
+import LandingPage from "./pages/LandingPage";
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <Login />
-      </div>
-    </>
+    <div className="App">
+      <Dashboard />
+    </div>
   );
 }
 
