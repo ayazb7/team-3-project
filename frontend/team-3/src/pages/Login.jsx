@@ -1,5 +1,6 @@
 import { useState } from "react";
-import "./Login.css";
+import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import "./login.css";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -34,30 +35,39 @@ function Login() {
 
     return (
         <div className="login-container">
-            <h2>Welcome back!</h2>
+            <h2>Welcome Back!</h2>
             <p>Login to access your learning dashboard</p>
-            <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
+                {/* Email field */}
                 <div className="email-group">
                     <label>Your Email:</label>
+                    <div className="input-group">
+                    <FiUser className="input-icon user-icon" aria-hidden="true" />
                     <input
                         type="email"
                         value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                         placeholder="e.g: elon@tesla.com"
+                        aria-label="Email"
                     />
+                    </div>
                 </div>
-                <div>
-                    <label>YourPassword:</label>
+                <div className="password-group">
+                    <label>Your Password:</label>
+                    <div className="input-group">
+                    <FiLock className="input-icon lock-icon" aria-hidden="true" />
                     <input
                         type="password"
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
+                        aria-label="Password"
                     />
+                    </div>
                 </div>
                 <button type="submit" disabled={loading}>
-                    {loading ? "Logging in..." : "Sign in"}
+                    {loading ? "Logging in..." : "Sign In"}
                 </button>
                 <button
                     type="button"
