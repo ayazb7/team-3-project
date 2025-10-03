@@ -25,7 +25,7 @@ Flask REST API for managing user authentication and learning content for the Sky
 
 3. **Install dependencies**
    ```bash
-   pip install -r api/requirements.txt
+   pip install -r requirements.txt
    ```
 
 4. **Set up environment variables**
@@ -35,9 +35,17 @@ Flask REST API for managing user authentication and learning content for the Sky
    MYSQL_USER=your_username
    MYSQL_PASSWORD=your_password
    MYSQL_DB=skywise_db
+   JWT_SECRET_KEY=your_random_secret_string
    ```
 
-5. **Navigate to the Database directory**
+   Generate a strong secret:
+   ```bash
+   # from backend/api
+   python scripts/generate_token.py 64
+   # copy the output into JWT_SECRET_KEY in .env
+   ```
+
+5. **Navigate to the Database directory** (optional if DB already exists)
    ```bash
    cd ..
    cd database
@@ -80,9 +88,9 @@ Register a new user account.
 ```
 
 **Response:**
-- `201` - User registered successfully
-- `400` - Missing required fields
-- `409` - User with email already exists
+- `201` - `{ "message": "User registered successfully", "access_token": string, "refresh_token": string }`
+- `400` - `{"error": "Missing required fields"}`
+- `409` - `{"error": "User with this email already exists"}`
 
 **Example:**
 ```bash
@@ -107,9 +115,9 @@ Authenticate user login.
 ```
 
 **Response:**
-- `200` - Login successful, returns user data
-- `400` - Missing required fields
-- `401` - Invalid credentials
+- `200` - `{ "message": "Login successful", "access_token": string, "refresh_token": string }`
+- `400` - `{"error": "Missing required fields"}`
+- `401` - `{"message": "Invalid credentials"}`
 
 **Example:**
 ```bash
@@ -119,4 +127,37 @@ curl -X POST http://localhost:5000/login \
     "email": "test@example.com",
     "password": "password123"
   }'
+```
+
+### POST /token/refresh
+Get a new access token using a valid refresh token.
+
+**Headers:**
+- `Authorization: Bearer <REFRESH_TOKEN>`
+
+**Response:**
+- `200` - `{ "access_token": string }`
+- `401` - Unauthorized / invalid token
+
+**Example:**
+```bash
+curl -X POST http://localhost:5000/token/refresh \
+  -H "Authorization: Bearer <REFRESH_TOKEN>"
+```
+
+### GET /user_details
+Return current user details for the authenticated user.
+
+**Headers:**
+- `Authorization: Bearer <ACCESS_TOKEN>`
+
+**Response:**
+- `200` - `{ "id": number, "username": string, "email": string }`
+- `401` - Unauthorized / invalid token
+- `404` - User not found
+
+**Example:**
+```bash
+curl -s http://localhost:5000/user_details \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
