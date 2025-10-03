@@ -12,8 +12,6 @@ function App() {
     <>
       <div className="w-full h-full">
         <LandingPage />
-      <div>
-        <Login />
       </div>
     </>
   );
