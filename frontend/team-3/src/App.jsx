@@ -2,6 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+//import Dashboard from "./pages/Dashboard";
 import ModelViewer from "./components/ModelViewer";
 function App() {
   const [count, setCount] = useState(0);
@@ -11,7 +12,7 @@ function App() {
       <div>
         <ModelViewer
           //url="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/ToyCar/glTF-Binary/ToyCar.glb"
-          url="./public/book.glb"   
+          url="./public/book.glb" 
           width={400}
           height={400}
         />
