@@ -3,3 +3,6 @@ flask
 flask-mysqldb
 pytest
 pytest-mock
+flask-jwt-extended
+bcrypt
+PyJWT
