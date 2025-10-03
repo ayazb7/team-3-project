@@ -1,8 +1,3 @@
-{
-    margin-bottom: 32px;
-}
-    margin-bottom: 32px;
-
 body {
     background: white;
     font-family: 'Segoe UI', Arial, sans-serif;
@@ -44,6 +39,22 @@ body {
     background: #b2d6f9;
     font-size: 16px;
     transition: border-color 0.2s;
+    color: #111; /* darker typed text */
+}
+
+/* Placeholder color (cross-browser) */
+.login-container input::-webkit-input-placeholder {
+    color: #757575;
+}
+.login-container input::-moz-placeholder {
+    color: #757575;
+    opacity: 1;
+}
+.login-container input:-ms-input-placeholder {
+    color: #757575;
+}
+.login-container input::placeholder {
+    color: #757575;
 }
 
 .login-container input[type="password"] {
