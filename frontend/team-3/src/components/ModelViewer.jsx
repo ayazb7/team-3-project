@@ -140,7 +140,7 @@ const ModelInner = ({
       persp.position.set(
         pivotW.current.x,
         pivotW.current.y,
-        pivotW.current.z + d,
+        pivotW.current.z + d
       );
       persp.near = d / 10;
       persp.far = d * 10;
@@ -268,7 +268,7 @@ const ModelInner = ({
         camera.position.z = THREE.MathUtils.clamp(
           startZ * ratio,
           minZoom,
-          maxZoom,
+          maxZoom
         );
         invalidate();
       }
@@ -361,27 +361,27 @@ const ModelInner = ({
 
 const ModelViewer = ({
   url,
-  width = 400,
-  height = 400,
+  width = "100%",
+  height = 200,
   modelXOffset = 0,
-  modelYOffset = 0,
-  defaultRotationX = -50,
+  modelYOffset = 10,
+  defaultRotationX = 150,
   defaultRotationY = 20,
-  defaultZoom = 0.5,
-  minZoomDistance = 0.5,
+  defaultZoom = -0.5,
+  minZoomDistance = -10,
   maxZoomDistance = 10,
   enableMouseParallax = true,
   enableManualRotation = true,
   enableHoverRotation = true,
-  enableManualZoom = true,
-  ambientIntensity = 0.3,
-  keyLightIntensity = 1,
-  fillLightIntensity = 0.5,
-  rimLightIntensity = 0.8,
+  enableManualZoom = false,
+  ambientIntensity = 0,
+  keyLightIntensity = 0,
+  fillLightIntensity = 0,
+  rimLightIntensity = 0,
   environmentPreset = "forest",
-  autoFrame = false,
+  autoFrame = true,
   placeholderSrc,
-  showScreenshotButton = true,
+  showScreenshotButton = false,
   fadeIn = false,
   autoRotate = false,
   autoRotateSpeed = 0.35,
@@ -398,7 +398,7 @@ const ModelViewer = ({
   const initPitch = deg2rad(defaultRotationY);
   const camZ = Math.min(
     Math.max(defaultZoom, minZoomDistance),
-    maxZoomDistance,
+    maxZoomDistance
   );
 
   const capture = () => {
