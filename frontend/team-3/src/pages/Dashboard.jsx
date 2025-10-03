@@ -1,10 +1,88 @@
-import React, { useState } from 'react';
-import { Clock, Play, GraduationCap, MapPin } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Clock, Play, GraduationCap, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import CourseCard from '../components/CourseCard';
 import RecommendedCard from '../components/RecommendedCard.jsx';
 import EventCard from '../components/EventCard';
 import WeekProgress from '../components/WeekProgress.jsx';
+
+const Carousel = ({ items, renderItem, className }) => {
+  const containerRef = useRef(null);
+  const [isStartReached, setIsStartReached] = useState(true);
+  const [isEndReached, setIsEndReached] = useState(false);
+
+  const checkScrollPosition = () => {
+    const container = containerRef.current;
+    if (container) {
+      setIsStartReached(container.scrollLeft <= 0);
+      setIsEndReached(
+        container.scrollLeft >= container.scrollWidth - container.clientWidth - 1
+      );
+    }
+  };
+
+  const scroll = (direction) => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const scrollAmount = container.clientWidth;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const newScroll = container.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
+      
+      container.scrollTo({
+        left: Math.max(0, Math.min(maxScroll, newScroll)),
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      checkScrollPosition();
+      container.addEventListener('scroll', checkScrollPosition);
+      window.addEventListener('resize', checkScrollPosition);
+      return () => {
+        container.removeEventListener('scroll', checkScrollPosition);
+        window.removeEventListener('resize', checkScrollPosition);
+      };
+    }
+  }, []);
+
+  return (
+    <div className="relative group">
+      <div 
+        ref={containerRef}
+        className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 ${className}`}
+      >
+        {items.map((item, idx) => (
+          <div key={idx} className="flex-none w-[85%] sm:w-[45%] lg:w-[30%] snap-start">
+            {renderItem(item, idx)}
+          </div>
+        ))}
+      </div>
+      
+      {!isStartReached && (
+        <button
+          onClick={() => scroll('left')}
+          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+      )}
+      
+      {!isEndReached && (
+        <button
+          onClick={() => scroll('right')}
+          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      )}
+    </div>
+  );
+};
 
 const SectionHeader = ({ title, subtitle }) => (
   <div className="text-center mb-6">
@@ -38,73 +116,99 @@ export default function Dashboard() {
     { title: 'Sky Showcase', location: 'Sky Central - Osterley Campus', date: 'Thursday 13th November 2025' }
   ];
 
+  const [scrolling, setScrolling] = useState(false);
+
+  const preventScroll = (e) => {
+    if (scrolling) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    return () => {
+      document.removeEventListener('touchmove', preventScroll);
+    };
+  }, [scrolling]);
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-200 p-4 sm:p-6 md:p-8">
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-500 mt-1">Welcome back</p>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+            <button 
+              className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:scale-95 transition-transform"
+              onClick={() => console.log('Toggle light mode')}
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </button>
-            <button className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
               {stats.map((stat, idx) => (
                 <StatCard key={idx} {...stat} />
               ))}
             </div>
 
             {/* Continue Section */}
-            <div>
+            <div className="Continue">
               <SectionHeader 
                 title="Continue?" 
                 subtitle="View your recently accessed courses." 
               />
-              <div className="grid grid-cols-3 gap-4">
-                {continueCourses.map((course, idx) => (
+              <Carousel
+                items={continueCourses}
+                renderItem={(course, idx) => (
                   <CourseCard key={idx} {...course} />
-                ))}
-              </div>
+                )}
+                className="pb-8"
+              />
             </div>
 
             {/* Recommended Section */}
-            <div>
+            <div className="Recommended">
               <SectionHeader 
                 title="Recommended For You" 
                 subtitle="Tailored just for you." 
               />
-              <div className="grid grid-cols-3 gap-4">
-                {recommended.map((item, idx) => (
+              <Carousel
+                items={recommended}
+                renderItem={(item, idx) => (
                   <RecommendedCard key={idx} {...item} />
-                ))}
-              </div>
+                )}
+                className="pb-8"
+              />
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Week Progress */}
             <WeekProgress />
 
             {/* Nearby Events */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">Nearby Events</h3>
                 <MapPin className="w-5 h-5 text-gray-400" />
