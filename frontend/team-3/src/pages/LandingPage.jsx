@@ -19,8 +19,11 @@ const LandingPage = () => {
           <div>
             <p className="font-bold text-xl">Featured Courses</p>
           </div>
-          <div>
-            <VideoBlock width="w-50" height="h-50" />
+          {/* hard coding video blocks for now  */}
+          <div className="flex flex-col gap-10">
+            <VideoBlock />
+            <VideoBlock />
+            <VideoBlock />
           </div>
         </div>
       </div>
