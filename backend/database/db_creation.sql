@@ -1,16 +1,16 @@
 create schema if not exists skywise_db;
 use skywise_db;
 
-drop table if exists web_traffic;
-drop table if exists admin_logs;
-drop table if exists user_quiz_results;
-drop table if exists user_course_progress;
-drop table if exists user_tutorial_progress;
-drop table if exists course_tutorials;
-drop table if exists quizzes;
-drop table if exists tutorials;
-drop table if exists courses;
-drop table if exists users;
+-- drop table if exists web_traffic;
+-- drop table if exists admin_logs;
+-- drop table if exists user_quiz_results;
+-- drop table if exists user_course_progress;
+-- drop table if exists user_tutorial_progress;
+-- drop table if exists course_tutorials;
+-- drop table if exists quizzes;
+-- drop table if exists tutorials;
+-- drop table if exists courses;
+-- drop table if exists users;
 
 create table users (
 	id int primary key auto_increment,
@@ -72,6 +72,14 @@ create table quizzes (
     question text not null,
     correct_answer text not null,
     foreign key (tutorial_id) references tutorials(id)
+);
+
+create table quiz_questions (
+    id int primary key auto_increment,
+    quiz_id int not null,
+    question_text text not null,
+    question_order int,
+    foreign key (quiz_id) references quizzes(id)
 );
 
 create table user_quiz_results (
