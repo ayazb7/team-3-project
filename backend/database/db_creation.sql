@@ -6,16 +6,19 @@
 create schema if not exists skywise_db;
 use skywise_db;
 
-drop table if exists web_traffic;
-drop table if exists admin_logs;
-drop table if exists user_quiz_results;
-drop table if exists user_course_progress;
-drop table if exists user_tutorial_progress;
-drop table if exists course_tutorials;
-drop table if exists quizzes;
-drop table if exists tutorials;
-drop table if exists courses;
-drop table if exists users;
+DROP TABLE IF EXISTS web_traffic;
+DROP TABLE IF EXISTS admin_logs;
+DROP TABLE IF EXISTS user_quiz_answers;
+DROP TABLE IF EXISTS user_quiz_results;
+DROP TABLE IF EXISTS user_course_progress;
+DROP TABLE IF EXISTS user_tutorial_progress;
+DROP TABLE IF EXISTS course_tutorials;
+DROP TABLE IF EXISTS quiz_options;
+DROP TABLE IF EXISTS quiz_questions;
+DROP TABLE IF EXISTS quizzes;
+DROP TABLE IF EXISTS tutorials;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS users;
 
 -- =============================================================
 --  TABLE: USERS
@@ -38,6 +41,7 @@ create table tutorials (
 	id int primary key auto_increment,
     title varchar(255) not null,
     description text,
+    video_provider enum('synthesia', 'youtube') default 'synthesia',
     video_url varchar(255),
     category varchar(100) not null,
     created_at datetime default current_timestamp
