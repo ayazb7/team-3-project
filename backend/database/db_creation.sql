@@ -29,7 +29,7 @@ create table users (
     username varchar(100) not null,
     email varchar(100) unique not null,
     password_hash varchar(255) not null,
-    language_preference varchar(50),
+    language_preference varchar(50) default 'English',
     created_at datetime default current_timestamp
 );
 

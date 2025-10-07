@@ -6,14 +6,6 @@
 USE skywise_db;
 
 -- =============================================================
---  USERS
--- =============================================================
-INSERT INTO users (username, email, password_hash, language_preference)
-VALUES
-('John Doe', 'john@email.com', 'hashed_pw_123', 'English'),
-('Jane Smith', 'jane@email.co.uk', 'hashed_pw_456', 'English');
-
--- =============================================================
 --  COURSES
 -- =============================================================
 INSERT INTO courses (name, description, course_type)

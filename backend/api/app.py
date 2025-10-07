@@ -21,6 +21,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
 )
+import random
 
 load_dotenv()
 
@@ -174,6 +175,188 @@ def user_details():
         return jsonify({'error': 'User not found'}), 404
 
     return jsonify(user), 200
+
+
+@app.route('/courses', methods=['GET'])
+@jwt_required()
+def get_courses():
+    """
+    Return all courses.
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT id, name, description, course_type FROM courses")
+    courses = cursor.fetchall()
+    cursor.close()
+
+    return jsonify(courses), 200
+
+
+@app.route('/courses/<int:course_id>', methods=['GET'])
+@jwt_required()
+def get_course(course_id):
+    """
+    Return a single course by ID.
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT id, name, description, course_type FROM courses WHERE id = %s", (course_id,))
+    course = cursor.fetchone()
+    cursor.close()
+
+    if not course:
+        return jsonify({'error': 'Course not found'}), 404
+
+    return jsonify(course), 200
+
+
+@app.route('/courses/<int:course_id>/tutorials', methods=['GET'])
+@jwt_required()
+def get_course_tutorials(course_id):
+    """
+    Return all tutorials for a course (uses indexed join).
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT 
+            t.id, 
+            t.title, 
+            t.description, 
+            t.video_provider, 
+            t.video_url, 
+            t.category
+        FROM course_tutorials AS ct
+        INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
+        WHERE ct.course_id = %s
+    """, (course_id,))
+    tutorials = cursor.fetchall()
+    cursor.close()
+    return jsonify(tutorials), 200
+
+
+@app.route('/tutorials/<int:tutorial_id>/quizzes', methods=['GET'])
+@jwt_required()
+def get_tutorial_quizzes(tutorial_id):
+    """
+    Return all quizzes for a tutorial.
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT id, title 
+        FROM quizzes 
+        WHERE tutorial_id = %s
+    """, (tutorial_id,))
+    quizzes = cursor.fetchall()
+    cursor.close()
+    return jsonify(quizzes), 200
+
+
+@app.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
+@jwt_required()
+def get_quiz_questions(quiz_id):
+    """
+    Return all questions for a quiz.
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT id, question_text, question_order
+        FROM quiz_questions
+        WHERE quiz_id = %s
+        ORDER BY question_order ASC
+    """, (quiz_id,))
+    questions = cursor.fetchall()
+    cursor.close()
+    return jsonify(questions), 200
+
+
+@app.route('/quizzes/<int:quiz_id>/questions/<int:question_id>/options', methods=['GET'])
+@jwt_required()
+def get_question_options(quiz_id, question_id):
+    """
+    Return all options for a specific question belonging to a specific quiz.
+    """
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT o.id, o.option_text
+        FROM quiz_options AS o
+        INNER JOIN quiz_questions AS q ON o.question_id = q.id
+        WHERE q.quiz_id = %s AND q.id = %s
+    """, (quiz_id, question_id))
+    options = cursor.fetchall()
+    cursor.close()
+
+    if not options:
+        return jsonify({'error': 'No options found for this question in this quiz'}), 404
+
+    # Random shuffle the answer options
+    random.shuffle(options)
+    
+    return jsonify(options), 200
+
+
+@app.route('/quizzes/<int:quiz_id>/full', methods=['GET'])
+@jwt_required()
+def get_full_quiz(quiz_id):
+    """
+    Return a quiz with all its questions and options in a nested structure.
+    """
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        SELECT 
+            qz.id AS quiz_id,
+            qz.title AS quiz_title,
+            qq.id AS question_id,
+            qq.question_text,
+            qq.question_order,
+            qo.id AS option_id,
+            qo.option_text,
+            qo.is_correct
+        FROM quizzes AS qz
+        LEFT JOIN quiz_questions AS qq ON qq.quiz_id = qz.id
+        LEFT JOIN quiz_options AS qo ON qo.question_id = qq.id
+        WHERE qz.id = %s
+        ORDER BY qq.question_order ASC, qo.id ASC
+    """, (quiz_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+
+    if not rows:
+        return jsonify({'error': 'Quiz not found'}), 404
+
+    quiz_data = {
+        'id': rows[0]['quiz_id'],
+        'title': rows[0]['quiz_title'],
+        'questions': []
+    }
+
+    question_map = {}
+    for row in rows:
+        if not row['question_id']:
+            continue
+
+        qid = row['question_id']
+        if qid not in question_map:
+            question_map[qid] = {
+                'id': qid,
+                'question_text': row['question_text'],
+                'order': row['question_order'],
+                'options': []
+            }
+            quiz_data['questions'].append(question_map[qid])
+
+        if row['option_id']:
+            question_map[qid]['options'].append({
+                'id': row['option_id'],
+                'text': row['option_text'],
+                'is_correct': bool(row['is_correct'])
+            })
+    
+    # Random shuffle the answer options for each question
+    for question in quiz_data['questions']:
+        random.shuffle(question['options'])
+
+    return jsonify(quiz_data), 200
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
