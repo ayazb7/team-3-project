@@ -26,7 +26,7 @@ const Navbar = ({ children }) => {
   };
   return (
     <>
-      <div className="fixed flex flex-col w-full h-auto overflow-hidden">
+      <div className="fixed flex flex-col w-full h-auto overflow-hidden shadow-lg">
         <div className="w-full bg-white h-20 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-3 gap-4 border z-99 p-3">
           <div className="flex justify-content items-center px-5 md:hidden">
             <MenuIcon
