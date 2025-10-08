@@ -1,13 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700&display=swap");
 
 body {
-<<<<<<< HEAD
   background: white;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .login-container {
-  background: #dceeff;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(33, 150, 243, 0.12);
   border: 5px solid rgba(0, 0, 0, 0.15);
@@ -22,26 +20,24 @@ body {
   font-size: 2rem;
   font-weight: 700;
   /* margin-bottom: 24px; */
-=======
-    background: white;
-    font-family: 'Urbanist', sans-serif;
+  background: white;
+  font-family: "Urbanist", sans-serif;
 }
 
 .login-container {
-    background: #dceeff;
-    border-radius: 12px;
-    border: 2px solid rgb(119, 170, 210);
-    width: 600px;
-    margin: 40px auto;
-    padding: 96px 80px;
+  background: #dceeff;
+  border-radius: 12px;
+  border: 2px solid rgb(119, 170, 210);
+  width: 600px;
+  margin: 40px auto;
+  padding: 96px 80px;
 }
 
 .login-container h2 {
-    color: #111;
-    text-align: center;
-    font-size: 2rem;
-    font-weight: bold;
->>>>>>> main
+  color: #111;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .login-container label {
@@ -54,7 +50,6 @@ body {
 }
 
 .login-container input {
-<<<<<<< HEAD
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
@@ -64,17 +59,15 @@ body {
   font-size: 16px;
   transition: border-color 0.2s;
   color: #111; /* darker typed text */
-=======
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #90caf9;
-    border-radius: 10px;
-    background: #b2d6f9;
-    font-size: 16px;
-    transition: border-color 0.2s;
-    color: #111;
->>>>>>> main
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #90caf9;
+  border-radius: 10px;
+  background: #b2d6f9;
+  font-size: 16px;
+  transition: border-color 0.2s;
+  color: #111;
 }
 
 .login-container input::-webkit-input-placeholder {
@@ -101,7 +94,6 @@ body {
 }
 
 .login-container button[type="submit"] {
-<<<<<<< HEAD
   width: 100%;
   padding: 10px;
   background: #1976d2;
@@ -112,19 +104,17 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-=======
-    width: 100%;
-    padding: 10px;
-    background: #1976d2;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-bottom: 10px;
->>>>>>> main
+  width: 100%;
+  padding: 10px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 10px;
 }
 
 .login-container button[type="submit"]:disabled {
@@ -133,7 +123,6 @@ body {
 }
 
 .login-container .signup-btn {
-<<<<<<< HEAD
   width: 100%;
   padding: 10px;
   margin-top: 10px;
@@ -145,19 +134,17 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
-=======
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    background: transparent;
-    color: #1976d2;
-    border: 3px solid #1976d2;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
->>>>>>> main
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: transparent;
+  color: #1976d2;
+  border: 3px solid #1976d2;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
 .login-container .signup-btn:hover {
@@ -173,15 +160,12 @@ body {
 }
 
 .login-container p {
-<<<<<<< HEAD
   color: #555;
   text-align: center;
   margin-bottom: 28px;
-}
-=======
-    color: #555;
-    text-align: center;
-    margin-bottom: 28px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 28px;
 }
 
 .input-group {
@@ -189,7 +173,7 @@ body {
 }
 
 .input-group input {
-  padding-left: 44px;   
+  padding-left: 44px;
   box-sizing: border-box;
 }
 
@@ -211,8 +195,8 @@ body {
 }
 .lock-icon {
   color: #444;
-  top: 42%;                
-  transform: translateY(-90%); 
+  top: 42%;
+  transform: translateY(-90%);
   width: 18px;
   height: 18px;
   display: flex;
@@ -221,6 +205,5 @@ body {
 }
 
 .login-container input[type="password"] {
-    margin-bottom: 32px;
+  margin-bottom: 32px;
 }
->>>>>>> main
