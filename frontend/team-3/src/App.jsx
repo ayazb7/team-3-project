@@ -7,7 +7,6 @@ import LandingPage from "./pages/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   return (
-<<<<<<< HEAD
     <>
       <BrowserRouter>
         <Routes>
@@ -16,11 +15,6 @@ function App() {
         </Routes>
       </BrowserRouter>
     </>
-=======
-    <div className="App">
-      <Dashboard />
-    </div>
->>>>>>> main
   );
 }
 
