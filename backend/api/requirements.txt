@@ -1,0 +1,9 @@
+python-dotenv
+flask
+Flask-CORS
+flask-mysqldb
+pytest
+pytest-mock
+flask-jwt-extended
+bcrypt
+PyJWT

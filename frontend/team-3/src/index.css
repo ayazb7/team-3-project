@@ -1,5 +1,11 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-urbanist: 'Urbanist', sans-serif;
+  --font-comfortaa: 'Comfortaa', cursive;
+  --font-oswald: 'Oswald', sans-serif;
+  --font-pixelify: 'Pixelify Sans', cursive;
+  --font-jersey: 'Jersey 10', sans-serif;
+
+  font-family: var(--font-urbanist);
   line-height: 1.5;
   font-weight: 400;
 

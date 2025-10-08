@@ -1,15 +1,13 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard";
 import ModelViewer from "./components/ModelViewer";
 import LandingPage from "./pages/LandingPage";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
+<<<<<<< HEAD
     <>
       <BrowserRouter>
         <Routes>
@@ -18,6 +16,11 @@ function App() {
         </Routes>
       </BrowserRouter>
     </>
+=======
+    <div className="App">
+      <Dashboard />
+    </div>
+>>>>>>> main
   );
 }
 
