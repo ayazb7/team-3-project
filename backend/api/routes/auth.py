@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 
-from extensions import mysql
+import app
 
 bp = Blueprint('auth', __name__, url_prefix='')
 
@@ -22,14 +22,14 @@ def register():
     email = data['email']
     password = bcrypt.hashpw(data['password'].encode(), bcrypt.gensalt()).decode()
 
-    cursor = mysql.connection.cursor()
+    cursor = app.mysql.connection.cursor()
     cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
     if cursor.fetchone():
         cursor.close()
         return jsonify({'error': 'User with this email already exists'}), 409
 
     cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)", (username, email, password))
-    mysql.connection.commit()
+    app.mysql.connection.commit()
     user_id = cursor.lastrowid
     cursor.close()
 
@@ -47,7 +47,7 @@ def login():
     email = data['email']
     password = data['password']
 
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
     cursor.close()

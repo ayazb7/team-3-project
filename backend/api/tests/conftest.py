@@ -1,10 +1,10 @@
 import pytest
-from app import app as flask_app
+from app import create_app
 
 
 @pytest.fixture()
-def client():
-    flask_app.config['TESTING'] = True
+def client(mock_mysql):
+    flask_app = create_app(testing=True)
     with flask_app.test_client() as test_client:
         yield test_client
 

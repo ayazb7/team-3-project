@@ -3,14 +3,14 @@ import MySQLdb.cursors
 from flask_jwt_extended import jwt_required
 import random
 
-from extensions import mysql
+import app
 
 bp = Blueprint('quizzes', __name__, url_prefix='')
 
 @bp.route('/tutorials/<int:tutorial_id>/quizzes', methods=['GET'])
 @jwt_required()
 def get_tutorial_quizzes(tutorial_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
         SELECT id, title 
@@ -27,7 +27,7 @@ def get_tutorial_quizzes(tutorial_id):
 @bp.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
 @jwt_required()
 def get_quiz_questions(quiz_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
         SELECT id, question_text, question_order
@@ -45,7 +45,7 @@ def get_quiz_questions(quiz_id):
 @bp.route('/quizzes/<int:quiz_id>/questions/<int:question_id>/options', methods=['GET'])
 @jwt_required()
 def get_question_options(quiz_id, question_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
         SELECT o.id, o.option_text
@@ -66,7 +66,7 @@ def get_question_options(quiz_id, question_id):
 @bp.route('/quizzes/<int:quiz_id>/full', methods=['GET'])
 @jwt_required()
 def get_full_quiz(quiz_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
         SELECT 
@@ -87,6 +87,7 @@ def get_full_quiz(quiz_id):
         (quiz_id,),
     )
     rows = cursor.fetchall()
+    # print(rows)
     cursor.close()
     if not rows:
         return jsonify({'error': 'Quiz not found'}), 404

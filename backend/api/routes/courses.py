@@ -2,24 +2,24 @@ from flask import Blueprint, jsonify
 import MySQLdb.cursors
 from flask_jwt_extended import jwt_required
 
-from extensions import mysql
+import app
 
-bp = Blueprint('courses', __name__, url_prefix='')
+bp = Blueprint('courses', __name__, url_prefix='/courses')
 
-@bp.route('/courses', methods=['GET'])
+@bp.route('', methods=['GET'])
 @jwt_required()
 def get_courses():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, name, description, course_type FROM courses")
     courses = cursor.fetchall()
     cursor.close()
     return jsonify(courses), 200
 
 
-@bp.route('/courses/<int:course_id>', methods=['GET'])
+@bp.route('/<int:course_id>', methods=['GET'])
 @jwt_required()
 def get_course(course_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, name, description, course_type FROM courses WHERE id = %s", (course_id,))
     course = cursor.fetchone()
     cursor.close()
@@ -28,10 +28,10 @@ def get_course(course_id):
     return jsonify(course), 200
 
 
-@bp.route('/courses/<int:course_id>/tutorials', methods=['GET'])
+@bp.route('/<int:course_id>/tutorials', methods=['GET'])
 @jwt_required()
 def get_course_tutorials(course_id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
         SELECT 

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from extensions import mysql
+from app import mysql
 
 bp = Blueprint('users', __name__, url_prefix='')
 
@@ -10,7 +10,7 @@ bp = Blueprint('users', __name__, url_prefix='')
 @jwt_required()
 def user_details():
     user_id = int(get_jwt_identity())
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, username, email FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
