@@ -18,6 +18,10 @@ const LandingPage = () => {
                 <p className="px-5 text-center md:text-left md:p-0 md:w-3/4">
                   Explore our diverse range of courses and expand your knowledge
                 </p>
+
+                <button className="w-40 text-white !bg-blue-500 md:w-50 lg:w-70 xl:w-80 xl:text-xl">
+                  Browse Courses
+                </button>
               </div>
               <img
                 src={catImg}
@@ -26,9 +30,6 @@ const LandingPage = () => {
               />
             </div>
           </div>
-          <button className="w-40 text-white !bg-blue-500 md:w-50 lg:w-70 xl:w-90">
-            Browse Courses
-          </button>
           <div>
             <p className="font-bold text-xl md:text-3xl xl:text-4xl">
               Featured Courses

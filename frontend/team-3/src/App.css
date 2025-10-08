@@ -5,6 +5,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.sky-gradient {
+  background-image: linear-gradient(
+    to right,
+    #ff8a01 0%,
+    #ea0c3c 25%,
+    #ac1ec4 68%,
+    #1c50fe 100%
+  ) !important;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 #root {
   width: 100vw;
   height: 100vh;

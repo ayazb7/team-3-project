@@ -18,7 +18,7 @@ const Navbar = ({ children }) => {
         onClick={() => {
           navigate("/login");
         }}
-        className="!bg-blue-500 text-center !text-white mt-auto"
+        className="!bg-blue-500 text-center !text-white"
       >
         Sign In
       </button>
@@ -36,7 +36,7 @@ const Navbar = ({ children }) => {
             />
           </div>
           <div className="flex w-full justify-center md:justify-start md:ml-10 items-center">
-            <p className="font-bold">Sky Wise</p>
+            <p className="font-bold sky-gradient">Sky Wise</p>
           </div>
 
           <div className="hidden md:flex flex-row w-full col-start-3">
