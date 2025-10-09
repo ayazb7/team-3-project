@@ -6,6 +6,7 @@ import ModelViewer from "./components/ModelViewer";
 import LandingPage from "./pages/LandingPage";
 function App() {
   return (
+    
     <div className="App">
       <Dashboard />
     </div>
