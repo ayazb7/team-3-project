@@ -32,14 +32,13 @@ function Login() {
             console.log(data);
 
             if (!response.ok) {
-                setMessage(data.error || "Login failed. Please try again.");
-            }
-
-            login(data);
-        } catch (error) {
-            setMessage("Network error. Please try again later.");
-        }
-        setLoading(false);
+                setMessage(data.message || data.error || "Login failed. Please try again.");
+            } else  {
+                login(data); }
+             } catch (error) {
+                setMessage("Network error. Please try again later.");
+             }
+            setLoading(false);
     };
 
     return (

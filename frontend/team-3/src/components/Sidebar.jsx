@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChartLine, MapPinned, History, MessageCircleQuestionMark, PanelLeft, X, LogOut, Settings, Menu } from 'lucide-react';
+import { ChartLine, MapPinned, History, MessageCircleQuestionMark, PanelLeft, X, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import FlowStateLogo from "../assets/flowstate_logo.png";
 
@@ -90,9 +90,9 @@ export default function Sidebar() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors">
+                    {/* <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors">
                         Settings
-                    </button>
+                    </button> */}
                      <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors" onClick={handleLogout}>
                         Logout
                     </button>
