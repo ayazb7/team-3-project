@@ -14,7 +14,7 @@ const RecommendedCard = ({ title, rating }) => (
 
       {/* Card Content */}
       <div className="p-4 bg-white">
-        <h3 className="font-medium text-gray-900 text-lg mb-1">{title}</h3>
+        <h3 className="font-medium text-gray-900 text-lg mb-1 truncate">{title}</h3>
         <p className="text-sm text-gray-500">{rating}</p>
       </div>
     </a>
