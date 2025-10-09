@@ -133,7 +133,7 @@ export default function Dashboard() {
   }, [scrolling]);
 
   return (
-    <div className="min-h-screen bg-gray-200 p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
