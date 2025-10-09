@@ -150,7 +150,7 @@ curl -X POST http://localhost:5000/login \
   }'
 ```
 
-### POST /refresh
+### GET /refresh
 Get a new access token using a valid refresh token.
 
 **Headers:**
@@ -162,7 +162,7 @@ Get a new access token using a valid refresh token.
 
 **Example:**
 ```bash
-curl -X POST http://localhost:5000/refresh \
+curl -X GET http://localhost:5000/refresh \
   -H "Authorization: Bearer <REFRESH_TOKEN>"
 ```
 

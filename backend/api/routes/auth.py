@@ -95,16 +95,11 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401
 
 
-@bp.route('/refresh', methods=['POST'])
+@bp.route('/refresh', methods=['GET'])
 @jwt_required(refresh=True)
 def refresh_access_token():
     """
     Exchange a valid refresh token for a new access token.
-
-    Expected JSON payload:
-        {
-            "refresh_token": "string"
-        }
 
     Returns:
         { "access_token": string }
