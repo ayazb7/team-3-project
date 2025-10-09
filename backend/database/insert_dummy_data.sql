@@ -56,14 +56,14 @@ VALUES
 
 -- Question 2
 INSERT INTO quiz_questions (quiz_id, question_text, question_order)
-VALUES (1, 'What’s the best way to check if a website is safe before logging in?', 2);
+VALUES (1, 'What personal information should you avoid using in your password?', 2);
 
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
-(2, 'Make sure it starts with https:// and shows a padlock icon 🔒', TRUE),
-(2, 'See if the colors look professional', FALSE),
-(2, 'Ask a friend if they’ve used it', FALSE),
-(2, 'Click the link to test it', FALSE);
+(2, 'Your pet’s name or birthday', TRUE),
+(2, 'A mix of random letters and numbers', FALSE),
+(2, 'Unrelated words and symbols', FALSE),
+(2, 'None of the above', FALSE);
 
 -- Question 3
 INSERT INTO quiz_questions (quiz_id, question_text, question_order)
