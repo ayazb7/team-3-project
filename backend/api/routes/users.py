@@ -9,6 +9,12 @@ bp = Blueprint('users', __name__, url_prefix='')
 @bp.route('/user_details', methods=['GET'])
 @jwt_required()
 def user_details():
+    """
+    Return details for the current authenticated user using JWT identity.
+
+    Response:
+        { "id": number, "username": string, "email": string }
+    """
     user_id = int(get_jwt_identity())
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, username, email FROM users WHERE id = %s", (user_id,))

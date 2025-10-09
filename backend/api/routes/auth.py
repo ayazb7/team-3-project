@@ -14,6 +14,24 @@ bp = Blueprint('auth', __name__, url_prefix='')
 
 @bp.route('/register', methods=['POST'])
 def register():
+    """
+    Register a new user account.
+    
+    Expected JSON payload:
+        {
+            "username": "string",
+            "email": "string", 
+            "password": "string"
+        }
+    
+    Returns:
+        JSON response with success message and access/refresh tokens or error message
+        
+    Status codes:
+        201 - User registered successfully
+        400 - Missing required fields
+        409 - User with email already exists
+    """
     data = request.get_json()
     if not data or not all(k in data for k in ("username", "email", "password")):
         return jsonify({'error': 'Missing required fields'}), 400
@@ -40,6 +58,23 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 def login():
+    """
+    Authenticate user login.
+    
+    Expected JSON payload:
+        {
+            "email": "string",
+            "password": "string"
+        }
+    
+    Returns:
+        JSON response with user access and refresh tokens or error message
+        
+    Status codes:
+        200 - Login successful, returns user data
+        400 - Missing required fields
+        401 - Invalid credentials
+    """
     data = request.get_json()
     if not data or not all(k in data for k in ("email", "password")):
         return jsonify({'error': 'Missing required fields'}), 400
@@ -63,6 +98,17 @@ def login():
 @bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh_access_token():
+    """
+    Exchange a valid refresh token for a new access token.
+
+    Expected JSON payload:
+        {
+            "refresh_token": "string"
+        }
+
+    Returns:
+        { "access_token": string }
+    """
     user_id = get_jwt_identity()
     new_access_token = create_access_token(identity=str(user_id))
     return jsonify({'access_token': new_access_token}), 200

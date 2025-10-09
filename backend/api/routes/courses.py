@@ -9,6 +9,15 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 @bp.route('', methods=['GET'])
 @jwt_required()
 def get_courses():
+    """
+    Returns all courses stored on the DB
+
+    Response:
+        [
+            { "id": number, "description": string, "course_type": string },
+            { "id": number, "description": string, "course_type": string }
+        ]
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, name, description, course_type FROM courses")
     courses = cursor.fetchall()
@@ -19,6 +28,12 @@ def get_courses():
 @bp.route('/<int:course_id>', methods=['GET'])
 @jwt_required()
 def get_course(course_id):
+    """
+    Returns a specific course based on course ID parameter
+
+    Response:
+        { "id": number, "description": string, "course_type": string }
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT id, name, description, course_type FROM courses WHERE id = %s", (course_id,))
     course = cursor.fetchone()
@@ -31,6 +46,21 @@ def get_course(course_id):
 @bp.route('/<int:course_id>/tutorials', methods=['GET'])
 @jwt_required()
 def get_course_tutorials(course_id):
+    """
+    Returns all tutorials for a specific course
+
+    Response:
+        [
+            {
+                "category": string,
+                "description": string,
+                "id": number,
+                "title": string,
+                "video_provider": enum string (synthesia or youtube),
+                "video_url": url string
+            }
+        ]
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """

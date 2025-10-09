@@ -10,6 +10,14 @@ bp = Blueprint('quizzes', __name__, url_prefix='')
 @bp.route('/tutorials/<int:tutorial_id>/quizzes', methods=['GET'])
 @jwt_required()
 def get_tutorial_quizzes(tutorial_id):
+    """
+    Returns all quizzes for a specific tutorial based on tutorial ID parameter
+
+    Response:
+        [
+            { "id": number, "title": string }
+        ]
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
@@ -27,6 +35,15 @@ def get_tutorial_quizzes(tutorial_id):
 @bp.route('/quizzes/<int:quiz_id>/questions', methods=['GET'])
 @jwt_required()
 def get_quiz_questions(quiz_id):
+    """
+    Returns all questions for a specific quiz
+
+    Response:
+        [
+            { "id": number, "question_order": number, "question_text": string },
+            { "id": number, "question_order": number, "question_text": string },
+        ]
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
@@ -45,6 +62,17 @@ def get_quiz_questions(quiz_id):
 @bp.route('/quizzes/<int:quiz_id>/questions/<int:question_id>/options', methods=['GET'])
 @jwt_required()
 def get_question_options(quiz_id, question_id):
+    """
+    Returns all answer options for a specific question for a specific quiz
+
+    Response:
+        [
+            { "id": number, "option_text": string },
+            { "id": number, "option_text": string },
+            { "id": number, "option_text": string },
+            { "id": number, "option_text": string },
+        ]
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
@@ -66,6 +94,30 @@ def get_question_options(quiz_id, question_id):
 @bp.route('/quizzes/<int:quiz_id>/full', methods=['GET'])
 @jwt_required()
 def get_full_quiz(quiz_id):
+    """
+    Returns full quiz details for a specific quiz, including all questions and all answer options for each question
+
+    Response:
+        {
+            "id": number,
+            "questions": [
+                {
+                    "id": number,
+                    "options": [
+                        {
+                            "id": number,
+                            "is_correct": boolean,
+                            "text": string
+                        },
+                        ...
+                    ],
+                    "order": number,
+                    "question_text": title
+                },
+                ...
+            ]
+        }
+    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
