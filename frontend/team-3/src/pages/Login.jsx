@@ -81,7 +81,7 @@ function Login() {
         <button
           type="button"
           className="signup-btn"
-          onClick={() => alert("Sign Up functionality coming soon!")}
+          onClick={() => navigate("/register")}
         >
           Sign Up
         </button>

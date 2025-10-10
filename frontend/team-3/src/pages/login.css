@@ -2,25 +2,6 @@
 
 body {
   background: white;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
-.login-container {
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(33, 150, 243, 0.12);
-  border: 5px solid rgba(0, 0, 0, 0.15);
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 96px 80px;
-}
-
-.login-container h2 {
-  color: #111;
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 700;
-  /* margin-bottom: 24px; */
-  background: white;
   font-family: "Urbanist", sans-serif;
 }
 
@@ -50,15 +31,6 @@ body {
 }
 
 .login-container input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #90caf9;
-  border-radius: 6px;
-  background: #b2d6f9;
-  font-size: 16px;
-  transition: border-color 0.2s;
-  color: #111; /* darker typed text */
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
@@ -99,16 +71,6 @@ body {
   background: #1976d2;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  width: 100%;
-  padding: 10px;
-  background: #1976d2;
-  color: #fff;
-  border: none;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
@@ -123,17 +85,6 @@ body {
 }
 
 .login-container .signup-btn {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background: transparent;
-  color: #1976d2;
-  border: 2px solid #1976d2;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
   width: 100%;
   padding: 10px;
   margin-top: 10px;
@@ -160,9 +111,6 @@ body {
 }
 
 .login-container p {
-  color: #555;
-  text-align: center;
-  margin-bottom: 28px;
   color: #555;
   text-align: center;
   margin-bottom: 28px;

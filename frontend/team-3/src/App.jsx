@@ -6,13 +6,14 @@ import MainLayout from "./pages/MainLayout";
 import ModelViewer from "./components/ModelViewer";
 import LandingPage from "./pages/LandingPage";
 import Layout from "./components/Layout.jsx";
-
+import Register from "./pages/Register.jsx";
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Route>
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
