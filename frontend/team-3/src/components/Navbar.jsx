@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MenuIcon, HomeIcon } from "../assets";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-const Navbar = ({ children }) => {
+const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -53,7 +53,6 @@ const Navbar = ({ children }) => {
                 );
               })}
             </nav>
-            <Outlet />
           </div>
           <div className="hidden md:flex items-center justify-center col-start-5">
             <Button />
@@ -83,7 +82,6 @@ const Navbar = ({ children }) => {
           <Button />
         </div>
       </div>
-      <div className="pt-20 overflow-scroll h-full w-full">{children}</div>
     </>
   );
 };
