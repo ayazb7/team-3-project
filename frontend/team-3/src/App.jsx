@@ -7,6 +7,7 @@ import ModelViewer from "./components/ModelViewer";
 import LandingPage from "./pages/LandingPage";
 import Register from "./pages/Register.jsx";
 import Layout from "./components/Layout.jsx";
+import Learning from "./pages/Learning.jsx";
 function App() {
   return (
     <Routes>
@@ -20,6 +21,7 @@ function App() {
         <Route path="find-local-events" element={<div />} />
         <Route path="activity" element={<div />} />
         <Route path="support" element={<div />} />
+        <Route path="learning/:id" element={<Learning />} />
       </Route>
     </Routes>
   );

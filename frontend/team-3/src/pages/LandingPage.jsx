@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import ModelViewer from "../components/ModelViewer";
 import VideoBlock from "../components/VideoBlock";
 import catImg from "../../public/landing_placeholder.png";
+import Button from "../components/Button";
+
 const LandingPage = () => {
   return (
     <div className="h-full w-full pt-20 md:text-lg lg:text-xl xl:text-3xl">
@@ -18,9 +20,10 @@ const LandingPage = () => {
                 Explore our diverse range of courses and expand your knowledge
               </p>
 
-              <button className="w-40 text-white !bg-blue-500 md:w-50 lg:w-70 xl:w-80 xl:text-xl">
-                Browse Courses
-              </button>
+              <Button
+                className="w-40 h-10 lg:h-15 text-white !bg-blue-500 md:w-50 lg:w-70 xl:w-80 xl:text-xl rounded-lg"
+                label="Browse Courses"
+              />
             </div>
             <img
               src={catImg}

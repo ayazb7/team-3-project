@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MenuIcon, HomeIcon } from "../assets";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import Button from "./Button";
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const location = useLocation();
@@ -12,16 +13,15 @@ const Navbar = () => {
     { Label: "Support", Render: <HomeIcon />, Link: "/support" },
   ];
   // temporary button until we make one :)
-  const Button = () => {
+  const NavButton = () => {
     return (
-      <button
+      <Button
         onClick={() => {
           navigate("/login");
         }}
-        className="!bg-blue-500 text-center !text-white"
-      >
-        Sign In
-      </button>
+        className="!bg-blue-500 text-center !text-white w-full"
+        label="Sign in"
+      />
     );
   };
   return (
@@ -54,8 +54,8 @@ const Navbar = () => {
               })}
             </nav>
           </div>
-          <div className="hidden md:flex items-center justify-center col-start-5">
-            <Button />
+          <div className="hidden md:flex items-center justify-center col-start-4">
+            <NavButton />
           </div>
         </div>
 
@@ -79,7 +79,7 @@ const Navbar = () => {
               </div>
             );
           })}
-          <Button />
+          <NavButton />
         </div>
       </div>
     </>

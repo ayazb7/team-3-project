@@ -47,8 +47,6 @@ const Register = () => {
     }));
   };
 
-  useEffect(() => {}, [formData]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
