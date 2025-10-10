@@ -5,6 +5,7 @@ import CourseCard from '../components/CourseCard';
 import RecommendedCard from '../components/RecommendedCard.jsx';
 import EventCard from '../components/EventCard';
 import WeekProgress from '../components/WeekProgress.jsx';
+import image from '/public/images/qa-logo.png';
 
 const Carousel = ({ items, renderItem, className }) => {
   const containerRef = useRef(null);
@@ -99,9 +100,9 @@ export default function Dashboard() {
   ];
 
   const continueCourses = [
-    { title: 'Borderlands 4 Walkthrough', progress: 15 },
-    { title: 'Fundamentals of AWS', progress: 65 },
-    { title: 'How to open an Email', progress: 35 }
+    { title: 'Borderlands 4 Walkthrough', progress: 15, image: image},
+    { title: 'Fundamentals of AWS', progress: 65, image: image},
+    { title: 'How to open an Email', progress: 35, image: image}
   ];
 
   const recommended = [
