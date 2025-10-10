@@ -18,7 +18,9 @@ export const AuthProvider = ({ children }) => {
     const token = Cookies.get("accessToken");
     if (token) {
       config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
+      if (!config.headers.Authorization) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   });
@@ -70,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, { email, password });
+      const response = await api.post('/login', { email, password });
       const data = response.data;
       setTokens(data.access_token, data.refresh_token);
       await fetchUserDetails().catch(() => {});
@@ -87,11 +89,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async ({ username, email, password }) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, {
-        username,
-        email,
-        password,
-      });
+      const response = await api.post('/register', { username, email, password });
       const data = response.data;
       setTokens(data.access_token, data.refresh_token);
       await fetchUserDetails().catch(() => {});
@@ -117,7 +115,7 @@ export const AuthProvider = ({ children }) => {
     const refreshToken = Cookies.get("refreshToken");
     if (!refreshToken) return false;
     try {
-      const response = await axios.get(`${API_URL}/refresh`, {
+      const response = await api.get(`/refresh`, {
         headers: { Authorization: `Bearer ${refreshToken}` },
       });
       const newAccess = response.data?.access_token;

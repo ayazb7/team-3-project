@@ -81,3 +81,41 @@ def get_course_tutorials(course_id):
     cursor.close()
     return jsonify(tutorials), 200
 
+
+@bp.route('/<int:course_id>/tutorials/<int:tutorial_id>', methods=['GET'])
+@jwt_required()
+def get_tutorial(course_id, tutorial_id):
+    """
+    Returns a specific tutorial for a specific course
+
+    Response:
+        {
+            "category": string,
+            "description": string,
+            "id": number,
+            "title": string,
+            "video_provider": enum string (synthesia or youtube),
+            "video_url": url string
+        }
+    """
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute(
+        """
+        SELECT 
+            t.id, 
+            t.title, 
+            t.description, 
+            t.video_provider, 
+            t.video_url, 
+            t.category
+        FROM course_tutorials AS ct
+        INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
+        WHERE ct.course_id = %s AND t.id = %s
+        """,
+        (course_id, tutorial_id,),
+    )
+    tutorial = cursor.fetchone()
+    cursor.close()
+    if not tutorial:
+        return jsonify({'error': 'Tutorial not found'}), 404
+    return jsonify(tutorial), 200
