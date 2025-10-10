@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { FiLock, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
