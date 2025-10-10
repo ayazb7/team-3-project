@@ -12,32 +12,13 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
-  const API_URL = import.meta.env.API_URL || "http://localhost:5000";
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-    try {
-      const response = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      console.log(data);
-
-      if (!response.ok) {
-        setMessage(
-          data.message || data.error || "Login failed. Please try again."
-        );
-      } else {
-        login(data);
-      }
-    } catch (error) {
-      setMessage("Network error. Please try again later.");
+    const result = await login(email, password);
+    if (!result.success) {
+      setMessage(result.message);
     }
     setLoading(false);
   };

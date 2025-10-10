@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CiLock, CiUser } from "react-icons/ci";
 import { MdAlternateEmail } from "react-icons/md";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { useAuth } from "../context/AuthContext";
 
 const RenderForms = ({
@@ -31,8 +29,9 @@ const RenderForms = ({
     </>
   );
 };
+
 const Register = () => {
-  const { login } = useAuth();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -49,12 +48,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:5000/register", formData);
-      console.log("success: ", res.data.access_token);
-      login(res.data);
-    } catch (error) {
-      console.error("Error: ", error);
+    const result = await register(formData);
+    if (!result.success) {
+      console.error("Registration failed: ", result.message);
     }
   };
 
@@ -88,7 +84,7 @@ const Register = () => {
 
           <RenderForms
             label="Your Password"
-            icon={<CiUser />}
+            icon={<CiLock />}
             placeholder="e.g. ********"
             name="password"
             type="password"
