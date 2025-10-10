@@ -2,13 +2,18 @@ import { useState } from "react";
 import "./Login.css";
 import Navbar from "../components/Navbar";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { useAuth } from "../context/AuthContext";
 import "./login.css";
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const API_URL = import.meta.env.API_URL || "http://localhost:5000";
 
@@ -35,10 +40,29 @@ function Login() {
       setMessage("Network error. Please try again later.");
     }
     setLoading(false);
+
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json();
+    console.log(data);
+
+    if (!response.ok) {
+      setMessage(
+        data.message || data.error || "Login failed. Please try again."
+      );
+    } else {
+      login(data);
+    }
+    setLoading(false);
   };
 
   return (
-    <>
+    <Navbar>
       <div className="login-container">
         <h2>Welcome Back!</h2>
         <p>Login to access your learning dashboard</p>
@@ -84,7 +108,7 @@ function Login() {
         </form>
         {message && <div style={{ marginTop: 16 }}>{message}</div>}
       </div>
-    </>
+    </Navbar>
   );
 }
 
