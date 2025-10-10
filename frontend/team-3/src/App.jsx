@@ -5,8 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import MainLayout from "./pages/MainLayout";
 import ModelViewer from "./components/ModelViewer";
 import LandingPage from "./pages/LandingPage";
-import Layout from "./components/Layout.jsx";
 import Register from "./pages/Register.jsx";
+import Layout from "./components/Layout.jsx";
 function App() {
   return (
     <Routes>
