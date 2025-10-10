@@ -4,14 +4,19 @@ import "./Login.css";
 import Navbar from "../components/Navbar";
 =======
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { useAuth } from '../context/AuthContext';
 import "./login.css";
 >>>>>>> main
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
 <<<<<<< HEAD
   const handleSubmit = async (e) => {
@@ -94,15 +99,15 @@ function Login() {
             });
             const data = await response.json();
             console.log(data);
-            if (response.ok) {
-                setMessage("Login successful!");
-            } else {
-                setMessage(data.error || "Login failed. Please try again.");
-            }
-        } catch (error) {
-            setMessage("Network error. Please try again later.");
-        }
-        setLoading(false);
+
+            if (!response.ok) {
+                setMessage(data.message || data.error || "Login failed. Please try again.");
+            } else  {
+                login(data); }
+             } catch (error) {
+                setMessage("Network error. Please try again later.");
+             }
+            setLoading(false);
     };
 
     return (
