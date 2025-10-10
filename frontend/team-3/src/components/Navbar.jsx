@@ -82,7 +82,6 @@ const Navbar = () => {
           <Button />
         </div>
       </div>
-      <div className="pt-20 overflow-scroll h-full w-full">{children}</div>
     </>
   );
 };
