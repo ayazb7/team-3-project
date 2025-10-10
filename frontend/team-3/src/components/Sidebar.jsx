@@ -31,14 +31,12 @@ const MenuItem = ({ item, isCollapsed, location, navigate }) => {
 export default function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { logout } = useAuth();
+    const { logout, username, email } = useAuth();
 
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    const displayUsername = "John Doe";
-    const displayEmail = "john@email.com";
-    const initial = "JD";
+    const initial = username?.charAt(0).toUpperCase() ?? "TU";
 
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: ChartLine, to: '/dashboard' },
@@ -56,7 +54,7 @@ export default function Sidebar() {
 
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground">
-            {/* Logo and Brand */}
+            {/* Logo */}
             <div className={`flex items-center h-20 px-4 border-b border-sidebar-border`}>
                 <img src={FlowStateLogo} alt="FlowState" />
             </div>
@@ -85,15 +83,15 @@ export default function Sidebar() {
                         {initial}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate text-sidebar-foreground text-left">{displayUsername}</div>
-                        <div className="text-xs text-muted-foreground truncate text-left">{displayEmail}</div>
+                        <div className="font-semibold truncate text-sidebar-foreground text-left">{username}</div>
+                        <div className="text-xs text-muted-foreground truncate text-left">{email}</div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {/* <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors">
                         Settings
                     </button> */}
-                     <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors" onClick={handleLogout}>
+                     <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors cursor-pointer" onClick={handleLogout}>
                         Logout
                     </button>
                 </div>
@@ -101,7 +99,7 @@ export default function Sidebar() {
 
             {/* Desktop Collapse Toggle */}
             <div className={`hidden md:flex p-3 border-t border-sidebar-border ${isCollapsed ? 'justify-center' : 'justify-end'}`}>
-                 <button onClick={toggleDesktopSidebar} className="p-2 rounded-md hover:bg-sidebar-accent">
+                 <button onClick={toggleDesktopSidebar} className="p-2 rounded-md hover:bg-sidebar-accent cursor-pointer">
                     <PanelLeft className={`transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
                 </button>
             </div>

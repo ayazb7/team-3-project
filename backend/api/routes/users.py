@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from app import mysql
+import app
 
 bp = Blueprint('users', __name__, url_prefix='')
 
