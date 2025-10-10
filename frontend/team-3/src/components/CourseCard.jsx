@@ -1,7 +1,9 @@
 const CourseCard = ({ title, progress }) => (
   <div className="p-2">
     <a
-      href="#"
+      href="https://share.synthesia.io/embeds/videos/9e680982-8abe-4227-a96c-5906d2b71fbb"
+      target="_blank"
+      rel="noopener noreferrer"
       className="block rounded-xl overflow-hidden shadow-md transform transition-transform hover:scale-105"
     >
       {/* Overlay */}
