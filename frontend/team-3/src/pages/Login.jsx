@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { FiLock, FiUser } from "react-icons/fi";
+import { CiLock, CiUser } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "./login.css";
 
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -21,13 +21,10 @@ function Login() {
     try {
       const response = await fetch(`${API_URL}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      console.log(data);
 
       if (!response.ok) {
         setMessage(
@@ -43,50 +40,92 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h2>Welcome Back!</h2>
-      <p>Login to access your learning dashboard</p>
-      <form onSubmit={handleSubmit}>
-        {/* Email field */}
-        <div className="email-group">
-          <label>Your Email:</label>
-          <div className="input-group">
-            <FiUser className="input-icon user-icon" aria-hidden="true" />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="e.g: elon@tesla.com"
-              aria-label="Email"
-            />
+    <div className="w-full min-h-[calc(100vh-64px)] flex justify-center items-start md:items-center py-10">
+      <div className="w-11/12 max-w-2xl bg-[#EBF3FC] border border-blue-200 rounded-xl shadow-sm p-6 sm:p-28">
+        <h2 className="text-center text-3xl font-bold text-slate-900">
+          Welcome Back!
+        </h2>
+        <p className="text-center text-slate-600 mt-2 mb-8">
+          Login to access your learning dashboard
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
+              Your Email:
+            </label>
+            <div className="flex items-center gap-2 bg-[#CAE4FE] h-11 px-3 rounded-md ring-1 ring-blue-200 focus-within:ring-2 focus-within:ring-blue-500">
+              <CiUser className="w-5 h-5 text-slate-600 shrink-0" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="e.g: elon@tesla.com"
+                aria-label="Email"
+                className="w-full bg-transparent outline-none focus:ring-0 placeholder-slate-500"
+              />
+            </div>
           </div>
-        </div>
-        <div className="password-group">
-          <label>Your Password:</label>
-          <div className="input-group">
-            <FiLock className="input-icon lock-icon" aria-hidden="true" />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              aria-label="Password"
-            />
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
+              Your Password:
+            </label>
+            <div className="flex items-center gap-2 bg-[#CAE4FE] h-11 px-3 rounded-md ring-1 ring-blue-200 focus-within:ring-2 focus-within:ring-blue-500">
+              <CiLock className="w-5 h-5 text-slate-600 shrink-0" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="e.g. ********"
+                required
+                aria-label="Password"
+                className="w-full bg-transparent outline-none focus:ring-0 placeholder-slate-500"
+              />
+            </div>
+            <div className="flex items-center justify-start gap-2 mt-2 pt-3">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+                className="w-4 h-4 accent-blue-600 cursor-pointer"
+              />
+              <label
+                htmlFor="showPassword"
+                className="text-sm text-slate-700 cursor-pointer select-none"
+              >
+                Show Password
+              </label>
+            </div>
           </div>
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Sign In"}
-        </button>
-        <button
-          type="button"
-          className="signup-btn"
-          onClick={() => navigate("/register")}
-        >
-          Sign Up
-        </button>
-      </form>
-      {message && <div style={{ marginTop: 16 }}>{message}</div>}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-11 rounded-md font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
+          >
+            {loading ? "Logging in..." : "Sign In"}
+          </button>
+
+          {/* Sign up */}
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            className="w-full h-11 rounded-md font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition-colors"
+          >
+            Sign Up
+          </button>
+        </form>
+
+        {message && (
+          <p className="text-center text-red-600 text-sm mt-4">{message}</p>
+        )}
+      </div>
     </div>
   );
 }
