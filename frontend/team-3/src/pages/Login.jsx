@@ -122,9 +122,39 @@ function Login() {
           </button>
         </form>
 
+        {/* Invalid Credentials Message */}
         {message && (
           <p className="text-center text-red-600 text-sm mt-4">{message}</p>
         )}
+
+        {/* Support & help text */}
+        <div className="mt-6 space-y-2 text-center text-slate-600 text-sm">
+          <p>
+            Forgot your email or password?{" "}
+            <span className="font-medium text-slate-700">
+              Contact our team at{" "}
+              <a
+                href="mailto:jibril.abdi@sky.uk"
+                className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors"
+              >
+                jibril.abdi@sky.uk
+              </a>
+            </span>
+          </p>
+
+          <p>
+            Need to create an email? Click{" "}
+            <a
+              href="https://www.youtube.com/watch?v=5pq4QOmjsW4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors"
+            >
+              here
+            </a>{" "}
+            for instructions.
+          </p>
+        </div>
       </div>
     </div>
   );
