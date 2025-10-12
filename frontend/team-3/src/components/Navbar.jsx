@@ -13,20 +13,14 @@ const Navbar = () => {
     { Label: "Support", Render: <HomeIcon />, Link: "/support" },
   ];
   // temporary button until we make one :)
-  const NavButton = () => {
-    return (
-      <Button
-        onClick={() => {
-          navigate("/login");
-        }}
-        className="!bg-blue-500 text-center !text-white w-full"
-        label="Sign in"
-      />
-    );
-  };
+  const NavButton = () => (
+    <Link to="/login" className="w-full md:w-auto">
+      <Button className="px-4" label="Sign In" />
+    </Link>
+  );
   return (
     <>
-      <div className="fixed flex flex-col w-full h-auto overflow-hidden shadow-lg">
+      <div className="fixed z-50 flex flex-col w-full h-auto overflow-hidden shadow-lg">
         <div className="w-full bg-white h-20 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-3 gap-4 border z-99 p-3">
           <div className="flex justify-content items-center px-5 md:hidden">
             <MenuIcon
