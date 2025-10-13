@@ -12,6 +12,8 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
+  const API_URL = import.meta.env.API_URL || "http://localhost:5000";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
