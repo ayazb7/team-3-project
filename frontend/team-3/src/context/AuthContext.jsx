@@ -6,7 +6,9 @@ import Cookies from "js-cookie";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [accessToken, setAccessToken] = useState(Cookies.get("accessToken") || null);
+  const [accessToken, setAccessToken] = useState(
+    Cookies.get("accessToken") || null
+  );
   const [username, setUsername] = useState(null);
   const [email, setEmail] = useState(null);
   const navigate = useNavigate();
@@ -30,7 +32,10 @@ export const AuthProvider = ({ children }) => {
     async (error) => {
       const originalRequest = error.config;
       const status = error?.response?.status;
-      const isAuthEndpoint = originalRequest?.url?.includes("/login") || originalRequest?.url?.includes("/register") || originalRequest?.url?.includes("/refresh");
+      const isAuthEndpoint =
+        originalRequest?.url?.includes("/login") ||
+        originalRequest?.url?.includes("/register") ||
+        originalRequest?.url?.includes("/refresh");
       if (status === 401 && !originalRequest._retry && !isAuthEndpoint) {
         originalRequest._retry = true;
         const refreshed = await refreshAccessToken();
@@ -72,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/login', { email, password });
+      const response = await api.post("/login", { email, password });
       const data = response.data;
       setTokens(data.access_token, data.refresh_token);
       await fetchUserDetails().catch(() => {});
@@ -89,7 +94,11 @@ export const AuthProvider = ({ children }) => {
 
   const register = async ({ username, email, password }) => {
     try {
-      const response = await api.post('/register', { username, email, password });
+      const response = await api.post("/register", {
+        username,
+        email,
+        password,
+      });
       const data = response.data;
       setTokens(data.access_token, data.refresh_token);
       await fetchUserDetails().catch(() => {});
