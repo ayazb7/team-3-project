@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Lottie from "react-lottie-player";
 import lockAnim from "../assets/lock.json";
 import {
-  Shield,
   Clock,
   GraduationCap,
   AlertTriangle,
@@ -27,7 +26,7 @@ const Skeleton = () => (
 );
 
 export default function CourseView() {
-  const { id } = useParams(); // /dashboard/course/:id
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const { accessToken } = useAuth();
 
@@ -111,7 +110,7 @@ export default function CourseView() {
           </div>
         ) : (
           <>
-            {/* HERO — image left; text right; badges + progress + CTA pinned to bottom */}
+            {/* HERO Card */}
             <section className="bg-white rounded-2xl shadow-md p-5 sm:p-6 lg:p-8 text-left">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: placeholder image */}
