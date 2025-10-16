@@ -143,15 +143,15 @@ export default function CourseView() {
                     <div className="flex flex-wrap gap-2 text-left mb-4">
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
                         <GraduationCap className="w-4 h-4" />
-                        {course?.course_type || "Digital Skills"}
+                        {course?.difficulty|| "Digital Skills"}
                       </span>
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
                         <Clock className="w-4 h-4" />
                         {duration}
                       </span>
-                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm">
+                      {/* <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm">
                         Type: {courseType}
-                      </span>
+                      </span> */}
                     </div>
 
                     {/* Progress + CTA row */}
@@ -197,20 +197,12 @@ export default function CourseView() {
 
                   <div className="text-gray-700 space-y-4 text-left">
                     <p>
-                      In this beginner-friendly course, you’ll understand what
-                      makes a password strong, how to avoid common mistakes, and
-                      how to store your passwords safely using a password
-                      manager.
+                      {course.summary}
                     </p>
 
                     {/* Enhanced bullet list */}
                     <ul className="space-y-3">
-                      {[
-                        "Create strong, memorable passwords with simple rules",
-                        "Use a password manager to store and autofill securely",
-                        "Spot phishing attempts and protect your accounts",
-                        "Enable Two-Factor Authentication (2FA) where possible",
-                      ].map((item, idx) => (
+                      {course.learning_objectives.map((item, idx) => (
                         <li
                           key={idx}
                           className="flex items-start gap-3 bg-gray-50 rounded-lg p-3"
@@ -224,18 +216,34 @@ export default function CourseView() {
                 </div>
               </div>
 
-              {/* Prerequisites */}
               <aside>
-                <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6 text-left">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 text-left">
-                    Prerequisites
-                  </h3>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>Basic computer use (mouse/keyboard)</li>
-                    <li>Access to an email account</li>
-                    <li>Internet connection</li>
-                  </ul>
-                </div>
+                {/* -- Requirements Card -- */}
+                {course.requirements && course.requirements.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6 text-left mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 text-left">
+                      Requirements
+                    </h3>
+                    <ul className="space-y-2 text-gray-700">
+                      {course.requirements.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* -- Prerequisites Card -- */}
+                {course.prerequisites && course.prerequisites.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6 text-left">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 text-left">
+                      Prerequisites
+                    </h3>
+                    <ul className="space-y-2 text-gray-700">
+                      {course.prerequisites.map((item, idx) => (
+                        <li key={idx}>{item.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </aside>
             </section>
 
