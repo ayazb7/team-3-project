@@ -86,7 +86,7 @@ const Learning = () => {
           src={tutorialData?.video_url}
           loading="lazy"
           allow="encrypted-media; fullscreen;"
-          className="w-full h-full"
+          className="w-full h-full rounded-lg"
         ></iframe>
       </div>
       <div className="w-full flex-grow h-auto flex flex-col bg-gray-200 rounded-lg">
