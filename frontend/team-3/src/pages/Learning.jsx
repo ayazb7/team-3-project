@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const RenderOption = ({ label, onClick, roundDirection, className }) => {
   return (
@@ -50,7 +51,15 @@ const Learning = () => {
   }, []);
   return (
     <div className="flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
-      <p className="">Dashboard / {courseData?.name} </p>
+      <div className="flex flex-row gap-2">
+        <Link to="/dashboard" className="text-blue-500 hover:underline">
+          Dashboard
+        </Link>
+        <Link to={`/dashboard/course/${courseData?.id}`}>
+          / {courseData?.name}{" "}
+        </Link>
+        / {tutorialData?.category}
+      </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
         <p>Browse this tutorial</p>
