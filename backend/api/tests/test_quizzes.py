@@ -181,3 +181,76 @@ def test_get_full_quiz_not_found(client, mock_mysql, auth_headers):
     assert res.status_code == 404
     assert body == {"error": "Quiz not found"}
     cursor.close.assert_called_once()
+
+
+def test_answer_question_correct_submission(client, mock_mysql, auth_headers):
+    """
+    Test a user submitting a correct answer.
+    """
+    cursor = mock_mysql.connection.cursor.return_value
+    cursor.fetchall.return_value = [
+        {"id": 101, "is_correct": 1},
+        {"id": 102, "is_correct": 0},
+    ]
+    
+    payload = {"selected_option_id": 101}
+    res = client.post("/quizzes/1/questions/1/answer", json=payload, headers=auth_headers)
+    body = res.get_json()
+
+    assert res.status_code == 200
+    assert body["is_correct"] is True
+    assert body["correct_option_id"] == 101
+    cursor.close.assert_called_once()
+
+
+def test_answer_question_incorrect_submission(client, mock_mysql, auth_headers):
+    """
+    Test a user submitting an incorrect answer.
+    """
+    cursor = mock_mysql.connection.cursor.return_value
+    cursor.fetchall.return_value = [
+        {"id": 101, "is_correct": 1},
+        {"id": 102, "is_correct": 0},
+    ]
+    
+    payload = {"selected_option_id": 102}
+    res = client.post("/quizzes/1/questions/1/answer", json=payload, headers=auth_headers)
+    body = res.get_json()
+
+    assert res.status_code == 200
+    assert body["is_correct"] is False
+    assert body["correct_option_id"] == 101 
+    cursor.close.assert_called_once()
+
+
+def test_submit_quiz_success(client, mock_mysql, auth_headers):
+    """
+    Test a successful quiz submission with a mix of correct and incorrect answers.
+    """
+    cursor = mock_mysql.connection.cursor.return_value
+    cursor.fetchall.return_value = [
+        {"question_id": 1, "correct_option_id": 11},
+        {"question_id": 2, "correct_option_id": 21},
+        {"question_id": 3, "correct_option_id": 31},
+    ]
+    cursor.lastrowid = 789
+
+    payload = {
+        "answers": [
+            {"question_id": 1, "selected_option_id": 11},
+            {"question_id": 2, "selected_option_id": 22}, 
+            {"question_id": 3, "selected_option_id": 31}, 
+        ]
+    }
+    res = client.post("/quizzes/1/submit", json=payload, headers=auth_headers)
+    body = res.get_json()
+    
+    assert res.status_code == 201
+    assert body["message"] == "Quiz submitted successfully"
+    assert body["result_id"] == 789
+    assert body["correct_answers"] == 2
+    assert body["total_questions"] == 3
+    assert body["score"] == round((2/3) * 100, 2)
+    
+    mock_mysql.connection.commit.assert_called_once()
+    mock_mysql.connection.rollback.assert_not_called()
