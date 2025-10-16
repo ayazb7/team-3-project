@@ -113,7 +113,10 @@ const Learning = () => {
           <p>{tutorialData?.description}</p>
           <p className="font-bold">Tutorial Category</p>
           <p>{tutorialData?.category}</p>
-          <p className="mt-auto">{tutorialData?.created_at || "Unknown"}</p>
+          <div className="mt-auto flex flex-row gap-2">
+            <p className="font-bold">Created at: </p>
+            {tutorialData?.created_at || "Unknown"}
+          </div>
         </div>
       </div>
     </div>
