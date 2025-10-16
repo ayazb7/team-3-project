@@ -147,6 +147,7 @@ def get_tutorial(course_id, tutorial_id):
             "title": string,
             "video_provider": enum string (synthesia or youtube),
             "video_url": url string
+            "created_at": datetime string,
         }
     """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -158,7 +159,8 @@ def get_tutorial(course_id, tutorial_id):
             t.description, 
             t.video_provider, 
             t.video_url, 
-            t.category
+            t.category,
+            t.created_at
         FROM course_tutorials AS ct
         INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
         WHERE ct.course_id = %s AND t.id = %s

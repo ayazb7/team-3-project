@@ -26,7 +26,7 @@ const Skeleton = () => (
 );
 
 export default function CourseView() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const { accessToken } = useAuth();
 
@@ -73,7 +73,7 @@ export default function CourseView() {
   }, [id, accessToken]);
 
   const startCourse = () => {
-    navigate(`/dashboard/learning/${id}`);
+    navigate(`/dashboard/course/${id}/learning/1`);
   };
 
   return (
@@ -143,7 +143,7 @@ export default function CourseView() {
                     <div className="flex flex-wrap gap-2 text-left mb-4">
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
                         <GraduationCap className="w-4 h-4" />
-                        {course?.difficulty|| "Digital Skills"}
+                        {course?.difficulty || "Digital Skills"}
                       </span>
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
                         <Clock className="w-4 h-4" />
@@ -196,9 +196,7 @@ export default function CourseView() {
                   </h2>
 
                   <div className="text-gray-700 space-y-4 text-left">
-                    <p>
-                      {course.summary}
-                    </p>
+                    <p>{course.summary}</p>
 
                     {/* Enhanced bullet list */}
                     <ul className="space-y-3">
