@@ -23,7 +23,10 @@ function App() {
         <Route path="activity" element={<div />} />
         <Route path="support" element={<div />} />
         <Route path="course/:id" element={<CourseView />} />
-        <Route path="learning/:id" element={<Learning />} />
+        <Route
+          path="course/:courseId/learning/:tutorialId"
+          element={<Learning />}
+        />
       </Route>
     </Routes>
   );

@@ -17,25 +17,36 @@ const RenderOption = ({ label, onClick, roundDirection, className }) => {
   );
 };
 
+const SkeletonLoader = () => {
+  return (
+    <div className="animate-pulse flex flex-col gap-5 w-full p-10 h-full">
+      <div className="h-6 bg-gray-300 rounded w-1/4"></div>
+      <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+      <div className="h-48 bg-gray-300 rounded w-full min-h-1/2"></div>
+    </div>
+  );
+};
+
 const Learning = () => {
   const [tutorialData, setTutorialData] = useState();
   const [courseData, setCourseData] = useState();
   const [activeTab, setActiveTab] = useState(0);
-  const { id } = useParams();
+  const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/courses/${id}/tutorials`,
+          `http://localhost:5000/courses/${courseId}/tutorials/${tutorialId}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
-        setTutorialData(res.data[0]);
+        setTutorialData(res.data);
 
         const courseRes = await axios.get(
-          `http://localhost:5000/courses/${id}`,
+          `http://localhost:5000/courses/${courseId}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
@@ -45,10 +56,16 @@ const Learning = () => {
       } catch (err) {
         console.log(err);
       }
+      setLoading(false);
     };
 
     fetchData();
   }, []);
+
+  if (loading) {
+    return <SkeletonLoader />;
+  }
+
   return (
     <div className="flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
       <div className="flex flex-row gap-2">
@@ -56,9 +73,9 @@ const Learning = () => {
           Dashboard
         </Link>
         <Link to={`/dashboard/course/${courseData?.id}`}>
-          / {courseData?.name}{" "}
+          / {courseData?.name || "Course"}
         </Link>
-        / {tutorialData?.category}
+        / {tutorialData?.category || "Tutorial"}
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
@@ -68,7 +85,6 @@ const Learning = () => {
         <iframe
           src={tutorialData?.video_url}
           loading="lazy"
-          title="Synthesia video player - How to create a strong password and stay safe online?"
           allow="encrypted-media; fullscreen;"
           className="w-full h-full"
         ></iframe>
@@ -97,6 +113,7 @@ const Learning = () => {
           <p>{tutorialData?.description}</p>
           <p className="font-bold">Tutorial Category</p>
           <p>{tutorialData?.category}</p>
+          <p className="mt-auto">{tutorialData?.created_at || "Unknown"}</p>
         </div>
       </div>
     </div>
