@@ -1,7 +1,7 @@
-const CourseCard = ({ title, progress }) => (
+const CourseCard = ({ title, progress, id }) => (
   <div className="p-2">
     <a
-      href="#"
+      href={'/dashboard/course/' + id}
       className="block rounded-xl overflow-hidden shadow-md transform transition-transform hover:scale-105"
     >
       {/* Overlay */}
