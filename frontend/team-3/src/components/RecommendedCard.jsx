@@ -1,6 +1,6 @@
-const RecommendedCard = ({ title, rating }) => (
+const RecommendedCard = ({ title, rating, id }) => (
   <div className="p-2 transform transition-transform duration-300 hover:scale-105">
-    <a href="#" className="block rounded-xl overflow-hidden shadow-md">
+    <a href={'/dashboard/course/' + id} className="block rounded-xl overflow-hidden shadow-md">
       {/* Image or Placeholder with Overlay */}
       <div className="relative h-32 bg-gray-200">
         {/* Overlay */}

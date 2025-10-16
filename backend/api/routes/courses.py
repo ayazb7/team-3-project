@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 import MySQLdb.cursors
 from flask_jwt_extended import jwt_required
+import json
 
 import app
 
@@ -10,16 +11,19 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 @jwt_required()
 def get_courses():
     """
-    Returns all courses stored on the DB
-
-    Response:
-        [
-            { "id": number, "description": string, "course_type": string },
-            { "id": number, "description": string, "course_type": string }
-        ]
+    Returns all courses with summary data suitable for a list view.
     """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT id, name, description, course_type FROM courses")
+    cursor.execute("""
+                    SELECT
+                        id,
+                        name,
+                        description,
+                        difficulty,
+                        duration_min_minutes,
+                        duration_max_minutes
+                    FROM courses
+                    """)
     courses = cursor.fetchall()
     cursor.close()
     return jsonify(courses), 200
@@ -29,17 +33,64 @@ def get_courses():
 @jwt_required()
 def get_course(course_id):
     """
-    Returns a specific course based on course ID parameter
+    Returns a specific course, including its prerequisites and requirements.
 
     Response:
-        { "id": number, "description": string, "course_type": string }
+        {
+            "id": number,
+            "name": string,
+            "description": string,
+            // ... other course fields
+            "prerequisites": [
+                { "id": number, "name": string },
+                ...
+            ],
+            "requirements": [
+                { "requirement_text": string },
+                ...
+            ]
+        }
     """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT id, name, description, course_type FROM courses WHERE id = %s", (course_id,))
+
+    # Fetch the main course details
+    cursor.execute("""
+        SELECT id, name, description, difficulty, summary,
+               learning_objectives, duration_min_minutes, duration_max_minutes
+        FROM courses
+        WHERE id = %s
+    """, (course_id,))
     course = cursor.fetchone()
-    cursor.close()
+
     if not course:
+        cursor.close()
         return jsonify({'error': 'Course not found'}), 404
+        
+    # Parse the learning_objectives string into a list
+    if course.get('learning_objectives'):
+        course['learning_objectives'] = json.loads(course['learning_objectives'])
+    else:
+        course['learning_objectives'] = []
+
+    # Fetch the prerequisites (links to other courses)
+    cursor.execute("""
+        SELECT c.id, c.name
+        FROM course_prerequisites AS cp
+        INNER JOIN courses AS c ON cp.prerequisite_course_id = c.id
+        WHERE cp.course_id = %s
+    """, (course_id,))
+    course['prerequisites'] = cursor.fetchall()
+
+    # Fetch the text-based requirements
+    cursor.execute("""
+        SELECT requirement_text
+        FROM course_requirements
+        WHERE course_id = %s
+    """, (course_id,))
+    requirements_data = cursor.fetchall()
+    course['requirements'] = [item['requirement_text'] for item in requirements_data]
+
+    cursor.close()
     return jsonify(course), 200
 
 

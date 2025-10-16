@@ -99,15 +99,15 @@ export default function Dashboard() {
   ];
 
   const continueCourses = [
-    { title: 'Borderlands 4 Walkthrough', progress: 15 },
-    { title: 'Fundamentals of AWS', progress: 65 },
-    { title: 'How to open an Email', progress: 35 }
+    { id: 1, title: 'Borderlands 4 Walkthrough', progress: 15 },
+    { id: 1, title: 'Fundamentals of AWS', progress: 65 },
+    { id: 1, title: 'How to open an Email', progress: 35 }
   ];
 
   const recommended = [
-    { title: 'Borderlands 4', rating: '94% Rating' },
-    { title: 'Dying Light', rating: '87% Rating' },
-    { title: 'League of Legends', rating: '11% Rating' }
+    { id: 1, title: 'Borderlands 4', rating: '94% Rating' },
+    { id: 1, title: 'Dying Light', rating: '87% Rating' },
+    { id: 1, title: 'League of Legends', rating: '11% Rating' }
   ];
 
   const events = [
@@ -181,7 +181,7 @@ export default function Dashboard() {
               <Carousel
                 items={continueCourses}
                 renderItem={(course, idx) => (
-                  <CourseCard key={idx} {...course} />
+                  <CourseCard key={idx} {...course} id={course.id} />
                 )}
                 className="pb-8"
               />

@@ -51,12 +51,31 @@ create table tutorials (
 --  TABLE: COURSES
 -- =============================================================
 
-create table courses (
-    id int primary key auto_increment,
-    name varchar(255) not null,
-    description text,
-    course_type varchar(100) not null,
-    created_at datetime default current_timestamp
+CREATE TABLE courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    difficulty ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL DEFAULT 'Beginner',
+    summary TEXT,
+    learning_objectives JSON,
+    duration_min_minutes INT,
+    duration_max_minutes INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_prerequisites (
+    course_id INT NOT NULL,
+    prerequisite_course_id INT NOT NULL,
+    PRIMARY KEY (course_id, prerequisite_course_id),
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+    FOREIGN KEY (prerequisite_course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
+
+CREATE TABLE course_requirements (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT NOT NULL,
+    requirement_text VARCHAR(255) NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 );
 
 -- =============================================================
