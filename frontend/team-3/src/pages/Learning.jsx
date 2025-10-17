@@ -43,9 +43,9 @@ const Learning = () => {
   const [pendingFeedback, setPendingFeedback] = useState(null);
   const [holdProgress, setHoldProgress] = useState(0);
   const [loading, setLoading] = useState(true);
-
   const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
+  const [hasPopup, setHasPopup] = useState(false);
 
   // Refs
   const webcamContainerRef = useRef(null);
@@ -294,7 +294,7 @@ const Learning = () => {
   }
 
   return (
-    <div className="flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
       <div className="flex flex-row gap-2">
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
@@ -309,7 +309,21 @@ const Learning = () => {
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
+      </div>
+
+      <div className="flex flex-row min-w-full justiy-center items-center">
         <p>Browse this tutorial</p>
+        {!videoEnded && (
+          <button
+            onClick={() => {
+              setVideoEnded(true);
+              setHasPopup(true);
+            }}
+            className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            I finished watching - Give Feedback
+          </button>
+        )}
       </div>
       <div className="w-full h-1/2 shrink-0">
         <iframe
@@ -320,17 +334,8 @@ const Learning = () => {
         ></iframe>
       </div>
 
-      {!videoEnded && (
-        <button
-          onClick={() => setVideoEnded(true)}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          I finished watching - Give Feedback
-        </button>
-      )}
-
-      {videoEnded && !feedback && !pendingFeedback && (
-        <div className="w-full flex flex-col items-center gap-6 p-8 bg-gray-50 rounded-lg">
+      {videoEnded && !feedback && !pendingFeedback && hasPopup && (
+        <div className="absolute z-100 w-1/2 border-2 bg-opacity-50 m-auto top-1/2 -translate-y-1/2 left-0 right-0 flex flex-col items-center gap-6 p-8 bg-gray-50 rounded-lg">
           <h3 className="text-2xl font-bold text-black">
             How was this tutorial?
           </h3>
@@ -399,8 +404,8 @@ const Learning = () => {
         </div>
       )}
 
-      {pendingFeedback && (
-        <div className="w-full flex flex-col items-center gap-6 p-8 bg-blue-50 rounded-lg border-2 border-blue-300">
+      {pendingFeedback && hasPopup && (
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 m-auto w-1/2 flex flex-col items-center gap-6 p-8 bg-blue-50 rounded-lg border-2 border-blue-300">
           <h3 className="text-2xl font-bold text-black">
             Confirm Your Feedback
           </h3>
@@ -432,8 +437,11 @@ const Learning = () => {
         </div>
       )}
 
-      {feedback && (
-        <div className="w-full flex flex-col items-center gap-4 p-8 bg-green-50 rounded-lg">
+      {feedback && hasPopup && (
+        <div
+          className="absolute m-auto top-1/2 -translate-y-1/2 w-1/2 left-0 right-0 border-2 flex flex-col items-center gap-4 p-8 bg-green-50 rounded-lg"
+          onClick={() => setHasPopup(false)}
+        >
           <h3 className="text-2xl font-bold text-green-800">
             Thank you for your feedback!
           </h3>
@@ -441,6 +449,7 @@ const Learning = () => {
             Your {feedback === "positive" ? "positive" : "negative"} feedback
             helps us improve.
           </p>
+          <p>Click to remove this popup.</p>
         </div>
       )}
 
