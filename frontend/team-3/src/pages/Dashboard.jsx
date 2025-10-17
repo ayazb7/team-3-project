@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Clock, Play, GraduationCap, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import StatCard from '../components/StatCard';
 import CourseCard from '../components/CourseCard';
 import RecommendedCard from '../components/RecommendedCard.jsx';
@@ -92,17 +94,19 @@ const SectionHeader = ({ title, subtitle }) => (
 );
 
 export default function Dashboard() {
+  const { accessToken } = useAuth();
+
   const stats = [
     { label: 'Courses Completed', value: '10', icon: GraduationCap, color: 'bg-blue-50' },
     { label: 'Tutorials Watched', value: '31', icon: Play, color: 'bg-green-50' },
     { label: 'Time Spent', value: '5.3', subtext: 'this week', icon: Clock, color: 'bg-red-50' }
   ];
 
-  const continueCourses = [
-    { id: 1, title: 'Borderlands 4 Walkthrough', progress: 15 },
-    { id: 1, title: 'Fundamentals of AWS', progress: 65 },
-    { id: 1, title: 'How to open an Email', progress: 35 }
-  ];
+  // const continueCourses = [
+  //   { id: 1, title: 'Borderlands 4 Walkthrough', progress: 15 },
+  //   { id: 1, title: 'Fundamentals of AWS', progress: 65 },
+  //   { id: 1, title: 'How to open an Email', progress: 35 }
+  // ];
 
   const recommended = [
     { id: 1, title: 'Borderlands 4', rating: '94% Rating' },
@@ -117,6 +121,7 @@ export default function Dashboard() {
   ];
 
   const [scrolling, setScrolling] = useState(false);
+  const [continueCourses, setContinueCourses] = useState([]);
 
   const preventScroll = (e) => {
     if (scrolling) {
@@ -125,12 +130,35 @@ export default function Dashboard() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener('touchmove', preventScroll, { passive: false });
     return () => {
       document.removeEventListener('touchmove', preventScroll);
     };
   }, [scrolling]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    axios
+      .get(`http://localhost:5000/courses`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      .then((res) => {
+        setContinueCourses(res.data)
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        setErr(e?.response?.data?.message || "Unable to load course.");
+      })
+      .finally(() => {
+        if (!isMounted) return;
+      });
+
+      return () => {
+        isMounted = false;
+      };
+  }, [accessToken]);
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
