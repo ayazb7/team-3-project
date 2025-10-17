@@ -28,7 +28,7 @@ const SkeletonLoader = () => {
 };
 
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/Ijgcx-Ji5/";
-const CONFIDENCE_THRESHOLD = 0.95;
+const CONFIDENCE_THRESHOLD = 0.85;
 const NEUTRAL_THRESHOLD = 0.7;
 const HOLD_DURATION_FRAMES = 60; // ~2 seconds at 30fps
 
