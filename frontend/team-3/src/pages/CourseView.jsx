@@ -36,8 +36,8 @@ export default function CourseView() {
 
   // MVP hard-coded bits
   const progressPercent = 67;
-  const courseType = "Cyber Security";
-  const duration = "45–60 mins";
+  // const courseType = "Cyber Security";
+  // const duration = "45–60 mins";
 
   const similar = [
     { title: "Password Managers 101", rating: "92% Rating" },
@@ -147,7 +147,7 @@ export default function CourseView() {
                       </span>
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
                         <Clock className="w-4 h-4" />
-                        {duration}
+                        {course.duration_min_minutes} - {course.duration_max_minutes} mins
                       </span>
                       {/* <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm">
                         Type: {courseType}
