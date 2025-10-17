@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 const RenderOption = ({ label, onClick, roundDirection, className }) => {
   return (
@@ -26,7 +26,6 @@ const SkeletonLoader = () => {
     </div>
   );
 };
-import { ThumbsUp, ThumbsDown } from "lucide-react";
 
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/Ijgcx-Ji5/";
 const CONFIDENCE_THRESHOLD = 0.95;
@@ -43,10 +42,10 @@ const Learning = () => {
   const [detectedGesture, setDetectedGesture] = useState("");
   const [pendingFeedback, setPendingFeedback] = useState(null);
   const [holdProgress, setHoldProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
   
   const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
-  const [loading, setLoading] = useState(true);
   
   // Refs
   const webcamContainerRef = useRef(null);
@@ -61,32 +60,32 @@ const Learning = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
+        const tutorialRes = await axios.get(
           `http://localhost:5000/courses/${courseId}/tutorials/${tutorialId}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
-        setTutorialData(res.data);
 
         const courseRes = await axios.get(
           `http://localhost:5000/courses/${courseId}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
-          }),
-        ]);
+          }
+        );
         
-        setTutorialData(tutorialRes.data[0]);
+        setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
         console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();
-  }, [id, accessToken]);
+  }, [courseId, tutorialId, accessToken]);
 
   // Load Teachable Machine scripts
   useEffect(() => {
@@ -118,11 +117,6 @@ const Learning = () => {
   useEffect(() => {
     return () => stopWebcam();
   }, []);
-
-  if (loading) {
-    return <SkeletonLoader />;
-  }
-
 
   // Initialize Teachable Machine
   const initTeachableMachine = async () => {
@@ -264,16 +258,20 @@ const Learning = () => {
     }
   };
 
+  if (loading) {
+    return <SkeletonLoader />;
+  }
+
   return (
     <div className="flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
       <div className="flex flex-row gap-2">
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
         </Link>
-        <Link to={`/dashboard/course/${courseData?.id}`}>
+        <Link to={`/dashboard/course/${courseData?.id}`} className="text-blue-500 hover:underline">
           / {courseData?.name || "Course"}
         </Link>
-        / {tutorialData?.category || "Tutorial"}
+        <span>/ {tutorialData?.category || "Tutorial"}</span>
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
@@ -390,24 +388,25 @@ const Learning = () => {
           </p>
         </div>
       )}
+      
       <div className="w-full flex-grow h-auto flex flex-col bg-gray-200 rounded-lg">
         <div className="grid grid-cols-2 text-center items-center h-10 divide-x divide-gray-400 shadow-lg shrink-0">
           <RenderOption
             label="Overview"
             roundDirection="left"
             onClick={() => setActiveTab(0)}
-            className={`${activeTab == 0 ? "bg-gray-300" : ""}`}
+            className={`${activeTab === 0 ? "bg-gray-300" : ""}`}
           />
           <RenderOption
             label="Transcript"
             roundDirection="right"
             onClick={() => setActiveTab(1)}
-            className={`${activeTab == 1 ? "bg-gray-300" : ""}`}
+            className={`${activeTab === 1 ? "bg-gray-300" : ""}`}
           />
         </div>
         <div
           className={`${
-            activeTab == 0 ? "flex" : "hidden"
+            activeTab === 0 ? "flex" : "hidden"
           } flex-col w-full h-full p-5 gap-3`}
         >
           <p className="font-bold">Description</p>
