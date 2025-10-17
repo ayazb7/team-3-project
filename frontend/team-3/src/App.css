@@ -64,6 +64,10 @@ a {
   color: #888;
 }
 
+button {
+  cursor: pointer;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -128,9 +132,9 @@ a {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.45 0.01 240); 
-  --sidebar-primary: oklch(0.92 0.06 255); 
-  --sidebar-primary-foreground: oklch(0.4 0.15 255); 
+  --sidebar-foreground: oklch(0.45 0.01 240);
+  --sidebar-primary: oklch(0.92 0.06 255);
+  --sidebar-primary-foreground: oklch(0.4 0.15 255);
   --sidebar-accent: oklch(0.92 0.06 255);
   --sidebar-accent-foreground: oklch(0.4 0.15 255);
   --sidebar-border: oklch(0.922 0 0);

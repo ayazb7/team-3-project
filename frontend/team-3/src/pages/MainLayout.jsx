@@ -14,7 +14,7 @@ function MainLayout() {
   return (
     <div className="flex h-screen bg-background text-foreground">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-scroll">
         <Outlet context={{ location }} />
       </main>
     </div>
