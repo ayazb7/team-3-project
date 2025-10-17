@@ -43,10 +43,10 @@ const Learning = () => {
   const [pendingFeedback, setPendingFeedback] = useState(null);
   const [holdProgress, setHoldProgress] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+
   const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
-  
+
   // Refs
   const webcamContainerRef = useRef(null);
   const labelContainerRef = useRef(null);
@@ -73,7 +73,7 @@ const Learning = () => {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
-        
+
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
         console.log("Data fetched successfully", tutorialRes.data);
@@ -103,8 +103,12 @@ const Learning = () => {
       };
 
       try {
-        await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js");
-        await loadScript("https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js");
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
+        );
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"
+        );
       } catch (err) {
         console.error("Error loading scripts:", err);
       }
@@ -130,7 +134,7 @@ const Learning = () => {
       webcamRef.current = new window.tmImage.Webcam(300, 300, true);
       await webcamRef.current.setup();
       await webcamRef.current.play();
-      
+
       window.requestAnimationFrame(loop);
 
       if (webcamContainerRef.current) {
@@ -146,7 +150,9 @@ const Learning = () => {
       }
     } catch (err) {
       console.error("Error initializing Teachable Machine:", err);
-      alert("Error starting webcam. Please make sure you've granted camera permissions.");
+      alert(
+        "Error starting webcam. Please make sure you've granted camera permissions."
+      );
     }
   };
 
@@ -162,20 +168,26 @@ const Learning = () => {
     if (!modelRef.current || !webcamRef.current) return;
 
     const prediction = await modelRef.current.predict(webcamRef.current.canvas);
-    
+
     // Update label display
     prediction.forEach((pred, i) => {
-      const classPrediction = `${pred.className}: ${pred.probability.toFixed(2)}`;
+      const classPrediction = `${pred.className}: ${pred.probability.toFixed(
+        2
+      )}`;
       if (labelContainerRef.current?.childNodes[i]) {
         labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
       }
     });
 
     // Check for neutral state
-    const isNeutral = prediction.some(pred => {
+    const isNeutral = prediction.some((pred) => {
       const className = pred.className.toLowerCase();
-      return pred.probability > NEUTRAL_THRESHOLD && 
-             (className === "neutral" || className.includes("neutral") || className.includes("nothing"));
+      return (
+        pred.probability > NEUTRAL_THRESHOLD &&
+        (className === "neutral" ||
+          className.includes("neutral") ||
+          className.includes("nothing"))
+      );
     });
 
     if (isNeutral) {
@@ -184,15 +196,21 @@ const Learning = () => {
     }
 
     // Check for gestures
-    const gesture = prediction.find(pred => {
+    const gesture = prediction.find((pred) => {
       if (pred.probability <= CONFIDENCE_THRESHOLD) return false;
       const className = pred.className.toLowerCase();
-      return className === "thumbs up" || className === "thumbsup" || 
-             className === "thumbs down" || className === "thumbsdown";
+      return (
+        className === "thumbs up" ||
+        className === "thumbsup" ||
+        className === "thumbs down" ||
+        className === "thumbsdown"
+      );
     });
 
     if (gesture) {
-      const gestureType = gesture.className.toLowerCase().includes("up") ? "positive" : "negative";
+      const gestureType = gesture.className.toLowerCase().includes("up")
+        ? "positive"
+        : "negative";
       handleGestureDetection(gestureType);
     } else {
       updateProgress();
@@ -201,15 +219,20 @@ const Learning = () => {
 
   const handleGestureDetection = (gestureType) => {
     detectionCountRef.current[gestureType]++;
-    
+
     const otherType = gestureType === "positive" ? "negative" : "positive";
     detectionCountRef.current[otherType] = 0;
 
-    const progress = Math.min((detectionCountRef.current[gestureType] / HOLD_DURATION_FRAMES) * 100, 100);
+    const progress = Math.min(
+      (detectionCountRef.current[gestureType] / HOLD_DURATION_FRAMES) * 100,
+      100
+    );
     setHoldProgress(progress);
 
     if (detectionCountRef.current[gestureType] >= HOLD_DURATION_FRAMES) {
-      setDetectedGesture(gestureType === "positive" ? "thumbs_up" : "thumbs_down");
+      setDetectedGesture(
+        gestureType === "positive" ? "thumbs_up" : "thumbs_down"
+      );
       setPendingFeedback(gestureType);
       stopWebcam();
       resetDetectionCount();
@@ -217,9 +240,17 @@ const Learning = () => {
   };
 
   const updateProgress = () => {
-    if (detectionCountRef.current.positive > 0 || detectionCountRef.current.negative > 0) {
-      const currentGestureType = detectionCountRef.current.positive > 0 ? "positive" : "negative";
-      const progress = Math.min((detectionCountRef.current[currentGestureType] / HOLD_DURATION_FRAMES) * 100, 100);
+    if (
+      detectionCountRef.current.positive > 0 ||
+      detectionCountRef.current.negative > 0
+    ) {
+      const currentGestureType =
+        detectionCountRef.current.positive > 0 ? "positive" : "negative";
+      const progress = Math.min(
+        (detectionCountRef.current[currentGestureType] / HOLD_DURATION_FRAMES) *
+          100,
+        100
+      );
       setHoldProgress(progress);
     } else {
       setHoldProgress(0);
@@ -242,7 +273,7 @@ const Learning = () => {
 
   const handleFeedback = (type) => {
     if (feedback) return;
-    
+
     setFeedback(type);
     setPendingFeedback(null);
     stopWebcam();
@@ -268,10 +299,13 @@ const Learning = () => {
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
         </Link>
-        <Link to={`/dashboard/course/${courseData?.id}`} className="text-blue-500 hover:underline">
+        <Link
+          to={`/dashboard/course/${courseData?.id}`}
+          className="text-blue-500 hover:underline"
+        >
           / {courseData?.name || "Course"}
         </Link>
-        <span>/ {tutorialData?.category || "Tutorial"}</span>
+        / <p className="text-black">{tutorialData?.category || "Tutorial"}</p>
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
@@ -297,8 +331,10 @@ const Learning = () => {
 
       {videoEnded && !feedback && !pendingFeedback && (
         <div className="w-full flex flex-col items-center gap-6 p-8 bg-gray-50 rounded-lg">
-          <h3 className="text-2xl font-bold text-black">How was this tutorial?</h3>
-          
+          <h3 className="text-2xl font-bold text-black">
+            How was this tutorial?
+          </h3>
+
           <div className="flex gap-6">
             <button
               onClick={() => handleFeedback("positive")}
@@ -324,26 +360,36 @@ const Learning = () => {
             >
               Start Gesture Recognition
             </button>
-            
-            <div ref={webcamContainerRef} className="flex justify-center mb-4"></div>
-            
+
+            <div
+              ref={webcamContainerRef}
+              className="flex justify-center mb-4"
+            ></div>
+
             {holdProgress > 0 && (
               <div className="w-full max-w-md mx-auto mb-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Hold gesture...</span>
-                  <span className="text-sm font-medium text-blue-600">{Math.round(holdProgress)}%</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    Hold gesture...
+                  </span>
+                  <span className="text-sm font-medium text-blue-600">
+                    {Math.round(holdProgress)}%
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                  <div 
+                  <div
                     className="bg-blue-600 h-4 rounded-full transition-all duration-100"
                     style={{ width: `${holdProgress}%` }}
                   />
                 </div>
               </div>
             )}
-            
-            <div ref={labelContainerRef} className="text-left max-w-md mx-auto"></div>
-            
+
+            <div
+              ref={labelContainerRef}
+              className="text-left max-w-md mx-auto"
+            ></div>
+
             {detectedGesture && (
               <p className="text-lg font-medium text-green-600 mt-4">
                 Detected: {detectedGesture.replace("_", " ")}!
@@ -355,14 +401,20 @@ const Learning = () => {
 
       {pendingFeedback && (
         <div className="w-full flex flex-col items-center gap-6 p-8 bg-blue-50 rounded-lg border-2 border-blue-300">
-          <h3 className="text-2xl font-bold text-black">Confirm Your Feedback</h3>
+          <h3 className="text-2xl font-bold text-black">
+            Confirm Your Feedback
+          </h3>
           <p className="text-lg">
-            You showed: <span className="font-bold text-blue-600">{detectedGesture.replace("_", " ")}</span>
+            You showed:{" "}
+            <span className="font-bold text-blue-600">
+              {detectedGesture.replace("_", " ")}
+            </span>
           </p>
           <p className="text-gray-600">
-            Is this correct? The tutorial was {pendingFeedback === "positive" ? "helpful" : "not helpful"}?
+            Is this correct? The tutorial was{" "}
+            {pendingFeedback === "positive" ? "helpful" : "not helpful"}?
           </p>
-          
+
           <div className="flex gap-4">
             <button
               onClick={() => handleFeedback(pendingFeedback)}
@@ -382,26 +434,29 @@ const Learning = () => {
 
       {feedback && (
         <div className="w-full flex flex-col items-center gap-4 p-8 bg-green-50 rounded-lg">
-          <h3 className="text-2xl font-bold text-green-800">Thank you for your feedback!</h3>
+          <h3 className="text-2xl font-bold text-green-800">
+            Thank you for your feedback!
+          </h3>
           <p className="text-gray-600">
-            Your {feedback === "positive" ? "positive" : "negative"} feedback helps us improve.
+            Your {feedback === "positive" ? "positive" : "negative"} feedback
+            helps us improve.
           </p>
         </div>
       )}
-      
+
       <div className="w-full flex-grow h-auto flex flex-col bg-gray-200 rounded-lg">
         <div className="grid grid-cols-2 text-center items-center h-10 divide-x divide-gray-400 shadow-lg shrink-0">
           <RenderOption
             label="Overview"
             roundDirection="left"
             onClick={() => setActiveTab(0)}
-            className={`${activeTab === 0 ? "bg-gray-300" : ""}`}
+            className={`${activeTab == 0 ? "bg-gray-300 text-black" : ""}`}
           />
           <RenderOption
             label="Transcript"
             roundDirection="right"
             onClick={() => setActiveTab(1)}
-            className={`${activeTab === 1 ? "bg-gray-300" : ""}`}
+            className={`${activeTab == 1 ? "bg-gray-300 text-black" : ""}`}
           />
         </div>
         <div
