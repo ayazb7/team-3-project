@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
+import AskAno from "../components/AskAno";
 
 function MainLayout() {
   const { accessToken } = useAuth();
@@ -17,6 +18,7 @@ function MainLayout() {
       <main className="flex-1 overflow-y-scroll">
         <Outlet context={{ location }} />
       </main>
+      <AskAno />
     </div>
   );
 }

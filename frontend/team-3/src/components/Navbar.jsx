@@ -30,7 +30,7 @@ const Navbar = () => {
             />
           </div>
           <div className="flex w-full justify-center md:justify-start md:ml-10 items-center">
-            <p className="font-bold sky-gradient">Sky Wise</p>
+            <p className="font-bold sky-gradient-text">Sky Wise</p>
           </div>
 
           <div className="hidden md:flex flex-row w-full col-start-3">
