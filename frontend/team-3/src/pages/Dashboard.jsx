@@ -94,6 +94,8 @@ const SectionHeader = ({ title, subtitle }) => (
 );
 
 export default function Dashboard() {
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const api = axios.create({ baseURL: API_URL });
   const { accessToken } = useAuth();
 
   const stats = [
@@ -140,8 +142,8 @@ export default function Dashboard() {
   useEffect(() => {
     let isMounted = true;
 
-    axios
-      .get(`http://localhost:5000/courses`, {
+    api
+      .get(`/courses`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
       .then((res) => {

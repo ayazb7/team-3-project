@@ -17,6 +17,8 @@ DROP TABLE IF EXISTS quiz_options;
 DROP TABLE IF EXISTS quiz_questions;
 DROP TABLE IF EXISTS quizzes;
 DROP TABLE IF EXISTS tutorials;
+DROP TABLE IF EXISTS course_requirements;
+DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS users;
 
