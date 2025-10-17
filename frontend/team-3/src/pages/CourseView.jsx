@@ -36,8 +36,8 @@ export default function CourseView() {
 
   // MVP hard-coded bits
   const progressPercent = 67;
-  const courseType = "Cyber Security";
-  const duration = "45–60 mins";
+  // const courseType = "Cyber Security";
+  // const duration = "45–60 mins";
 
   const similar = [
     { title: "Password Managers 101", rating: "92% Rating" },
