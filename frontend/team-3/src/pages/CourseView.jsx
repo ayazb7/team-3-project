@@ -186,7 +186,7 @@ export default function CourseView() {
               </div>
             </section>
 
-            {/* Course Summary + Prerequisites */}
+            {/* Course Summary + Requirments */}
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
               {/* Summary with bolder bullet styling */}
               <div className="lg:col-span-2">
@@ -224,20 +224,6 @@ export default function CourseView() {
                     <ul className="space-y-2 text-gray-700">
                       {course.requirements.map((item, idx) => (
                         <li key={idx}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* -- Prerequisites Card -- */}
-                {course.prerequisites && course.prerequisites.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-md p-5 sm:p-6 text-left">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 text-left">
-                      Prerequisites
-                    </h3>
-                    <ul className="space-y-2 text-gray-700">
-                      {course.prerequisites.map((item, idx) => (
-                        <li key={idx}>{item.name}</li>
                       ))}
                     </ul>
                   </div>
