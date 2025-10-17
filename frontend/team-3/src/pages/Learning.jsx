@@ -462,7 +462,7 @@ const Learning = () => {
         <div
           className={`${
             activeTab === 0 ? "flex" : "hidden"
-          } flex-col w-full h-full p-5 gap-3`}
+          } flex-col w-full h-full p-5 gap-3 text-black`}
         >
           <p className="font-bold">Description</p>
           <p>{tutorialData?.description}</p>
