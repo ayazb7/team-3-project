@@ -294,7 +294,7 @@ const Learning = () => {
   }
 
   return (
-    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-y-scroll scrollbar-hide">
       <div className="flex flex-row gap-2">
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
