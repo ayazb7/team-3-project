@@ -7,3 +7,5 @@ pytest-mock
 flask-jwt-extended
 bcrypt
 PyJWT
+requests
+markdown

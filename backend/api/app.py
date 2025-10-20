@@ -29,11 +29,13 @@ def create_app(testing: bool = False) -> Flask:
     from routes.users import bp as users_bp
     from routes.courses import bp as courses_bp
     from routes.quizzes import bp as quizzes_bp
+    from routes.bot import bp as bot_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(courses_bp)
     app.register_blueprint(quizzes_bp)
+    app.register_blueprint(bot_bp)
 
     return app
 

@@ -9,11 +9,12 @@ import Register from "./pages/Register.jsx";
 import Layout from "./components/Layout.jsx";
 import Learning from "./pages/Learning.jsx";
 import CourseView from "./pages/CourseView.jsx";
+import BotRender from "./pages/BotRender.jsx";
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<LandingPage />} />
+        <Route index element={<BotRender />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>

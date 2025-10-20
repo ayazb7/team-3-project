@@ -3,6 +3,7 @@
 .venv
 .env
 node_modules/
+myVenv/
 
 __pycache__/
 .pytest_cache/
