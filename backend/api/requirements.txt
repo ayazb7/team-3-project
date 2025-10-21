@@ -9,3 +9,5 @@ bcrypt
 PyJWT
 requests
 markdown
+flask-socketio
+eventlet
