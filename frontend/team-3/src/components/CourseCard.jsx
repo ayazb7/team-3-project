@@ -1,4 +1,4 @@
-const CourseCard = ({ title, progress, id }) => (
+const CourseCard = ({ name, progress, id }) => (
   <div className="p-2">
     <a
       href={'/dashboard/course/' + id}
@@ -15,9 +15,9 @@ const CourseCard = ({ title, progress, id }) => (
       <div className="p-4 bg-white">
         <h3
           className="font-medium text-gray-900 text-lg truncate"
-          title={title}
+          title={name}
         >
-          {title}
+          {name}
         </h3>
 
         {/* Progress Bar */}
