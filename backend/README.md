@@ -110,7 +110,7 @@ Register a new user account.
 
 **Response:**
 - `201` - `{ "message": "User registered successfully", "access_token": string, "refresh_token": string }`
-- `400` - `{"error": "Missing required fields"}`
+- `400` - `{"error": "Missing or empty required fields"}`
 - `409` - `{"error": "User with this email already exists"}`
 
 **Example:**

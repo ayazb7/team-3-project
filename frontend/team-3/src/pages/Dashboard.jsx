@@ -173,7 +173,7 @@ export default function Dashboard() {
           scrollbar-width: none;
         }
       `}</style>
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto justify-center items-center">
         {/* Header */}
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <div>

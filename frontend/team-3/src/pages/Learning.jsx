@@ -294,18 +294,20 @@ const Learning = () => {
   }
 
   return (
-    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-scroll">
-      <div className="flex flex-row gap-2">
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-foreground !text-start overflow-scroll">
+      <div className="flex flex-row gap-2 text-gray-700">
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
         </Link>
+        <span className="text-gray-500">/</span>
         <Link
           to={`/dashboard/course/${courseData?.id}`}
           className="text-blue-500 hover:underline"
         >
-          / {courseData?.name || "Course"}
+          {courseData?.name || "Course"}
         </Link>
-        / <p className="text-black">{tutorialData?.category || "Tutorial"}</p>
+        <span className="text-gray-500">/</span>
+        <span className="text-gray-900">{tutorialData?.category || "Tutorial"}</span>
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
