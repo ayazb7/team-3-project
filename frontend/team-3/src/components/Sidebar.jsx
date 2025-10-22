@@ -138,8 +138,6 @@ export default function Sidebar() {
             <header className="md:hidden sticky top-0 left-0 right-0 z-50 flex items-center justify-between h-16 px-4 bg-sidebar text-sidebar-foreground border-b border-sidebar-border relative shadow-lg overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-sidebar-accent/30 pointer-events-none"></div>
                 
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe] opacity-90 z-10"></div>
-                
                 <img src={FlowStateLogo} alt="FlowState" className="h-8 w-auto relative z-10" />
                 <button 
                     onClick={toggleMobileSidebar} 
@@ -152,6 +150,8 @@ export default function Sidebar() {
                         <Menu className="w-6 h-6 text-sidebar-foreground transition-transform duration-200" />
                     )}
                 </button>
+                
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#ff8a01] via-[#ea0c3c] via-[#ac1ec4] to-[#1c50fe] z-10"></div>
             </header>
 
             <aside className={`

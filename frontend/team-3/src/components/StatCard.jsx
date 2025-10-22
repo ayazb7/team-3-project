@@ -1,5 +1,5 @@
 const StatCard = ({ label, value, subtext, icon: Icon, color }) => (
-  <div className="bg-white rounded-xl p-6 shadow-lg">
+  <div className="bg-white rounded-xl p-6 shadow-sm">
     <div className="flex items-center justify-between mb-4">
       <span className="font-bold text-gray-900 text-sm">{label}</span>
       <div className={`p-2 ${color} rounded-lg`}>

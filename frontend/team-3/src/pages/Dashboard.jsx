@@ -54,10 +54,10 @@ const Carousel = ({ items, renderItem, className }) => {
     <div className="relative group">
       <div 
         ref={containerRef}
-        className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-4 ${className}`}
+        className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${className}`}
       >
         {items.map((item, idx) => (
-          <div key={idx} className="flex-none w-[85%] sm:w-[45%] lg:w-[30%] snap-start">
+          <div key={idx} className="flex-none w-[85%] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] snap-start">
             {renderItem(item, idx)}
           </div>
         ))}
@@ -111,9 +111,9 @@ export default function Dashboard() {
   // ];
 
   const recommended = [
-    { id: 1, title: 'Borderlands 4', rating: '94% Rating' },
-    { id: 1, title: 'Dying Light', rating: '87% Rating' },
-    { id: 1, title: 'League of Legends', rating: '11% Rating' }
+    { id: 1, title: 'Internet Navigation & Safety', rating: '94% Rating' },
+    { id: 1, title: 'Social Media & Professional Networking', rating: '87% Rating' },
+    { id: 1, title: 'Video Communication', rating: '11% Rating' }
   ];
 
   const events = [
@@ -213,7 +213,7 @@ export default function Dashboard() {
                 renderItem={(course, idx) => (
                   <CourseCard key={idx} {...course} id={course.id} />
                 )}
-                className="pb-8"
+                className="pb-6"
               />
             </div>
 
@@ -228,7 +228,7 @@ export default function Dashboard() {
                 renderItem={(item, idx) => (
                   <RecommendedCard key={idx} {...item} />
                 )}
-                className="pb-8"
+                className="pb-6"
               />
             </div>
           </div>
