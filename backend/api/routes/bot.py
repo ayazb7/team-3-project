@@ -1,8 +1,10 @@
-
 from flask import Blueprint, request, jsonify
 import requests
 import markdown
 from socket_wrapper import socketio
+from openai import OpenAI
+
+client = OpenAI()
 
 
 BOT_TEST_ENDPOINT = "http://localhost:11434/api/generate"
@@ -14,6 +16,11 @@ requestDict = {
     "model": MODEL,
     "stream": STREAM
 }
+
+# response = client.responses.create(
+#     model="gpt-5",
+#     input = "Hello, world!"
+# )
 
 # bp = Blueprint('bot', __name__, url_prefix="/chat")
 
@@ -29,7 +36,12 @@ def handle_disconnect():
 @socketio.on('message', namespace='/chat')
 def handle_message(message):
     print('Received message:', message)
-    socketio.emit('response', {'data': 'Message received!'}, namespace='/chat')
+    
+    response = client.responses.create(
+        model="gpt-5",
+        input=message
+    )
+    socketio.emit('response', {'data': response.output_text}, namespace='/chat')
 
 
 # @bp.route('/generate', methods=['POST'])

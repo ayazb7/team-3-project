@@ -11,3 +11,4 @@ requests
 markdown
 flask-socketio
 eventlet
+openai
