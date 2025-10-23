@@ -37,6 +37,20 @@
   scrollbar-width: none; /* Firefox */
 }
 
+ul,
+li,
+ol {
+  @apply list-disc ml-5;
+}
+
+h1 {
+  @apply font-bold text-lg;
+}
+
+h2 {
+  @apply font-semibold text-base;
+}
+
 #root {
   width: 100vw;
   height: 100vh;
