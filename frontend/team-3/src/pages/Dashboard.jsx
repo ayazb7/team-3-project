@@ -98,22 +98,21 @@ export default function Dashboard() {
   const api = axios.create({ baseURL: API_URL });
   const { accessToken } = useAuth();
 
-  const stats = [
-    { label: 'Courses Completed', value: '10', icon: GraduationCap, color: 'bg-blue-50' },
-    { label: 'Tutorials Watched', value: '31', icon: Play, color: 'bg-green-50' },
-    { label: 'Time Spent', value: '5.3', subtext: 'this week', icon: Clock, color: 'bg-red-50' }
-  ];
+  const [stats, setStats] = useState([
+    { label: 'Courses Completed', value: '0', icon: GraduationCap, color: 'bg-blue-50' },
+    { label: 'Tutorials Watched', value: '0', icon: Play, color: 'bg-green-50' },
+    { label: 'Time Spent', value: '0', subtext: 'this week', icon: Clock, color: 'bg-red-50' }
+  ]);
 
-  // const continueCourses = [
-  //   { id: 1, title: 'Borderlands 4 Walkthrough', progress: 15 },
-  //   { id: 1, title: 'Fundamentals of AWS', progress: 65 },
-  //   { id: 1, title: 'How to open an Email', progress: 35 }
-  // ];
+  const [continueCourses, setContinueCourses] = useState([]);
+  const [weeklyActivity, setWeeklyActivity] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const recommended = [
     { id: 1, title: 'Internet Navigation & Safety', rating: '94% Rating' },
-    { id: 1, title: 'Social Media & Professional Networking', rating: '87% Rating' },
-    { id: 1, title: 'Video Communication', rating: '11% Rating' }
+    { id: 2, title: 'Social Media & Professional Networking', rating: '87% Rating' },
+    { id: 3, title: 'Video Communication', rating: '11% Rating' }
   ];
 
   const events = [
@@ -123,7 +122,6 @@ export default function Dashboard() {
   ];
 
   const [scrolling, setScrolling] = useState(false);
-  const [continueCourses, setContinueCourses] = useState([]);
 
   const preventScroll = (e) => {
     if (scrolling) {
@@ -139,27 +137,85 @@ export default function Dashboard() {
     };
   }, [scrolling]);
 
+  // Fetch dashboard stats
   useEffect(() => {
     let isMounted = true;
 
-    api
-      .get(`/courses`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      .then((res) => {
-        setContinueCourses(res.data)
-      })
-      .catch((e) => {
-        if (!isMounted) return;
-        setErr(e?.response?.data?.message || "Unable to load course.");
-      })
-      .finally(() => {
-        if (!isMounted) return;
-      });
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/dashboard/stats', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
 
-      return () => {
-        isMounted = false;
-      };
+        if (!isMounted) return;
+
+        const data = response.data;
+        
+        // Update stats with real data
+        setStats([
+          { 
+            label: 'Courses Completed', 
+            value: data.courses_completed.toString(), 
+            icon: GraduationCap, 
+            color: 'bg-blue-50' 
+          },
+          { 
+            label: 'Tutorials Watched', 
+            value: data.tutorials_watched.toString(), 
+            icon: Play, 
+            color: 'bg-green-50' 
+          },
+          { 
+            label: 'Time Spent', 
+            value: data.time_spent_hours.toString(), 
+            subtext: 'this week', 
+            icon: Clock, 
+            color: 'bg-red-50' 
+          }
+        ]);
+
+        // Store weekly activity for WeekProgress component
+        setWeeklyActivity(data.weekly_activity);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error('Error fetching dashboard stats:', err);
+        setError(err?.response?.data?.message || 'Unable to load dashboard stats.');
+      }
+    };
+
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken]);
+
+  // Fetch courses
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCourses = async () => {
+      try {
+        const response = await api.get('/courses', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!isMounted) return;
+        setContinueCourses(response.data);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error('Error fetching courses:', err);
+        setError(err?.response?.data?.message || 'Unable to load courses.');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchCourses();
+
+    return () => {
+      isMounted = false;
+    };
   }, [accessToken]);
 
   return (
@@ -192,6 +248,13 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
@@ -208,13 +271,23 @@ export default function Dashboard() {
                 title="Continue?" 
                 subtitle="View your recently accessed courses." 
               />
-              <Carousel
-                items={continueCourses}
-                renderItem={(course, idx) => (
-                  <CourseCard key={idx} {...course} id={course.id} />
-                )}
-                className="pb-6"
-              />
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : continueCourses.length > 0 ? (
+                <Carousel
+                  items={continueCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  No courses in progress yet. Start learning today!
+                </div>
+              )}
             </div>
 
             {/* Recommended Section */}
@@ -235,7 +308,7 @@ export default function Dashboard() {
 
           <div className="space-y-4 md:space-y-6">
             {/* Week Progress */}
-            <WeekProgress />
+            <WeekProgress weeklyActivity={weeklyActivity} />
 
             {/* Nearby Events */}
             <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
