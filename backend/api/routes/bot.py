@@ -6,26 +6,16 @@ from openai import OpenAI
 
 client = OpenAI()
 
-
-BOT_TEST_ENDPOINT = "http://localhost:11434/api/generate"
-MODEL = "gemma3:4b"
-STREAM = False
-
-requestDict = {
-    "prompt": "",
-    "model": MODEL,
-    "stream": STREAM
-}
-
 conversation = [{
     "role" : "system", "content" : "You are a helpful assistant called Ano that helps users with their questions about the learning platform called FlowState"
 }]
 
 def trim_conversation(conversation, max_length=10):
-    system_prompts = [m["content"] for m in conversation if m["role"] == "system"]
+    system_prompts = [{"role": "system", "content": m["content"]} for m in conversation if m["role"] == "system"]
 
     if len(conversation) > max_length:
-        return system_prompts + conversation[-max_length:]
+        bridged_conversation = system_prompts + conversation[-max_length:]
+        return bridged_conversation
     return conversation
 
 
@@ -42,16 +32,14 @@ def handle_disconnect():
 def handle_message(message):
     global conversation
     print('Received message:', message)
-    print("conversation so far:", conversation)
 
     # Trim conversation to last 10 messages
-    conversation = trim_conversation(conversation, max_length=10)
+    conversation = trim_conversation(conversation, max_length=2)
 
     conversation.append({"role": "user", "content": message})
-    
     response = client.responses.create(
         model="gpt-5",
-        input=conversation
+        input=conversation,
     )
 
     conversation.append({"role": "assistant", "content": response.output_text})
