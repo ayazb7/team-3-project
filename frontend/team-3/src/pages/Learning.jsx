@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
@@ -36,8 +36,11 @@ const Learning = () => {
   // State
   const [tutorialData, setTutorialData] = useState();
   const [courseData, setCourseData] = useState();
+  const [quizzes, setQuizzes] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
   const [videoEnded, setVideoEnded] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [detectedGesture, setDetectedGesture] = useState("");
   const [pendingFeedback, setPendingFeedback] = useState(null);
@@ -46,6 +49,7 @@ const Learning = () => {
   const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
   const [hasPopup, setHasPopup] = useState(false);
+  const navigate = useNavigate();
 
   // Refs
   const webcamContainerRef = useRef(null);
@@ -74,8 +78,16 @@ const Learning = () => {
           }
         );
 
+        const quizzesRes = await axios.get(
+          `http://localhost:5000/tutorials/${tutorialId}/quizzes`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
+        setQuizzes(quizzesRes.data);
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -294,18 +306,22 @@ const Learning = () => {
   }
 
   return (
-    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-sidebar-foreground !text-start overflow-y-scroll scrollbar-hide">
-      <div className="flex flex-row gap-2">
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-foreground !text-start overflow-scroll">
+      <div className="flex flex-row gap-2 text-gray-700">
         <Link to="/dashboard" className="text-blue-500 hover:underline">
           Dashboard
         </Link>
+        <span className="text-gray-500">/</span>
         <Link
           to={`/dashboard/course/${courseData?.id}`}
           className="text-blue-500 hover:underline"
         >
-          / {courseData?.name || "Course"}
+          {courseData?.name || "Course"}
         </Link>
-        / <p className="text-black">{tutorialData?.category || "Tutorial"}</p>
+        <span className="text-gray-500">/</span>
+        <span className="text-gray-900">
+          {tutorialData?.category || "Tutorial"}
+        </span>
       </div>
       <div className="flex flex-col gap-2">
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
@@ -313,17 +329,31 @@ const Learning = () => {
 
       <div className="flex flex-row min-w-full justiy-center items-center">
         <p>Browse this tutorial</p>
-        {!videoEnded && (
-          <button
-            onClick={() => {
-              setVideoEnded(true);
-              setHasPopup(true);
-            }}
-            className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            I finished watching - Give Feedback
-          </button>
-        )}
+        <div className="ml-auto flex gap-3">
+          {quizzes.length > 0 && (
+            <button
+              onClick={() =>
+                navigate(
+                  `/dashboard/course/${courseId}/learning/${tutorialId}/quiz/${quizzes[0].id}`
+                )
+              }
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Start Quiz
+            </button>
+          )}
+          {!videoEnded && (
+            <button
+              onClick={() => {
+                setVideoEnded(true);
+                setHasPopup(true);
+              }}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              I finished watching - Give Feedback
+            </button>
+          )}
+        </div>
       </div>
       <div className="w-full h-1/2 shrink-0">
         <iframe

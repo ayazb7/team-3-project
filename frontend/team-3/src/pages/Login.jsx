@@ -25,7 +25,9 @@ function Login() {
 
   return (
     <div className="w-full min-h-[calc(100vh-64px)] flex justify-center items-start md:items-center py-10">
-      <div className="w-11/12 max-w-2xl bg-[#EBF3FC] border border-blue-200 rounded-xl shadow-sm p-6 sm:p-28">
+      <div className="w-11/12 max-w-2xl bg-gradient-to-br from-[#f8f9ff] to-[#f0f4ff] border border-[#ac1ec4]/20 rounded-xl shadow-xl p-6 sm:p-28 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
+        
         <h2 className="text-center text-3xl font-bold text-slate-900">
           Welcome Back!
         </h2>
@@ -39,7 +41,7 @@ function Login() {
             <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
               Your Email:
             </label>
-            <div className="flex items-center gap-2 bg-[#CAE4FE] h-11 px-3 rounded-md ring-1 ring-blue-200 focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center gap-2 bg-white/80 h-11 px-3 rounded-md ring-1 ring-[#ac1ec4]/30 focus-within:ring-2 focus-within:ring-[#ac1ec4] transition-all">
               <CiUser className="w-5 h-5 text-slate-600 shrink-0" />
               <input
                 type="email"
@@ -58,7 +60,7 @@ function Login() {
             <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
               Your Password:
             </label>
-            <div className="flex items-center gap-2 bg-[#CAE4FE] h-11 px-3 rounded-md ring-1 ring-blue-200 focus-within:ring-2 focus-within:ring-blue-500">
+            <div className="flex items-center gap-2 bg-white/80 h-11 px-3 rounded-md ring-1 ring-[#ac1ec4]/30 focus-within:ring-2 focus-within:ring-[#ac1ec4] transition-all">
               <CiLock className="w-5 h-5 text-slate-600 shrink-0" />
               <input
                 type={showPassword ? "text" : "password"}
@@ -76,7 +78,7 @@ function Login() {
                 id="showPassword"
                 checked={showPassword}
                 onChange={() => setShowPassword(!showPassword)}
-                className="w-4 h-4 accent-blue-600 cursor-pointer"
+                className="w-4 h-4 accent-[#ac1ec4] cursor-pointer"
               />
               <label
                 htmlFor="showPassword"
@@ -91,7 +93,7 @@ function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 rounded-md font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
+            className="w-full h-11 rounded-md font-semibold text-white bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] hover:shadow-lg hover:shadow-[#ac1ec4]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02]"
           >
             {loading ? "Logging in..." : "Sign In"}
           </button>
@@ -100,7 +102,7 @@ function Login() {
           <button
             type="button"
             onClick={() => navigate("/register")}
-            className="w-full h-11 rounded-md font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition-colors"
+            className="w-full h-11 rounded-md font-semibold border-2 border-[#ac1ec4] text-[#ac1ec4] hover:bg-[#ac1ec4]/5 transition-all duration-200"
           >
             Sign Up
           </button>
@@ -108,7 +110,9 @@ function Login() {
 
         {/* Invalid Credentials Message */}
         {message && (
-          <p className="text-center text-red-600 text-sm mt-4">{message}</p>
+          <div className="mt-4 p-3 rounded-md text-sm text-center bg-red-50 text-red-600 border border-red-200">
+            {message}
+          </div>
         )}
 
         {/* Support & help text */}
@@ -119,7 +123,7 @@ function Login() {
               Contact our team at{" "}
               <a
                 href="mailto:jibril.abdi@sky.uk"
-                className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors"
+                className="text-[#ac1ec4] font-semibold hover:underline hover:text-[#1c50fe] transition-colors"
               >
                 jibril.abdi@sky.uk
               </a>
@@ -127,12 +131,12 @@ function Login() {
           </p>
 
           <p>
-            Need to create an email? Click{" "}
+            Don't have an email address? Click{" "}
             <a
               href="https://www.youtube.com/watch?v=5pq4QOmjsW4"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition-colors"
+              className="text-[#ac1ec4] font-semibold hover:underline hover:text-[#1c50fe] transition-colors"
             >
               here
             </a>{" "}

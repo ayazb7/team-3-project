@@ -31,6 +31,7 @@ export default function CourseView() {
   const { accessToken } = useAuth();
 
   const [course, setCourse] = useState(null);
+  const [tutorials, setTutorials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
@@ -67,18 +68,33 @@ export default function CourseView() {
         setLoading(false);
       });
 
+    axios.get(`http://localhost:5000/courses/${id}/tutorials`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    .then((res) => {
+      setTutorials(res.data);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+
     return () => {
       isMounted = false;
     };
+
   }, [id, accessToken]);
 
   const startCourse = () => {
-    navigate(`/dashboard/course/${id}/learning/1`);
+    if (tutorials.length > 0) {
+      navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
+    } else {
+      alert("No tutorials found for this course.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 text-left">
-      <div className="max-w-7xl mx-auto space-y-6 text-left">
+      <div className="mx-auto space-y-6 text-left">
         {/* Breadcrumb */}
         <nav className="text-sm text-gray-500 text-left">
           <Link to="/dashboard" className="hover:underline">

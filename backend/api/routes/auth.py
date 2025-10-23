@@ -29,12 +29,14 @@ def register():
         
     Status codes:
         201 - User registered successfully
-        400 - Missing required fields
+        400 - Missing or empty required fields
         409 - User with email already exists
     """
     data = request.get_json()
-    if not data or not all(k in data for k in ("username", "email", "password")):
-        return jsonify({'error': 'Missing required fields'}), 400
+    
+    required_fields = ("username", "email", "password")
+    if not data or not all(k in data and data[k] and str(data[k]).strip() for k in required_fields):
+        return jsonify({'error': 'Missing or empty required fields'}), 400
 
     username = data['username']
     email = data['email']

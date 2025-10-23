@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import ModelViewer from "../components/ModelViewer";
 import VideoBlock from "../components/VideoBlock";
@@ -6,6 +6,10 @@ import catImg from "../../public/landing_placeholder.png";
 import Button from "../components/Button";
 
 const LandingPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  });
+
   return (
     <div className="h-full w-full pt-20 md:text-lg lg:text-xl xl:text-3xl">
       <div className=" flex flex-col gap-10 justify-center items-center md:justify-start md:items-start md:p-15 lg:p-20 mt-auto w-full">

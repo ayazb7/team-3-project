@@ -4,7 +4,7 @@ import bcrypt
 def test_register_missing_fields(client):
     response = client.post('/register', json={})
     assert response.status_code == 400
-    assert response.get_json()['error'] == 'Missing required fields'
+    assert response.get_json()['error'] == 'Missing or empty required fields'
 
 
 def test_register_existing_email(client, mock_mysql):
@@ -38,6 +38,26 @@ def test_register_success(client, mock_mysql):
     mock_mysql.connection.commit.assert_called_once()
     cursor.close.assert_called()
 
+
+def test_register_empty_fields(client):
+    # Test with empty strings for username, email, and password
+    response = client.post('/register', json={
+        'username': '',
+        'email': '',
+        'password': ''
+    })
+    assert response.status_code == 400
+    assert response.get_json()['error'] == 'Missing or empty required fields'
+
+    # Test with whitespace-only strings
+    response = client.post('/register', json={
+        'username': '   ',
+        'email': '   ',
+        'password': '   '
+    })
+    assert response.status_code == 400
+    assert response.get_json()['error'] == 'Missing or empty required fields'
+    
 
 def test_login_missing_fields(client):
     response = client.post('/login', json={})
