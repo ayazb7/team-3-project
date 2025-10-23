@@ -17,12 +17,17 @@ requestDict = {
     "stream": STREAM
 }
 
-# response = client.responses.create(
-#     model="gpt-5",
-#     input = "Hello, world!"
-# )
+conversation = [{
+    "role" : "system", "content" : "You are a helpful assistant called Ano that helps users with their questions about the learning platform called FlowState"
+}]
 
-# bp = Blueprint('bot', __name__, url_prefix="/chat")
+def trim_conversation(conversation, max_length=10):
+    system_prompts = [m["content"] for m in conversation if m["role"] == "system"]
+
+    if len(conversation) > max_length:
+        return system_prompts + conversation[-max_length:]
+    return conversation
+
 
 @socketio.on('connect' , namespace='/chat')
 def handle_connect():
@@ -35,38 +40,25 @@ def handle_disconnect():
 
 @socketio.on('message', namespace='/chat')
 def handle_message(message):
+    global conversation
     print('Received message:', message)
+    print("conversation so far:", conversation)
+
+    # Trim conversation to last 10 messages
+    conversation = trim_conversation(conversation, max_length=10)
+
+    conversation.append({"role": "user", "content": message})
     
     response = client.responses.create(
         model="gpt-5",
-        input=message
+        input=conversation
     )
+
+    conversation.append({"role": "assistant", "content": response.output_text})
+
     socketio.emit('response', {'data': response.output_text}, namespace='/chat')
 
 
-# @bp.route('/generate', methods=['POST'])
-# def generate():
-#     print("reached")
-#     data = request.get_json()
-
-#     if not data:
-#         return jsonify({'error': 'missing json body'})
-
-
-#     prompt = data["prompt"]
-
-#     requestDict["prompt"] = prompt
-
-#     res = requests.post(BOT_TEST_ENDPOINT, json=requestDict)
-#     text = res.json()
-
-#     # print(text["response"])
-
-#     built_response = markdown.markdown(text["response"])
-
-
-#     print(built_response)
-#     return jsonify({"response": built_response})
 
     
 
