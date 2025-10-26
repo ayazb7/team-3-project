@@ -105,9 +105,26 @@ export default function Sidebar() {
 
       {showLogo && (
         <div
-          className={`flex items-center h-20 px-4 border-b border-sidebar-border relative z-10`}
+          className={`flex items-center h-20 px-4 border-b border-sidebar-border relative z-10 ${
+            isCollapsed && !isMobileOpen ? "justify-center" : ""
+          }`}
         >
-          <img src={FlowStateLogo} alt="FlowState" />
+          <h1
+            className={`font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent ${
+              isCollapsed && !isMobileOpen
+                ? "text-base leading-tight"
+                : "text-2xl"
+            }`}
+          >
+            {isCollapsed && !isMobileOpen ? (
+              <div className="text-center">
+                <div>Sky</div>
+                <div>Wise</div>
+              </div>
+            ) : (
+              "SkyWise"
+            )}
+          </h1>
         </div>
       )}
 
@@ -194,11 +211,9 @@ export default function Sidebar() {
       <header className="md:hidden sticky top-0 left-0 right-0 z-50 flex items-center justify-between h-16 px-4 bg-sidebar text-sidebar-foreground border-b border-sidebar-border relative shadow-lg overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-sidebar-accent/30 pointer-events-none"></div>
 
-        <img
-          src={FlowStateLogo}
-          alt="FlowState"
-          className="h-8 w-auto relative z-10"
-        />
+        <h1 className="text-xl font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent relative z-10">
+          SkyWise
+        </h1>
         <button
           onClick={toggleMobileSidebar}
           className="p-2 hover:bg-sidebar-accent rounded-md transition-all hover:shadow-md relative z-10"
