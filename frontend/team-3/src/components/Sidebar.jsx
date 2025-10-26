@@ -10,7 +10,6 @@ import {
   Menu,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import FlowStateLogo from "../assets/flowstate_logo.png";
 
 const MenuItem = ({ item, isCollapsed, location, navigate, onClick }) => {
   const IconComponent = item.icon;

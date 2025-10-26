@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { X, Menu, Home, Info, BookOpen, HelpCircle } from "lucide-react";
-import FlowStateLogo from "../assets/flowstate_logo.png";
 
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
