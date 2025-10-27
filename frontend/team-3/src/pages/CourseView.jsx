@@ -237,13 +237,22 @@ export default function CourseView() {
 
                       {/* CTA bottom-right */}
                       <div className="flex sm:justify-end">
-                        <button
-                          onClick={startCourse}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition-transform"
-                        >
-                          Start Course
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+                        {course?.progress_percentage === 100 ? (
+                          <button
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-400 text-white font-medium cursor-not-allowed"
+                            disabled
+                          >
+                            Course Completed
+                          </button>
+                        ) : (
+                          <button
+                            onClick={startCourse}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition-transform"
+                          >
+                            {course?.progress_percentage > 0 ? "Continue Course" : "Start Course"}
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
