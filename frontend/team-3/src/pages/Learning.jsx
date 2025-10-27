@@ -27,6 +27,18 @@ const SkeletonLoader = () => {
   );
 };
 
+const getRawTxtFromVtt = (txt) => {
+  const lines = txt
+    .split("\n")
+    .filter(
+      (line) =>
+        line.trim() !== "" &&
+        !line.includes("-->") &&
+        !line.startsWith("WEBTVV")
+    );
+  return lines.join(" ");
+};
+
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/Ijgcx-Ji5/";
 const CONFIDENCE_THRESHOLD = 0.85;
 const NEUTRAL_THRESHOLD = 0.7;
@@ -306,17 +318,17 @@ const Learning = () => {
   }
 
   return (
-    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-foreground !text-start overflow-scroll">
-      <div className="flex flex-row gap-2 text-gray-700">
-        <Link to="/dashboard" className="text-blue-500 hover:underline">
-          Dashboard
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-4 md:p-6 lg:p-8 gap-5 text-foreground !text-start overflow-scroll">
+      <div className="flex flex-row gap-2 text-gray-700 font-medium text-sm ">
+        <Link to="/dashboard" className="text-blue-500 ">
+          <p className="hover:underline">Dashboard</p>
         </Link>
         <span className="text-gray-500">/</span>
         <Link
           to={`/dashboard/course/${courseData?.id}`}
           className="text-blue-500 hover:underline"
         >
-          {courseData?.name || "Course"}
+          <p className="hover:underline">{courseData?.name || "Course"}</p>
         </Link>
         <span className="text-gray-500">/</span>
         <span className="text-gray-900">
@@ -327,7 +339,7 @@ const Learning = () => {
         <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
       </div>
 
-      <div className="flex flex-row min-w-full justiy-center items-center">
+      <div className="flex flex-row min-w-full justiy-center items-center hidden md:flex">
         <p>Browse this tutorial</p>
         <div className="ml-auto flex gap-3">
           {quizzes.length > 0 && (
@@ -511,6 +523,14 @@ const Learning = () => {
             <p className="font-bold">Created at: </p>
             {tutorialData?.created_at || "Unknown"}
           </div>
+        </div>
+        <div
+          className={`${
+            activeTab === 1 ? "flex" : "hidden"
+          } flex-col w-full h-full p-5 gap-3 text-black max-h-100 overflow-y-scroll`}
+        >
+          <p className="font-bold">Transcript</p>
+          <p>{getRawTxtFromVtt(tutorialData?.video_transcript)}</p>
         </div>
       </div>
     </div>

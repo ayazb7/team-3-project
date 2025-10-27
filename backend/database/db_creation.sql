@@ -46,7 +46,8 @@ create table tutorials (
     video_provider enum('synthesia', 'youtube') default 'synthesia',
     video_url varchar(255),
     category varchar(100) not null,
-    created_at datetime default current_timestamp
+    created_at datetime default current_timestamp,
+    video_transcript mediumtext
 );
 
 -- =============================================================

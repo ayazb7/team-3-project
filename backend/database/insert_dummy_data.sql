@@ -38,7 +38,7 @@ VALUES
 -- =============================================================
 --  TUTORIALS
 -- =============================================================
-INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
+INSERT INTO tutorials (id, title, description, video_provider, video_url, category, video_transcript)
 VALUES
 (
  1,
@@ -46,7 +46,8 @@ VALUES
  'Getting started with email has never been easier! In this quick, beginner-friendly guide, you’ll learn how to set up your very first email account, add security details, log in, and send your first message. Perfect for anyone new to email or looking for a simple step-by-step refresher.',
  'synthesia',
  'https://share.synthesia.io/embeds/videos/9e680982-8abe-4227-a96c-5906d2b71fbb',
- 'Cybersecurity'
+ 'Cybersecurity',
+ LOAD_FILE("./cybersecurity.vtt")
 );
 
 -- =============================================================
