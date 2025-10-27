@@ -116,7 +116,6 @@ export default function CourseView() {
     // Send progress update to backend
     const response = await axios.post(
       `http://localhost:5000/courses/${id}/progress`,
-      { progress_percentage: 1 },
       {
         headers: {
           "Content-Type": "application/json",
