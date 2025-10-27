@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { X, Menu, Home, Info, BookOpen, HelpCircle } from "lucide-react";
-import FlowStateLogo from "../assets/flowstate_logo.png";
 
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -42,7 +41,9 @@ const Navbar = () => {
 
           <div className="flex w-full justify-center md:justify-start md:ml-10 items-center relative z-10">
             <Link to="/" className="hover:opacity-80 transition-opacity">
-              <img src={FlowStateLogo} alt="FlowState" className="h-10" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent">
+                SkyWise
+              </h1>
             </Link>
           </div>
 
