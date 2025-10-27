@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, CheckCircle } from "lucide-react";
 
 const RenderOption = ({ label, onClick, roundDirection, className }) => {
   return (
@@ -46,6 +46,8 @@ const Learning = () => {
   const [pendingFeedback, setPendingFeedback] = useState(null);
   const [holdProgress, setHoldProgress] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [completingTutorial, setCompletingTutorial] = useState(false);
   const { courseId, tutorialId } = useParams();
   const { accessToken } = useAuth();
   const [hasPopup, setHasPopup] = useState(false);
@@ -88,6 +90,10 @@ const Learning = () => {
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
         setQuizzes(quizzesRes.data);
+        
+        // Check if tutorial is already completed
+        setIsCompleted(tutorialRes.data.is_completed || false);
+        
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -301,6 +307,36 @@ const Learning = () => {
     }
   };
 
+  const markAsCompleted = async () => {
+    if (completingTutorial || isCompleted) return;
+
+    setCompletingTutorial(true);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/tutorials/${tutorialId}/complete`,
+        { 
+          completed: true 
+        },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      
+      setIsCompleted(true);
+      console.log("Tutorial marked as completed", response.data);
+      
+      // Show success message
+      alert(`Tutorial completed! Course progress: ${response.data.course_progress}%`);
+      
+    } catch (error) {
+      console.error("Error marking tutorial as completed:", error);
+      alert("Failed to mark tutorial as completed. Please try again.");
+    } finally {
+      setCompletingTutorial(false);
+    }
+  };
+
   if (loading) {
     return <SkeletonLoader />;
   }
@@ -324,7 +360,15 @@ const Learning = () => {
         </span>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
+        <div className="flex items-center gap-3">
+          <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
+          {isCompleted && (
+            <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+              <CheckCircle className="w-4 h-4" />
+              Completed
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-row min-w-full justiy-center items-center">
@@ -342,15 +386,43 @@ const Learning = () => {
               Start Quiz
             </button>
           )}
+          <button
+            onClick={markAsCompleted}
+            disabled={completingTutorial || isCompleted}
+            className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+              isCompleted
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : completingTutorial
+                ? "bg-blue-400 text-white cursor-wait"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {completingTutorial ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                Completing...
+              </>
+            ) : isCompleted ? (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                Completed
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                Mark as Completed
+              </>
+            )}
+          </button>
           {!videoEnded && (
             <button
               onClick={() => {
                 setVideoEnded(true);
                 setHasPopup(true);
               }}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
             >
-              I finished watching - Give Feedback
+              Give Feedback
             </button>
           )}
         </div>

@@ -105,15 +105,10 @@ export default function Dashboard() {
   ]);
 
   const [continueCourses, setContinueCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
   const [weeklyActivity, setWeeklyActivity] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const recommended = [
-    { id: 1, title: 'Internet Navigation & Safety', rating: '94% Rating' },
-    { id: 2, title: 'Social Media & Professional Networking', rating: '87% Rating' },
-    { id: 3, title: 'Video Communication', rating: '11% Rating' }
-  ];
 
   const events = [
     { title: 'Sky Showcase', location: 'Sky Central - Osterley Campus', date: 'Thursday 13th November 2025' },
@@ -201,7 +196,15 @@ export default function Dashboard() {
         });
 
         if (!isMounted) return;
-        setContinueCourses(response.data);
+        
+        // Separate courses into "continue" (in progress) and "all courses"
+        const courses = response.data;
+        const inProgressCourses = courses.filter(course => 
+          course.progress_percentage > 0 && course.progress_percentage < 100
+        );
+        
+        setContinueCourses(inProgressCourses);
+        setAllCourses(courses);
       } catch (err) {
         if (!isMounted) return;
         console.error('Error fetching courses:', err);
@@ -265,17 +268,13 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Continue Section */}
-            <div className="Continue">
-              <SectionHeader 
-                title="Continue?" 
-                subtitle="View your recently accessed courses." 
-              />
-              {loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                </div>
-              ) : continueCourses.length > 0 ? (
+            {/* Continue Section - Only show if there are courses in progress */}
+            {!loading && continueCourses.length > 0 && (
+              <div className="Continue">
+                <SectionHeader 
+                  title="Continue?" 
+                  subtitle="View your recently accessed courses." 
+                />
                 <Carousel
                   items={continueCourses}
                   renderItem={(course, idx) => (
@@ -283,26 +282,32 @@ export default function Dashboard() {
                   )}
                   className="pb-6"
                 />
+              </div>
+            )}
+
+            {/* All Courses Section */}
+            <div className="AllCourses">
+              <SectionHeader 
+                title="All Courses" 
+                subtitle="Explore all available learning paths." 
+              />
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : allCourses.length > 0 ? (
+                <Carousel
+                  items={allCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
               ) : (
                 <div className="text-center py-12 text-gray-500">
-                  No courses in progress yet. Start learning today!
+                  No courses available at the moment.
                 </div>
               )}
-            </div>
-
-            {/* Recommended Section */}
-            <div className="Recommended">
-              <SectionHeader 
-                title="Recommended For You" 
-                subtitle="Tailored just for you." 
-              />
-              <Carousel
-                items={recommended}
-                renderItem={(item, idx) => (
-                  <RecommendedCard key={idx} {...item} />
-                )}
-                className="pb-6"
-              />
             </div>
           </div>
 
