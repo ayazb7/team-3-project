@@ -4,7 +4,6 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import StatCard from '../components/StatCard';
 import CourseCard from '../components/CourseCard';
-import RecommendedCard from '../components/RecommendedCard.jsx';
 import EventCard from '../components/EventCard';
 import WeekProgress from '../components/WeekProgress.jsx';
 
@@ -51,7 +50,7 @@ const Carousel = ({ items, renderItem, className }) => {
   }, []);
 
   return (
-    <div className="relative group">
+    <div className="relative group/carousel">
       <div 
         ref={containerRef}
         className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${className}`}
@@ -66,7 +65,7 @@ const Carousel = ({ items, renderItem, className }) => {
       {!isStartReached && (
         <button
           onClick={() => scroll('left')}
-          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -76,7 +75,7 @@ const Carousel = ({ items, renderItem, className }) => {
       {!isEndReached && (
         <button
           onClick={() => scroll('right')}
-          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-5 h-5" />
@@ -226,7 +225,7 @@ export default function Dashboard() {
               <Carousel
                 items={recommended}
                 renderItem={(item, idx) => (
-                  <RecommendedCard key={idx} {...item} />
+                  <CourseCard key={idx} name={item.title} rating={item.rating} id={item.id} thumbnail_url={item.thumbnail_url} />
                 )}
                 className="pb-6"
               />

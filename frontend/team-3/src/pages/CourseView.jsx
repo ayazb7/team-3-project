@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import RecommendedCard from "../components/RecommendedCard.jsx";
+import CourseCard from "../components/CourseCard.jsx";
 
 const Skeleton = () => (
   <div className="animate-pulse space-y-6 text-left">
@@ -36,7 +36,6 @@ export default function CourseView() {
   const [err, setErr] = useState(null);
 
   // MVP hard-coded bits
-  const progressPercent = 67;
   // const courseType = "Cyber Security";
   // const duration = "45–60 mins";
 
@@ -176,12 +175,12 @@ export default function CourseView() {
                       <div className="w-full sm:max-w-sm">
                         <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                           <span>Progress</span>
-                          <span>{progressPercent}%</span>
+                          <span>{course?.progress || 0}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-200 rounded-full">
                           <div
                             className="h-2 bg-blue-500 rounded-full transition-all"
-                            style={{ width: `${progressPercent}%` }}
+                            style={{ width: `${course?.progress || 0}%` }}
                           />
                         </div>
                       </div>
@@ -268,7 +267,7 @@ export default function CourseView() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {similar.map((c, idx) => (
-                  <RecommendedCard key={idx} {...c} />
+                  <CourseCard key={idx} name={c.title} rating={c.rating} id={c.id || idx + 1} thumbnail_url={c.thumbnail_url} />
                 ))}
               </div>
             </section>

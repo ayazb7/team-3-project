@@ -328,7 +328,6 @@ const Learning = () => {
       </div>
 
       <div className="flex flex-row min-w-full justiy-center items-center">
-        <p>Browse this tutorial</p>
         <div className="ml-auto flex gap-3">
           {quizzes.length > 0 && (
             <button

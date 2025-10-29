@@ -8,7 +8,7 @@ USE skywise_db;
 -- =============================================================
 --  COURSE DETAILS
 -- =============================================================
-INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives)
+INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives, thumbnail_url)
 VALUES
 (
   1,
@@ -23,7 +23,8 @@ VALUES
     "Set up and send professional emails with confidence",
     "Organize and manage your inbox efficiently",
     "Recognize and avoid common online security risks"
-  ]'
+  ]',
+  'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop&q=80'
 );
 
 -- =============================================================
