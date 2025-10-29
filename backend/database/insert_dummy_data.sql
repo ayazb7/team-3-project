@@ -373,7 +373,7 @@ VALUES (19, 4, 'What does the "mute" button do during a meeting?', 4);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (19, 'It turns off your camera', FALSE),
-(19, 'It silences your microphone so others can't hear you', TRUE),
+(19, "It silences your microphone so others can't hear you", TRUE),
 (19, 'It blocks other participants', FALSE),
 (19, 'It ends the meeting', FALSE);
 
@@ -456,7 +456,7 @@ INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
 VALUES (23, 5, 'How often should you review your social media privacy settings?', 3);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
-(23, 'Never—they don't change', FALSE),
+(23, "Never—they don't change", FALSE),
 (23, 'Regularly, especially after platform updates', TRUE),
 (23, 'Only when creating your account', FALSE),
 (23, 'Once a decade', FALSE);
@@ -505,9 +505,9 @@ VALUES (26, 6, 'What is a key sign that a news story might be fake?', 1);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (26, 'The headline is designed to make you emotional or angry', TRUE),
-(26, 'It's published on a weekday', FALSE),
+(26, "It's published on a weekday", FALSE),
 (26, 'It has pictures', FALSE),
-(26, 'It's longer than one page', FALSE);
+(26, "It's longer than one page", FALSE);
 
 -- Q2
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
@@ -524,7 +524,7 @@ INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
 VALUES (28, 6, 'Which of these is a reliable source of information?', 3);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
-(28, 'A random post from someone you don't know', FALSE),
+(28, "A random post from someone you don't know", FALSE),
 (28, 'A reputable news organization with fact-checkers', TRUE),
 (28, 'A viral meme', FALSE),
 (28, 'An anonymous blog', FALSE);
@@ -599,19 +599,19 @@ VALUES (31, 7, 'What should a professional email subject line do?', 1);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (31, 'Be vague and mysterious', FALSE),
-(31, 'Clearly summarize the email's purpose', TRUE),
+(31, "Clearly summarize the email's purpose", TRUE),
 (31, 'Use ALL CAPS', FALSE),
 (31, 'Include emojis', FALSE);
 
 -- Q2
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (32, 7, 'How should you start a professional email to someone you don't know well?', 2);
+VALUES (32, 7, "How should you start a professional email to someone you don't know well?", 2);
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (32, 'Hey!', FALSE),
 (32, 'Dear [Name] or Hello [Name]', TRUE),
 (32, 'Yo!', FALSE),
-(32, 'What's up?', FALSE);
+(32, "What's up?", FALSE);
 
 -- Q3
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
