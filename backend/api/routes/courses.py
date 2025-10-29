@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import MySQLdb.cursors
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 
 import app
@@ -99,18 +99,6 @@ def get_course(course_id):
 def get_course_tutorials(course_id):
     """
     Returns all tutorials for a specific course
-
-    Response:
-        [
-            {
-                "category": string,
-                "description": string,
-                "id": number,
-                "title": string,
-                "video_provider": enum string (synthesia or youtube),
-                "video_url": url string
-            }
-        ]
     """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -138,17 +126,6 @@ def get_course_tutorials(course_id):
 def get_tutorial(course_id, tutorial_id):
     """
     Returns a specific tutorial for a specific course
-
-    Response:
-        {
-            "category": string,
-            "description": string,
-            "id": number,
-            "title": string,
-            "video_provider": enum string (synthesia or youtube),
-            "video_url": url string
-            "created_at": datetime string,
-        }
     """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
@@ -172,3 +149,85 @@ def get_tutorial(course_id, tutorial_id):
     if not tutorial:
         return jsonify({'error': 'Tutorial not found'}), 404
     return jsonify(tutorial), 200
+
+@bp.route('/<int:course_id>/progress', methods=['POST'])
+@jwt_required()
+def update_course_progress(course_id):
+    """
+    Updates or creates a record of user progress for a specific course.
+    Expects JSON body: { "progress_percentage": <int> }
+    """
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        progress_percentage = data.get('progress_percentage', 1)
+        
+        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        
+        # Check if progress record exists
+        cursor.execute("""
+            SELECT id FROM user_course_progress 
+            WHERE user_id = %s AND course_id = %s
+        """, (user_id, course_id))
+        
+        existing = cursor.fetchone()
+        
+        if existing:
+            # Update existing progress
+            cursor.execute("""
+                UPDATE user_course_progress 
+                SET progress_percentage = %s, last_updated = NOW()
+                WHERE user_id = %s AND course_id = %s
+            """, (progress_percentage, user_id, course_id))
+        else:
+            # Insert new progress record
+            cursor.execute("""
+                INSERT INTO user_course_progress 
+                (user_id, course_id, progress_percentage, last_updated)
+                VALUES (%s, %s, %s, NOW())
+            """, (user_id, course_id, progress_percentage))
+        
+        app.mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({"message": "Progress updated successfully"}), 200
+        
+    except Exception as e:
+        print(f"Error updating course progress: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+    
+@bp.route('/<int:course_id>/progress', methods=['GET'])
+@jwt_required()
+def get_course_progress(course_id):
+    """
+    Retrieves the user's current progress for a specific course.
+    Returns JSON: { "course_id": <int>, "progress_percentage": <float> }
+    """
+    try:
+        user_id = get_jwt_identity()
+        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+        cursor.execute("""
+            SELECT progress_percentage 
+            FROM user_course_progress
+            WHERE user_id = %s AND course_id = %s
+        """, (user_id, course_id))
+
+        progress = cursor.fetchone()
+        cursor.close()
+
+        if progress:
+            return jsonify({
+                "course_id": course_id,
+                "progress_percentage": float(progress["progress_percentage"])
+            }), 200
+        else:
+            return jsonify({
+                "course_id": course_id,
+                "progress_percentage": 0.0
+            }), 200
+
+    except Exception as e:
+        print(f"Error fetching course progress: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
