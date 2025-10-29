@@ -294,44 +294,22 @@ VALUES
 (15, '.txt', FALSE);
 
 -- =============================================================
---  COURSE 3: TEAMS UNLOCKED
+--  TUTORIAL 4: Microsoft Teams for Career Launch
 -- =============================================================
-INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives)
-VALUES
-(
-  3,
-  'Teams Unlocked',
-  'Step into the world of seamless online collaboration with Teams Unlocked! Learn to schedule, join, and manage meetings with Microsoft Teams.',
-  'Beginner',
-  45,
-  60,
-  'Master the essentials of Microsoft Teams — join and schedule meetings, communicate effectively, and collaborate online with confidence.',
-  '[
-    "Learn how to join and schedule meetings in Microsoft Teams",
-    "Understand the core Teams features like chat and calendar",
-    "Develop communication and collaboration skills for remote work"
-  ]'
-);
-
-INSERT INTO course_requirements (course_id, requirement_text)
-VALUES
-(3, 'Internet connection'),
-(3, 'Access to Microsoft Teams');
-
--- Tutorial
 INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
 (
   4,
   'How to schedule and join a Teams meeting?',
-  'Learn how to schedule, join, and manage Microsoft Teams meetings effectively.',
+  'Learn how to schedule, join, and manage Microsoft Teams meetings effectively for professional communication.',
   'synthesia',
   'https://share.synthesia.io/1eba2b49-af85-4e94-9bac-644704110b1f',
   'Digital Collaboration'
 );
 
+-- Link Tutorial 4 to Career Launch (Course 2)
 INSERT INTO course_tutorials (course_id, tutorial_id)
-VALUES (3, 4);
+VALUES (2, 4);
 
 INSERT INTO quizzes (id, tutorial_id, title)
 VALUES (4, 4, 'Microsoft Teams Basics Quiz');
@@ -388,257 +366,139 @@ VALUES
 (20, 'Call each person individually', FALSE);
 
 -- =============================================================
---  COURSE 4: Social Media Smart
+--  COURSE 3: Online Shopping Safety
 -- =============================================================
 INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives)
 VALUES
 (
-  4,
-  'Social Media Smart',
-  'Navigate social media safely and confidently. Learn how to protect your privacy, spot fake news, and create a positive online presence.',
+  3,
+  'Online Shopping Safety',
+  'Shop online with confidence! Learn how to identify secure websites, protect your payment information, and avoid common scams.',
   'Beginner',
+  35,
   50,
-  65,
-  'This course will teach you essential social media skills including privacy settings, identifying misinformation, and building a professional online brand.',
+  'This course covers the essentials of safe online shopping, including recognizing secure websites, understanding payment protection, and spotting fraudulent sellers.',
   '[
-    "Understand privacy settings on major social platforms",
-    "Recognize and avoid fake news and scams",
-    "Build a positive digital footprint",
-    "Practice responsible online communication"
+    "Identify secure shopping websites",
+    "Protect your payment information online",
+    "Recognize and avoid shopping scams",
+    "Understand your rights as an online shopper"
   ]'
 );
 
 INSERT INTO course_requirements (course_id, requirement_text)
 VALUES
-(4, 'Access to at least one social media platform'),
-(4, 'Basic internet navigation skills');
+(3, 'Internet access'),
+(3, 'Basic web browsing skills');
 
--- Tutorial 5: Understanding Privacy on Social Media
+-- Tutorial 5: Safe Online Shopping
 INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
 (
   5,
-  'Understanding Privacy Settings on Social Media',
-  'Learn how to control who sees your content and protect your personal information across different social media platforms.',
+  'How to Shop Safely Online',
+  'Learn the key steps to protect yourself while shopping online, from checking website security to using secure payment methods.',
   'synthesia',
   'https://share.synthesia.io/embeds/videos/9e680982-8abe-4227-a96c-5906d2b71fbb',
   'Digital Safety'
 );
 
 INSERT INTO course_tutorials (course_id, tutorial_id)
-VALUES (4, 5);
-
-INSERT INTO quizzes (id, tutorial_id, title)
-VALUES (5, 5, 'Social Media Privacy Quiz');
-
--- Q1
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (21, 5, 'What should you check before posting personal information online?', 1);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(21, 'Your privacy settings and who can see your post', TRUE),
-(21, 'The time of day', FALSE),
-(21, 'How many likes your last post got', FALSE),
-(21, 'The weather forecast', FALSE);
-
--- Q2
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (22, 5, 'What information should you avoid sharing publicly on social media?', 2);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(22, 'Your current location and home address', TRUE),
-(22, 'Your favorite movie', FALSE),
-(22, 'Your hobbies', FALSE),
-(22, 'Photos of your lunch', FALSE);
-
--- Q3
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (23, 5, 'How often should you review your social media privacy settings?', 3);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(23, "Never—they don't change", FALSE),
-(23, 'Regularly, especially after platform updates', TRUE),
-(23, 'Only when creating your account', FALSE),
-(23, 'Once a decade', FALSE);
-
--- Q4
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (24, 5, 'What is two-factor authentication?', 4);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(24, 'Using two different social media platforms', FALSE),
-(24, 'An extra security step that requires a code along with your password', TRUE),
-(24, 'Having two different passwords', FALSE),
-(24, 'Logging in twice', FALSE);
-
--- Q5
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (25, 5, 'If a stranger sends you a friend request, what should you do?', 5);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(25, 'Accept it immediately', FALSE),
-(25, 'Check their profile and only accept if they seem trustworthy', TRUE),
-(25, 'Share all your personal information with them', FALSE),
-(25, 'Send them your password', FALSE);
-
--- Tutorial 6: Spotting Fake News
-INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
-VALUES
-(
-  6,
-  'How to Spot Fake News and Misinformation',
-  'Develop critical thinking skills to identify false information and unreliable sources online.',
-  'synthesia',
-  'https://share.synthesia.io/a3ce550d-e67e-4380-8614-4878fa16def1',
-  'Digital Literacy'
-);
-
-INSERT INTO course_tutorials (course_id, tutorial_id)
-VALUES (4, 6);
-
-INSERT INTO quizzes (id, tutorial_id, title)
-VALUES (6, 6, 'Spotting Misinformation Quiz');
-
--- Q1
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (26, 6, 'What is a key sign that a news story might be fake?', 1);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(26, 'The headline is designed to make you emotional or angry', TRUE),
-(26, "It's published on a weekday", FALSE),
-(26, 'It has pictures', FALSE),
-(26, "It's longer than one page", FALSE);
-
--- Q2
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (27, 6, 'What should you do before sharing a news article?', 2);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(27, 'Share it immediately if the headline is interesting', FALSE),
-(27, 'Check the source and verify the information', TRUE),
-(27, 'Add your own opinion without reading it', FALSE),
-(27, 'Count how many words it has', FALSE);
-
--- Q3
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (28, 6, 'Which of these is a reliable source of information?', 3);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(28, "A random post from someone you don't know", FALSE),
-(28, 'A reputable news organization with fact-checkers', TRUE),
-(28, 'A viral meme', FALSE),
-(28, 'An anonymous blog', FALSE);
-
--- Q4
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (29, 6, 'What does it mean to "fact-check" information?', 4);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(29, 'To verify information using multiple reliable sources', TRUE),
-(29, 'To check the font size', FALSE),
-(29, 'To count the number of facts in an article', FALSE),
-(29, 'To check spelling and grammar', FALSE);
-
--- Q5
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (30, 6, 'If you see a sensational claim online, what should you do first?', 5);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(30, 'Share it with everyone you know', FALSE),
-(30, 'Research the claim using trusted sources', TRUE),
-(30, 'Believe it without question', FALSE),
-(30, 'Ignore all news forever', FALSE);
+VALUES (3, 5);
 
 -- =============================================================
---  COURSE 5: Email Essentials
+--  COURSE 4: Introduction to Smartphones
 -- =============================================================
 INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives)
 VALUES
 (
-  5,
-  'Email Essentials',
-  'Master the fundamentals of email communication. Learn to write professional emails, manage your inbox, and stay organized.',
+  4,
+  'Introduction to Smartphones',
+  'Get comfortable with your smartphone! Learn the basics of navigation, essential apps, and how to stay connected.',
   'Beginner',
-  40,
   55,
-  'Build confidence in email communication with lessons on professional formatting, email etiquette, and inbox management strategies.',
+  70,
+  'Perfect for beginners, this course teaches you smartphone fundamentals including navigation, app usage, and staying safe on your device.',
   '[
-    "Write clear, professional emails",
-    "Understand email etiquette and best practices",
-    "Organize and manage your inbox efficiently",
-    "Recognize and avoid email scams"
+    "Navigate your smartphone with confidence",
+    "Understand essential apps and features",
+    "Learn to download and manage apps safely",
+    "Set up basic security features"
   ]'
 );
 
 INSERT INTO course_requirements (course_id, requirement_text)
 VALUES
-(5, 'An active email account'),
-(5, 'Basic typing skills');
+(4, 'A smartphone (Android or iPhone)'),
+(4, 'No prior experience needed');
 
--- Tutorial 7: Writing Professional Emails
+-- Tutorial 6: Getting Started with Your Smartphone
+INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
+VALUES
+(
+  6,
+  'Smartphone Basics: Navigation and Apps',
+  'Learn how to navigate your smartphone, find apps, and use essential features with confidence.',
+  'synthesia',
+  'https://share.synthesia.io/a3ce550d-e67e-4380-8614-4878fa16def1',
+  'Technology Basics'
+);
+
+INSERT INTO course_tutorials (course_id, tutorial_id)
+VALUES (4, 6);
+
+-- Tutorial 7: Understanding Smartphone Security
 INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
 (
   7,
-  'Writing Professional Emails',
-  'Learn the structure of a professional email, from subject lines to signatures, and how to communicate clearly and effectively.',
+  'Keeping Your Smartphone Secure',
+  'Set up essential security features on your smartphone including passwords, biometrics, and app permissions.',
   'synthesia',
   'https://share.synthesia.io/4d132ad3-81ac-43d2-96ce-74e7c6e085d1',
-  'Professional Communication'
+  'Device Security'
 );
 
 INSERT INTO course_tutorials (course_id, tutorial_id)
-VALUES (5, 7);
+VALUES (4, 7);
 
-INSERT INTO quizzes (id, tutorial_id, title)
-VALUES (7, 7, 'Professional Email Writing Quiz');
-
--- Q1
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (31, 7, 'What should a professional email subject line do?', 1);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
+-- =============================================================
+--  COURSE 5: Digital Wellbeing
+-- =============================================================
+INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives)
 VALUES
-(31, 'Be vague and mysterious', FALSE),
-(31, "Clearly summarize the email's purpose", TRUE),
-(31, 'Use ALL CAPS', FALSE),
-(31, 'Include emojis', FALSE);
+(
+  5,
+  'Digital Wellbeing',
+  'Balance your digital life! Learn healthy screen habits, manage notifications, and create a positive relationship with technology.',
+  'Beginner',
+  40,
+  55,
+  'Discover practical strategies for managing screen time, reducing digital distractions, and maintaining healthy tech habits.',
+  '[
+    "Understand healthy screen time habits",
+    "Learn to manage notifications effectively",
+    "Create boundaries with technology",
+    "Practice digital mindfulness"
+  ]'
+);
 
--- Q2
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (32, 7, "How should you start a professional email to someone you don't know well?", 2);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
+INSERT INTO course_requirements (course_id, requirement_text)
 VALUES
-(32, 'Hey!', FALSE),
-(32, 'Dear [Name] or Hello [Name]', TRUE),
-(32, 'Yo!', FALSE),
-(32, "What's up?", FALSE);
+(5, 'Smartphone or computer'),
+(5, 'Willingness to reflect on tech habits');
 
--- Q3
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (33, 7, 'What should you include at the end of a professional email?', 3);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
+-- Tutorial 8: Managing Screen Time
+INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
-(33, 'Nothing—just stop typing', FALSE),
-(33, 'A professional closing and your name', TRUE),
-(33, 'A funny joke', FALSE),
-(33, 'Song lyrics', FALSE);
+(
+  8,
+  'Healthy Screen Time Management',
+  'Learn practical tips for balancing screen time and creating healthy digital habits.',
+  'synthesia',
+  'https://share.synthesia.io/1eba2b49-af85-4e94-9bac-644704110b1f',
+  'Digital Wellness'
+);
 
--- Q4
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (34, 7, 'Before sending an important email, you should:', 4);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(34, 'Send it as quickly as possible', FALSE),
-(34, 'Proofread it for spelling and grammar errors', TRUE),
-(34, 'Add lots of exclamation marks!!!', FALSE),
-(34, 'Make the font as large as possible', FALSE);
-
--- Q5
-INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (35, 7, 'What tone should a professional email have?', 5);
-INSERT INTO quiz_options (question_id, option_text, is_correct)
-VALUES
-(35, 'Casual and full of slang', FALSE),
-(35, 'Polite, clear, and respectful', TRUE),
-(35, 'Angry and demanding', FALSE),
-(35, 'Overly emotional', FALSE);
+INSERT INTO course_tutorials (course_id, tutorial_id)
+VALUES (5, 8);

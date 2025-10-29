@@ -4,9 +4,9 @@ const CourseCard = ({ name, progress, progress_percentage, id }) => {
   return (
     <a
       href={'/dashboard/course/' + id}
-      className="block rounded-xl overflow-hidden shadow-sm transform transition-transform hover:scale-105 bg-white"
+      className="block rounded-xl overflow-hidden shadow-sm transform transition-transform hover:scale-105 bg-white group"
     >
-      <div className="relative h-32 bg-gray-200 flex items-center justify-center group">
+      <div className="relative h-32 bg-gray-200 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <span className="py-1.5 px-4 text-white rounded-full text-sm font-medium">
             View
