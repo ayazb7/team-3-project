@@ -105,6 +105,7 @@ export default function Dashboard() {
   ]);
 
   const [continueCourses, setContinueCourses] = useState([]);
+  const [completedCourses, setCompletedCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [weeklyActivity, setWeeklyActivity] = useState({});
   const [loading, setLoading] = useState(true);
@@ -197,13 +198,17 @@ export default function Dashboard() {
 
         if (!isMounted) return;
         
-        // Separate courses into "continue" (in progress) and "all courses"
+        // Separate courses into "continue" (in progress), "completed", and "all courses"
         const courses = response.data;
-        const inProgressCourses = courses.filter(course => 
+        const inProgressCourses = courses.filter(course =>
           course.progress_percentage > 0 && course.progress_percentage < 100
         );
-        
+        const completedCourses = courses.filter(course =>
+          course.progress_percentage >= 100
+        );
+
         setContinueCourses(inProgressCourses);
+        setCompletedCourses(completedCourses);
         setAllCourses(courses);
       } catch (err) {
         if (!isMounted) return;
@@ -271,12 +276,29 @@ export default function Dashboard() {
             {/* Continue Section - Only show if there are courses in progress */}
             {!loading && continueCourses.length > 0 && (
               <div className="Continue">
-                <SectionHeader 
-                  title="Continue?" 
-                  subtitle="View your recently accessed courses." 
+                <SectionHeader
+                  title="Continue?"
+                  subtitle="View your recently accessed courses."
                 />
                 <Carousel
                   items={continueCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
+              </div>
+            )}
+
+            {/* Completed Courses Section */}
+            {!loading && completedCourses.length > 0 && (
+              <div className="CompletedCourses">
+                <SectionHeader
+                  title="Completed Courses"
+                  subtitle="Courses you've finished — great work!"
+                />
+                <Carousel
+                  items={completedCourses}
                   renderItem={(course, idx) => (
                     <CourseCard key={idx} {...course} id={course.id} />
                   )}
