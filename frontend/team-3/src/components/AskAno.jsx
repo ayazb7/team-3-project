@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, use } from "react";
 import { SlArrowUpCircle } from "react-icons/sl";
 import { io } from "socket.io-client";
-const ChatBubble = ({ message, sender }) => {
+const ChatBubble = ({ message, sender, className }) => {
   return (
     <div class="flex items-start gap-2.5">
       <div
@@ -9,7 +9,7 @@ const ChatBubble = ({ message, sender }) => {
           sender == "me"
             ? "rounded-xl rounded-se-none"
             : " rounded-xl rounded-ss-none"
-        }  dark:bg-gray-700`}
+        }  dark:bg-gray-700 ${className}`}
       >
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
           <span class="text-sm font-semibold text-gray-900 dark:text-white">
@@ -30,6 +30,7 @@ const AskAno = () => {
   const [messages, setMessages] = useState([]);
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setPrompt(e.target.value);
@@ -44,11 +45,6 @@ const AskAno = () => {
       console.log("Connected to WebSocket server");
     });
 
-    socketRef.current.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-      console.log("received message:", message);
-    });
-
     socketRef.current.on("disconnect", () => {
       console.log("Disconnected from WebSocket server");
     });
@@ -58,6 +54,7 @@ const AskAno = () => {
         ...prevMessages,
         { sender: "Ano", text: data.data },
       ]);
+      setLoading(false);
     });
 
     return () => {
@@ -73,6 +70,7 @@ const AskAno = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     if (socketRef.current) {
       console.log("sent message:", prompt);
       let trimmedMessage = prompt.trim();
@@ -104,6 +102,19 @@ const AskAno = () => {
       >
         <div className="flex flex-col h-full w-full px-20 ">
           <div className="w-full h-full flex flex-col-reverse gap-5 overflow-y-scroll scrollbar-hide">
+            <div ref={bottomRef} className="flex flex-row gap-3">
+              <ChatBubble
+                className={`${loading ? "block " : "hidden"} animate-pulse`}
+                message="Ano is typing..."
+                sender=""
+              />
+              {messages.length === 0 && (
+                <ChatBubble
+                  message="Hi! I'm Ano, your AI assistant. Ask me anything!"
+                  sender="Ano"
+                />
+              )}
+            </div>
             {messages.toReversed().map((msg, index) => {
               return (
                 <div
@@ -116,8 +127,6 @@ const AskAno = () => {
                 </div>
               );
             })}
-
-            <div ref={bottomRef} />
           </div>
           <form
             className="flex justify-center items-center w-full h-26 px-10 mt-auto gap-2"
