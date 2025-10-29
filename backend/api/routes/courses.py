@@ -12,18 +12,24 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 def get_courses():
     """
     Returns all courses with summary data suitable for a list view.
+    Includes user's progress for each course.
     """
+    user_id = get_jwt_identity()
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("""
                     SELECT
-                        id,
-                        name,
-                        description,
-                        difficulty,
-                        duration_min_minutes,
-                        duration_max_minutes
-                    FROM courses
-                    """)
+                        c.id,
+                        c.name,
+                        c.description,
+                        c.difficulty,
+                        c.duration_min_minutes,
+                        c.duration_max_minutes,
+                        COALESCE(ucp.progress_percentage, 0) AS progress_percentage
+                    FROM courses c
+                    LEFT JOIN user_course_progress ucp
+                        ON c.id = ucp.course_id AND ucp.user_id = %s
+                    ORDER BY c.id
+                    """, (user_id,))
     courses = cursor.fetchall()
     cursor.close()
     return jsonify(courses), 200

@@ -37,6 +37,8 @@ const Learning = () => {
   const [tutorialData, setTutorialData] = useState();
   const [courseData, setCourseData] = useState();
   const [quizzes, setQuizzes] = useState([]);
+  const [allTutorials, setAllTutorials] = useState([]);
+  const [currentTutorialIndex, setCurrentTutorialIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [videoEnded, setVideoEnded] = useState(false);
   const [videoProgress, setVideoProgress] = useState(0);
@@ -87,13 +89,28 @@ const Learning = () => {
           }
         );
 
+        // Fetch all tutorials for this course
+        const allTutorialsRes = await axios.get(
+          `http://localhost:5000/courses/${courseId}/tutorials`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
         setQuizzes(quizzesRes.data);
-        
+        setAllTutorials(allTutorialsRes.data);
+
+        // Find current tutorial index
+        const currentIndex = allTutorialsRes.data.findIndex(
+          (t) => t.id === parseInt(tutorialId)
+        );
+        setCurrentTutorialIndex(currentIndex);
+
         // Check if tutorial is already completed
         setIsCompleted(tutorialRes.data.is_completed || false);
-        
+
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -315,25 +332,48 @@ const Learning = () => {
     try {
       const response = await axios.post(
         `http://localhost:5000/tutorials/${tutorialId}/complete`,
-        { 
-          completed: true 
+        {
+          completed: true
         },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-      
+
       setIsCompleted(true);
       console.log("Tutorial marked as completed", response.data);
-      
-      // Show success message
-      alert(`Tutorial completed! Course progress: ${response.data.course_progress}%`);
-      
+
+      // Check if there's a next tutorial
+      const hasNextTutorial = currentTutorialIndex < allTutorials.length - 1;
+
+      if (hasNextTutorial) {
+        const nextTutorial = allTutorials[currentTutorialIndex + 1];
+        alert(`Tutorial completed! Course progress: ${response.data.course_progress}%\n\nMoving to next tutorial...`);
+        navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
+      } else {
+        alert(`Tutorial completed! Course progress: ${response.data.course_progress}%\n\nCourse complete!`);
+        navigate(`/dashboard/course/${courseId}`);
+      }
+
     } catch (error) {
       console.error("Error marking tutorial as completed:", error);
       alert("Failed to mark tutorial as completed. Please try again.");
     } finally {
       setCompletingTutorial(false);
+    }
+  };
+
+  const goToNextTutorial = () => {
+    if (currentTutorialIndex < allTutorials.length - 1) {
+      const nextTutorial = allTutorials[currentTutorialIndex + 1];
+      navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
+    }
+  };
+
+  const goToPreviousTutorial = () => {
+    if (currentTutorialIndex > 0) {
+      const previousTutorial = allTutorials[currentTutorialIndex - 1];
+      navigate(`/dashboard/course/${courseId}/learning/${previousTutorial.id}`);
     }
   };
 
@@ -360,73 +400,107 @@ const Learning = () => {
         </span>
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
-          {isCompleted && (
-            <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-              <CheckCircle className="w-4 h-4" />
-              Completed
-            </span>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
+            {isCompleted && (
+              <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                <CheckCircle className="w-4 h-4" />
+                Completed
+              </span>
+            )}
+          </div>
+          {allTutorials.length > 1 && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>
+                Tutorial {currentTutorialIndex + 1} of {allTutorials.length}
+              </span>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="flex flex-row min-w-full justiy-center items-center">
-        <p>Browse this tutorial</p>
-        <div className="ml-auto flex gap-3">
-          {quizzes.length > 0 && (
+      {!isCompleted && (
+        <div className="flex flex-row min-w-full justiy-center items-center">
+          <p>Browse this tutorial</p>
+          <div className="ml-auto flex gap-3">
+            {quizzes.length > 0 && (
+              <button
+                onClick={() =>
+                  navigate(
+                    `/dashboard/course/${courseId}/learning/${tutorialId}/quiz/${quizzes[0].id}`
+                  )
+                }
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Start Quiz
+              </button>
+            )}
             <button
-              onClick={() =>
-                navigate(
-                  `/dashboard/course/${courseId}/learning/${tutorialId}/quiz/${quizzes[0].id}`
-                )
-              }
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              onClick={markAsCompleted}
+              disabled={completingTutorial}
+              className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                completingTutorial
+                  ? "bg-blue-400 text-white cursor-wait"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
             >
-              Start Quiz
+              {completingTutorial ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  Completing...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  Mark as Completed
+                </>
+              )}
             </button>
-          )}
+            {!videoEnded && (
+              <button
+                onClick={() => {
+                  setVideoEnded(true);
+                  setHasPopup(true);
+                }}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                Give Feedback
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tutorial Navigation */}
+      {allTutorials.length > 1 && (
+        <div className="flex justify-between items-center w-full pt-4 border-t border-gray-200">
           <button
-            onClick={markAsCompleted}
-            disabled={completingTutorial || isCompleted}
-            className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-              isCompleted
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : completingTutorial
-                ? "bg-blue-400 text-white cursor-wait"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+            onClick={goToPreviousTutorial}
+            disabled={currentTutorialIndex === 0}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              currentTutorialIndex === 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            {completingTutorial ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                Completing...
-              </>
-            ) : isCompleted ? (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                Completed
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-4 h-4" />
-                Mark as Completed
-              </>
-            )}
+            <ChevronRight className="w-4 h-4 rotate-180" />
+            Previous Tutorial
           </button>
-          {!videoEnded && (
-            <button
-              onClick={() => {
-                setVideoEnded(true);
-                setHasPopup(true);
-              }}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              Give Feedback
-            </button>
-          )}
+          <button
+            onClick={goToNextTutorial}
+            disabled={currentTutorialIndex === allTutorials.length - 1}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              currentTutorialIndex === allTutorials.length - 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+            }`}
+          >
+            Next Tutorial
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
-      </div>
+      )}
       <div className="w-full h-1/2 shrink-0">
         <iframe
           src={tutorialData?.video_url}
