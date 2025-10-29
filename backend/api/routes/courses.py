@@ -109,16 +109,17 @@ def get_course_tutorials(course_id):
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(
         """
-        SELECT 
-            t.id, 
-            t.title, 
-            t.description, 
-            t.video_provider, 
-            t.video_url, 
+        SELECT
+            t.id,
+            t.title,
+            t.description,
+            t.video_provider,
+            t.video_url,
             t.category
         FROM course_tutorials AS ct
         INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
         WHERE ct.course_id = %s
+        ORDER BY t.id
         """,
         (course_id,),
     )

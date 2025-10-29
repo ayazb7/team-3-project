@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { ThumbsUp, ThumbsDown, CheckCircle } from "lucide-react";
+import { ThumbsUp, ThumbsDown, CheckCircle, ChevronRight } from "lucide-react";
 
 const RenderOption = ({ label, onClick, roundDirection, className }) => {
   return (
