@@ -110,7 +110,8 @@ create table user_tutorial_progress (
     completed_at datetime,
     feedback ENUM('positive', 'negative') DEFAULT NULL,
     foreign key (user_id) references users(id),
-    foreign key (tutorial_id) references tutorials(id)
+    foreign key (tutorial_id) references tutorials(id),
+    unique key unique_user_tutorial (user_id, tutorial_id)
 );
 
 
@@ -122,10 +123,11 @@ create table user_course_progress (
     id int primary key auto_increment,
     user_id int not null,
     course_id int not null,
-    progress_percentage decimal(5,2) not null, 
+    progress_percentage decimal(5,2) not null,
     last_updated datetime default current_timestamp,
     foreign key (user_id) references users(id),
-    foreign key (course_id) references courses(id)
+    foreign key (course_id) references courses(id),
+    unique key unique_user_course (user_id, course_id)
 );
 
 -- =============================================================

@@ -348,10 +348,8 @@ const Learning = () => {
 
       if (hasNextTutorial) {
         const nextTutorial = allTutorials[currentTutorialIndex + 1];
-        alert(`Tutorial completed! Course progress: ${response.data.course_progress}%\n\nMoving to next tutorial...`);
         navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
       } else {
-        alert(`Tutorial completed! Course progress: ${response.data.course_progress}%\n\nCourse complete!`);
         navigate(`/dashboard/course/${courseId}`);
       }
 

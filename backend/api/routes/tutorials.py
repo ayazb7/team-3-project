@@ -50,7 +50,7 @@ def complete_tutorial(tutorial_id):
 
         # 1. Check if this tutorial is already completed by the user
         cursor.execute("""
-            SELECT completed 
+            SELECT completed
             FROM user_tutorial_progress
             WHERE user_id = %s AND tutorial_id = %s
         """, (user_id, tutorial_id))
@@ -64,8 +64,8 @@ def complete_tutorial(tutorial_id):
 
         # 2. Get the course_id for this tutorial (via the junction table)
         cursor.execute("""
-            SELECT course_id 
-            FROM course_tutorials 
+            SELECT course_id
+            FROM course_tutorials
             WHERE tutorial_id = %s
             LIMIT 1
         """, (tutorial_id,))
@@ -76,11 +76,15 @@ def complete_tutorial(tutorial_id):
 
         course_id = course_result['course_id']
 
-        # 3. Insert new completion record
+        # 3. Insert or update completion record
         cursor.execute("""
-            INSERT INTO user_tutorial_progress 
+            INSERT INTO user_tutorial_progress
             (user_id, tutorial_id, completed, completed_at, feedback)
             VALUES (%s, %s, TRUE, NOW(), %s)
+            ON DUPLICATE KEY UPDATE
+                completed = TRUE,
+                completed_at = NOW(),
+                feedback = VALUES(feedback)
         """, (user_id, tutorial_id, feedback))
 
         # 4. Count total tutorials in the course
