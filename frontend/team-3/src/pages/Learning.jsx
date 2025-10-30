@@ -48,6 +48,7 @@ const Learning = () => {
   const [holdProgress, setHoldProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [hasCompletedQuiz, setHasCompletedQuiz] = useState(false);
   const [completingTutorial, setCompletingTutorial] = useState(false);
   const { courseId, tutorialId } = useParams();
   const { api } = useAuth();
@@ -85,8 +86,9 @@ const Learning = () => {
         );
         setCurrentTutorialIndex(currentIndex);
 
-        // Check if tutorial is already completed
+        // Check if tutorial is already completed and if quiz is done
         setIsCompleted(tutorialRes.data.is_completed || false);
+        setHasCompletedQuiz(tutorialRes.data.has_completed_quiz || false);
 
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
@@ -309,9 +311,7 @@ const Learning = () => {
     try {
       const response = await api.post(
         `/tutorials/${tutorialId}/complete`,
-        {
-          completed: true
-        }
+        {}
       );
 
       setIsCompleted(true);
@@ -393,54 +393,71 @@ const Learning = () => {
       </div>
 
       {!isCompleted && (
-        <div className="flex flex-row min-w-full justiy-center items-center">
-          <p>Browse this tutorial</p>
-          <div className="ml-auto flex gap-3">
-            {quizzes.length > 0 && (
-              <button
-                onClick={() =>
-                  navigate(
-                    `/dashboard/course/${courseId}/learning/${tutorialId}/quiz/${quizzes[0].id}`
-                  )
-                }
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Start Quiz
-              </button>
-            )}
-            <button
-              onClick={markAsCompleted}
-              disabled={completingTutorial}
-              className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                completingTutorial
-                  ? "bg-blue-400 text-white cursor-wait"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              {completingTutorial ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  Completing...
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  Mark as Completed
-                </>
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-row min-w-full justify-center items-center">
+            <p>Browse this tutorial</p>
+            <div className="ml-auto flex gap-3">
+              {quizzes.length > 0 && (
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/dashboard/course/${courseId}/learning/${tutorialId}/quiz/${quizzes[0].id}`
+                    )
+                  }
+                  className={`px-6 py-2 rounded-lg font-medium transition-all ${
+                    hasCompletedQuiz
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "bg-green-600 text-white hover:bg-green-700 animate-pulse"
+                  }`}
+                >
+                  {hasCompletedQuiz ? "Retake Quiz" : "Start Quiz"}
+                </button>
               )}
-            </button>
-            {!videoEnded && (
               <button
-                onClick={() => {
-                  setVideoEnded(true);
-                  setHasPopup(true);
-                }}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                onClick={markAsCompleted}
+                disabled={completingTutorial || !hasCompletedQuiz}
+                className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  completingTutorial
+                    ? "bg-blue-400 text-white cursor-wait"
+                    : !hasCompletedQuiz
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+                title={!hasCompletedQuiz ? "Complete the quiz first" : ""}
               >
-                Give Feedback
+                {completingTutorial ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    Completing...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Mark as Completed
+                  </>
+                )}
               </button>
-            )}
+              {!videoEnded && (
+                <button
+                  onClick={() => {
+                    setVideoEnded(true);
+                    setHasPopup(true);
+                  }}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Give Feedback
+                </button>
+              )}
+            </div>
           </div>
+          {!hasCompletedQuiz && quizzes.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span>Please complete the quiz before marking this tutorial as completed.</span>
+            </div>
+          )}
         </div>
       )}
 

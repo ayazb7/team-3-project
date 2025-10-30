@@ -211,17 +211,20 @@ def get_course_tutorials(course_id):
 @jwt_required()
 def get_tutorial(course_id, tutorial_id):
     """
-    Returns a specific tutorial for a specific course
+    Returns a specific tutorial for a specific course, including quiz completion status
     """
+    user_id = get_jwt_identity()
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    # Get tutorial details
     cursor.execute(
         """
-        SELECT 
-            t.id, 
-            t.title, 
-            t.description, 
-            t.video_provider, 
-            t.video_url, 
+        SELECT
+            t.id,
+            t.title,
+            t.description,
+            t.video_provider,
+            t.video_url,
             t.category,
             t.created_at
         FROM course_tutorials AS ct
@@ -231,9 +234,37 @@ def get_tutorial(course_id, tutorial_id):
         (course_id, tutorial_id,),
     )
     tutorial = cursor.fetchone()
-    cursor.close()
+
     if not tutorial:
+        cursor.close()
         return jsonify({'error': 'Tutorial not found'}), 404
+
+    # Check if user has completed the quiz for this tutorial
+    cursor.execute(
+        """
+        SELECT COUNT(DISTINCT uqr.quiz_id) as quiz_completed_count
+        FROM user_quiz_results uqr
+        INNER JOIN quizzes q ON uqr.quiz_id = q.id
+        WHERE q.tutorial_id = %s AND uqr.user_id = %s
+        """,
+        (tutorial_id, user_id),
+    )
+    quiz_result = cursor.fetchone()
+    tutorial['has_completed_quiz'] = quiz_result['quiz_completed_count'] > 0 if quiz_result else False
+
+    # Check if user has completed this tutorial
+    cursor.execute(
+        """
+        SELECT completed
+        FROM user_tutorial_progress
+        WHERE user_id = %s AND tutorial_id = %s
+        """,
+        (user_id, tutorial_id),
+    )
+    progress_result = cursor.fetchone()
+    tutorial['is_completed'] = progress_result['completed'] if progress_result else False
+
+    cursor.close()
     return jsonify(tutorial), 200
 
 @bp.route('/<int:course_id>/progress', methods=['POST'])
