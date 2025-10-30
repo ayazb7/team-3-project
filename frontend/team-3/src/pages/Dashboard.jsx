@@ -129,13 +129,63 @@ export default function Dashboard() {
     };
   }, [scrolling]);
 
-  // Fetch dashboard stats and courses
+  // Fetch dashboard stats
   useEffect(() => {
     let isMounted = true;
 
     if (!api) return;
 
-    // Fetch courses
+    // Fetch dashboard stats
+    api
+      .get('/dashboard/stats')
+      .then((res) => {
+        if (!isMounted) return;
+
+        const data = res.data;
+
+        // Update stats with real data
+        setStats([
+          {
+            label: 'Courses Completed',
+            value: data.courses_completed.toString(),
+            icon: GraduationCap,
+            color: 'bg-blue-50'
+          },
+          {
+            label: 'Tutorials Watched',
+            value: data.tutorials_watched.toString(),
+            icon: Play,
+            color: 'bg-green-50'
+          },
+          {
+            label: 'Time Spent',
+            value: data.time_spent_hours.toString(),
+            subtext: 'this week',
+            icon: Clock,
+            color: 'bg-red-50'
+          }
+        ]);
+
+        // Store weekly activity for WeekProgress component
+        setWeeklyActivity(data.weekly_activity);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error('Error fetching dashboard stats:', e);
+        // Keep default values on error
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api]);
+
+  // Fetch courses
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!api) return;
+
     api
       .get('/courses')
       .then((res) => {
