@@ -1,18 +1,89 @@
 from flask import Blueprint, jsonify
 import MySQLdb.cursors
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 
 import app
 
 bp = Blueprint('courses', __name__, url_prefix='/courses')
 
+
+def calculate_course_progress(cursor, course_id, user_id):
+    """
+    Calculates user's progress for a course based on completed tutorials and submitted quizzes.
+    
+    Progress formula: (completed_tutorials + submitted_quizzes) / (total_tutorials + total_quizzes) * 100
+    
+    Returns:
+        float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
+    """
+    # Get total tutorials for this course
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM course_tutorials
+        WHERE course_id = %s
+    """, (course_id,))
+    total_tutorials_result = cursor.fetchone()
+    total_tutorials = total_tutorials_result['count'] if total_tutorials_result else 0
+    
+    # Get total quizzes for this course (quizzes linked to tutorials in this course)
+    cursor.execute("""
+        SELECT COUNT(DISTINCT q.id) as count
+        FROM quizzes q
+        INNER JOIN tutorials t ON q.tutorial_id = t.id
+        INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
+        WHERE ct.course_id = %s
+    """, (course_id,))
+    total_quizzes_result = cursor.fetchone()
+    total_quizzes = total_quizzes_result['count'] if total_quizzes_result else 0
+    
+    # If no tutorials or quizzes, return 0
+    if total_tutorials == 0 and total_quizzes == 0:
+        return 0.0
+    
+    # Get user's completed tutorials for this course
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM user_tutorial_progress utp
+        INNER JOIN course_tutorials ct ON utp.tutorial_id = ct.tutorial_id
+        WHERE ct.course_id = %s 
+        AND utp.user_id = %s 
+        AND utp.completed = TRUE
+    """, (course_id, user_id))
+    completed_tutorials_result = cursor.fetchone()
+    completed_tutorials = completed_tutorials_result['count'] if completed_tutorials_result else 0
+    
+    # Get user's submitted quizzes for tutorials in this course
+    cursor.execute("""
+        SELECT COUNT(DISTINCT uqr.quiz_id) as count
+        FROM user_quiz_results uqr
+        INNER JOIN quizzes q ON uqr.quiz_id = q.id
+        INNER JOIN tutorials t ON q.tutorial_id = t.id
+        INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
+        WHERE ct.course_id = %s 
+        AND uqr.user_id = %s
+    """, (course_id, user_id))
+    submitted_quizzes_result = cursor.fetchone()
+    submitted_quizzes = submitted_quizzes_result['count'] if submitted_quizzes_result else 0
+    
+    # Calculate progress percentage
+    total_items = total_tutorials + total_quizzes
+    completed_items = completed_tutorials + submitted_quizzes
+    
+    if total_items == 0:
+        return 0.0
+    
+    progress = (completed_items / total_items) * 100
+    return round(progress, 2)
+
 @bp.route('', methods=['GET'])
 @jwt_required()
 def get_courses():
     """
     Returns all courses with summary data suitable for a list view.
+    Includes progress percentage for each course based on user's completed tutorials and submitted quizzes.
     """
+    user_id = get_jwt_identity()
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("""
                     SELECT
@@ -21,10 +92,16 @@ def get_courses():
                         description,
                         difficulty,
                         duration_min_minutes,
-                        duration_max_minutes
+                        duration_max_minutes,
+                        thumbnail_url
                     FROM courses
                     """)
     courses = cursor.fetchall()
+    
+    # Calculate progress for each course
+    for course in courses:
+        course['progress'] = calculate_course_progress(cursor, course['id'], user_id)
+    
     cursor.close()
     return jsonify(courses), 200
 
@@ -89,6 +166,10 @@ def get_course(course_id):
     """, (course_id,))
     requirements_data = cursor.fetchall()
     course['requirements'] = [item['requirement_text'] for item in requirements_data]
+    
+    # Calculate and add progress
+    user_id = get_jwt_identity()
+    course['progress'] = calculate_course_progress(cursor, course_id, user_id)
 
     cursor.close()
     return jsonify(course), 200
