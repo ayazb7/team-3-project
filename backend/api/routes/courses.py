@@ -93,16 +93,13 @@ def get_courses():
                         c.difficulty,
                         c.duration_min_minutes,
                         c.duration_max_minutes,
-                        c.thumbnail_url,
-                        COALESCE(ucp.progress_percentage, 0) AS progress_percentage
+                        c.thumbnail_url
                     FROM courses c
-                    LEFT JOIN user_course_progress ucp
-                        ON c.id = ucp.course_id AND ucp.user_id = %s
                     ORDER BY c.id
-                    """, (user_id,))
+                    """)
     courses = cursor.fetchall()
 
-    # Calculate progress for each course
+    # Calculate fresh progress for each course based on completed tutorials and quizzes
     for course in courses:
         course['progress'] = calculate_course_progress(cursor, course['id'], user_id)
 

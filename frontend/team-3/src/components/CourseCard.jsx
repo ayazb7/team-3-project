@@ -1,5 +1,6 @@
 const CourseCard = ({ name, progress, progress_percentage, rating, id, thumbnail_url }) => {
-  const displayProgress = progress_percentage !== undefined ? progress_percentage : (progress || 0);
+  // Prioritize freshly calculated 'progress' over database 'progress_percentage'
+  const displayProgress = progress !== undefined ? progress : (progress_percentage || 0);
 
   return (
     <a
