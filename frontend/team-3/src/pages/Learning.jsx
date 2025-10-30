@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { ThumbsUp, ThumbsDown, CheckCircle, ChevronRight } from "lucide-react";
 
@@ -51,7 +50,7 @@ const Learning = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [completingTutorial, setCompletingTutorial] = useState(false);
   const { courseId, tutorialId } = useParams();
-  const { accessToken } = useAuth();
+  const { api } = useAuth();
   const [hasPopup, setHasPopup] = useState(false);
   const navigate = useNavigate();
 
@@ -67,35 +66,13 @@ const Learning = () => {
   // Fetch tutorial and course data
   useEffect(() => {
     const fetchData = async () => {
+      if (!api) return;
+
       try {
-        const tutorialRes = await axios.get(
-          `http://localhost:5000/courses/${courseId}/tutorials/${tutorialId}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        const courseRes = await axios.get(
-          `http://localhost:5000/courses/${courseId}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        const quizzesRes = await axios.get(
-          `http://localhost:5000/tutorials/${tutorialId}/quizzes`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        // Fetch all tutorials for this course
-        const allTutorialsRes = await axios.get(
-          `http://localhost:5000/courses/${courseId}/tutorials`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
+        const tutorialRes = await api.get(`/courses/${courseId}/tutorials/${tutorialId}`);
+        const courseRes = await api.get(`/courses/${courseId}`);
+        const quizzesRes = await api.get(`/tutorials/${tutorialId}/quizzes`);
+        const allTutorialsRes = await api.get(`/courses/${courseId}/tutorials`);
 
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
@@ -120,7 +97,7 @@ const Learning = () => {
     };
 
     fetchData();
-  }, [courseId, tutorialId, accessToken]);
+  }, [courseId, tutorialId, api]);
 
   // Load Teachable Machine scripts
   useEffect(() => {
@@ -330,13 +307,10 @@ const Learning = () => {
     setCompletingTutorial(true);
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/tutorials/${tutorialId}/complete`,
+      const response = await api.post(
+        `/tutorials/${tutorialId}/complete`,
         {
           completed: true
-        },
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
 

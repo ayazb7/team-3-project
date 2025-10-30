@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Clock, Play, GraduationCap, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import StatCard from '../components/StatCard';
 import CourseCard from '../components/CourseCard';
-import RecommendedCard from '../components/RecommendedCard.jsx';
 import EventCard from '../components/EventCard';
 import WeekProgress from '../components/WeekProgress.jsx';
 
@@ -51,7 +49,7 @@ const Carousel = ({ items, renderItem, className }) => {
   }, []);
 
   return (
-    <div className="relative group">
+    <div className="relative group/carousel">
       <div 
         ref={containerRef}
         className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${className}`}
@@ -66,7 +64,7 @@ const Carousel = ({ items, renderItem, className }) => {
       {!isStartReached && (
         <button
           onClick={() => scroll('left')}
-          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -76,7 +74,7 @@ const Carousel = ({ items, renderItem, className }) => {
       {!isEndReached && (
         <button
           onClick={() => scroll('right')}
-          className="opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
+          className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-5 h-5" />
@@ -94,9 +92,7 @@ const SectionHeader = ({ title, subtitle }) => (
 );
 
 export default function Dashboard() {
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const api = axios.create({ baseURL: API_URL });
-  const { accessToken } = useAuth();
+  const { api } = useAuth();
 
   const [stats, setStats] = useState([
     { label: 'Courses Completed', value: '0', icon: GraduationCap, color: 'bg-blue-50' },
@@ -133,98 +129,43 @@ export default function Dashboard() {
     };
   }, [scrolling]);
 
-  // Fetch dashboard stats
+  // Fetch dashboard stats and courses
   useEffect(() => {
     let isMounted = true;
 
-    const fetchStats = async () => {
-      try {
-        const response = await api.get('/dashboard/stats', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+    if (!api) return;
 
+    // Fetch courses
+    api
+      .get('/courses')
+      .then((res) => {
         if (!isMounted) return;
 
-        const data = response.data;
-        
-        // Update stats with real data
-        setStats([
-          { 
-            label: 'Courses Completed', 
-            value: data.courses_completed.toString(), 
-            icon: GraduationCap, 
-            color: 'bg-blue-50' 
-          },
-          { 
-            label: 'Tutorials Watched', 
-            value: data.tutorials_watched.toString(), 
-            icon: Play, 
-            color: 'bg-green-50' 
-          },
-          { 
-            label: 'Time Spent', 
-            value: data.time_spent_hours.toString(), 
-            subtext: 'this week', 
-            icon: Clock, 
-            color: 'bg-red-50' 
-          }
-        ]);
-
-        // Store weekly activity for WeekProgress component
-        setWeeklyActivity(data.weekly_activity);
-      } catch (err) {
-        if (!isMounted) return;
-        console.error('Error fetching dashboard stats:', err);
-        setError(err?.response?.data?.message || 'Unable to load dashboard stats.');
-      }
-    };
-
-    fetchStats();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [accessToken]);
-
-  // Fetch courses
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchCourses = async () => {
-      try {
-        const response = await api.get('/courses', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        if (!isMounted) return;
-        
-        // Separate courses into "continue" (in progress), "completed", and "all courses"
-        const courses = response.data;
+        const courses = res.data;
         const inProgressCourses = courses.filter(course =>
-          course.progress_percentage > 0 && course.progress_percentage < 100
+          course.progress > 0 && course.progress < 100
         );
         const completedCourses = courses.filter(course =>
-          course.progress_percentage >= 100
+          course.progress >= 100
         );
 
         setContinueCourses(inProgressCourses);
         setCompletedCourses(completedCourses);
         setAllCourses(courses);
-      } catch (err) {
+      })
+      .catch((e) => {
         if (!isMounted) return;
-        console.error('Error fetching courses:', err);
-        setError(err?.response?.data?.message || 'Unable to load courses.');
-      } finally {
+        console.error('Error fetching courses:', e);
+        setError(e?.response?.data?.message || 'Unable to load courses.');
+      })
+      .finally(() => {
         if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchCourses();
+      });
 
     return () => {
       isMounted = false;
     };
-  }, [accessToken]);
+  }, [api]);
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
@@ -309,9 +250,9 @@ export default function Dashboard() {
 
             {/* All Courses Section */}
             <div className="AllCourses">
-              <SectionHeader 
-                title="All Courses" 
-                subtitle="Explore all available learning paths." 
+              <SectionHeader
+                title="All Courses"
+                subtitle="Explore all available learning paths."
               />
               {loading ? (
                 <div className="flex justify-center items-center py-12">

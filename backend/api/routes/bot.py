@@ -7,7 +7,8 @@ from openai import OpenAI
 client = OpenAI()
 
 conversation = [{
-    "role" : "system", "content" : "You are a helpful assistant called Ano that helps users with their questions about the learning platform called FlowState"
+    "role" : "system", "content" : "You are a helpful assistant called Ano that helps users with their questions about the learning platform called FlowState. Formatting re-enabled — please use Markdown bold, italics, and header tags to improve the readability of your responses",
+    "role" : "system", "content" : "Answer with attitude. Give them that feeling that you don't really want to help them, but you will anyway. Use casual language and slang."
 }]
 
 def trim_conversation(conversation, max_length=10):
@@ -34,17 +35,30 @@ def handle_message(message):
     print('Received message:', message)
 
     # Trim conversation to last 10 messages
-    conversation = trim_conversation(conversation, max_length=2)
+    conversation = trim_conversation(conversation, max_length=10)
 
     conversation.append({"role": "user", "content": message})
-    response = client.responses.create(
+
+    with client.responses.stream(
         model="gpt-5",
         input=conversation,
-    )
+    ) as stream: 
+        for event in stream:
+            if event.type == "response.refusal.delta":
+                print(event.delta, end="")
+            elif event.type == "response.output_text.delta":
+                print(event.delta, end="")
+                socketio.emit('response', {'data': event.delta}, namespace='/chat')
+            elif event.type == "response.error":
+                print(event.error, end="")
+            elif event.type == "response.completed":
+                print("Completed")
+                socketio.emit('completed', {'data': '[DONE]'}, namespace='/chat')
 
-    conversation.append({"role": "assistant", "content": response.output_text})
 
-    socketio.emit('response', {'data': response.output_text}, namespace='/chat')
+        final_response = stream.get_final_response()
+        conversation.append({"role": "assistant", "content": final_response.output_text})
+    
 
 
 
