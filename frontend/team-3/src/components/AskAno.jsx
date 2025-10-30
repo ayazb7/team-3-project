@@ -3,6 +3,7 @@ import { SlArrowUpCircle } from "react-icons/sl";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 const ChatBubble = ({ message, sender, className }) => {
   return (
     <div class="flex items-start gap-2.5">
@@ -47,6 +48,7 @@ const AskAno = () => {
   const [partialResponse, setPartialResponse] = useState("");
   const partialResponseRef = useRef("");
 
+  let navigate = useNavigate();
   const handleChange = (e) => {
     setPrompt(e.target.value);
   };
@@ -77,10 +79,20 @@ const AskAno = () => {
       setLoading(false);
     });
 
+    socketRef.current.on("redirect", (data) => {
+      console.log("redirecting to: ", data.data);
+      if (data.data === "dashboard") {
+        setLoading(false);
+        setPartialResponse("");
+        console.log(loading);
+        navigate("/dashboard");
+      }
+    });
+
     return () => {
       socketRef.current.disconnect();
     };
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     if (bottomRef.current) {
