@@ -16,6 +16,44 @@ export const AuthProvider = ({ children }) => {
 
   const api = axios.create({ baseURL: API_URL });
 
+  // Define logout and refreshAccessToken before interceptor uses them
+  const logout = () => {
+    setAccessToken(null);
+    Cookies.remove("accessToken");
+    Cookies.remove("refreshToken");
+    navigate("/login");
+  };
+
+  const refreshAccessToken = async () => {
+    const refreshToken = Cookies.get("refreshToken");
+    if (!refreshToken) {
+      return false;
+    }
+    
+    try {
+      // Use raw axios to avoid interceptor loop - we need to bypass the interceptor for refresh calls
+      const response = await axios.get(`${API_URL}/refresh`, {
+        headers: { Authorization: `Bearer ${refreshToken}` },
+      });
+      const newAccess = response.data?.access_token;
+      if (newAccess) {
+        const cookieOptions = {
+          sameSite: "lax",
+          secure: window.location.protocol === "https:",
+          expires: 7,
+        };
+        Cookies.set("accessToken", newAccess, cookieOptions);
+        setAccessToken(newAccess);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      // Refresh token expired or invalid
+      console.error("Token refresh failed:", err);
+      return false;
+    }
+  };
+
   api.interceptors.request.use((config) => {
     const token = Cookies.get("accessToken");
     if (token) {
@@ -36,18 +74,31 @@ export const AuthProvider = ({ children }) => {
         originalRequest?.url?.includes("/login") ||
         originalRequest?.url?.includes("/register") ||
         originalRequest?.url?.includes("/refresh");
+      
       if (status === 401 && !originalRequest._retry && !isAuthEndpoint) {
         originalRequest._retry = true;
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          const newAccess = Cookies.get("accessToken");
-          originalRequest.headers = originalRequest.headers || {};
-          originalRequest.headers.Authorization = `Bearer ${newAccess}`;
-          return api(originalRequest);
-        } else {
+        
+        try {
+          const refreshed = await refreshAccessToken();
+          if (refreshed) {
+            const newAccess = Cookies.get("accessToken");
+            originalRequest.headers = originalRequest.headers || {};
+            originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+            return api(originalRequest);
+          } else {
+            logout();
+            return Promise.reject(error);
+          }
+        } catch (refreshError) {
           logout();
+          return Promise.reject(refreshError);
         }
       }
+      
+      if (status === 401 && originalRequest?.url?.includes("/refresh")) {
+        logout();
+      }
+      
       return Promise.reject(error);
     }
   );
@@ -113,30 +164,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setAccessToken(null);
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    navigate("/login");
-  };
-
-  const refreshAccessToken = async () => {
-    const refreshToken = Cookies.get("refreshToken");
-    if (!refreshToken) return false;
-    try {
-      const response = await api.get(`/refresh`, {
-        headers: { Authorization: `Bearer ${refreshToken}` },
-      });
-      const newAccess = response.data?.access_token;
-      if (newAccess) {
-        setTokens(newAccess, refreshToken);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      return false;
-    }
-  };
 
   const fetchUserDetails = async () => {
     try {
@@ -156,6 +183,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     refresh: refreshAccessToken,
+    api, 
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

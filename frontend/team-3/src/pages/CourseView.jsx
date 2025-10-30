@@ -9,9 +9,8 @@ import {
   ChevronRight,
   CheckCircle,
 } from "lucide-react";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import RecommendedCard from "../components/RecommendedCard.jsx";
+import CourseCard from "../components/CourseCard.jsx";
 
 const Skeleton = () => (
   <div className="animate-pulse space-y-6 text-left">
@@ -28,7 +27,7 @@ const Skeleton = () => (
 export default function CourseView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { api } = useAuth();
 
   const [course, setCourse] = useState(null);
   const [tutorials, setTutorials] = useState([]);
@@ -36,7 +35,6 @@ export default function CourseView() {
   const [err, setErr] = useState(null);
 
   // MVP hard-coded bits
-  const progressPercent = 67;
   // const courseType = "Cyber Security";
   // const duration = "45–60 mins";
 
@@ -51,10 +49,10 @@ export default function CourseView() {
     setLoading(true);
     setErr(null);
 
-    axios
-      .get(`http://localhost:5000/courses/${id}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
+    if (!api) return;
+
+    api
+      .get(`/courses/${id}`)
       .then((res) => {
         if (!isMounted) return;
         setCourse(res.data);
@@ -68,21 +66,21 @@ export default function CourseView() {
         setLoading(false);
       });
 
-    axios.get(`http://localhost:5000/courses/${id}/tutorials`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-    .then((res) => {
-      setTutorials(res.data);
-    })
-    .catch((e) => {
-      console.error(e);
-    });
+    api
+      .get(`/courses/${id}/tutorials`)
+      .then((res) => {
+        if (!isMounted) return;
+        setTutorials(res.data);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error(e);
+      });
 
     return () => {
       isMounted = false;
     };
-
-  }, [id, accessToken]);
+  }, [id, api]);
 
   const startCourse = () => {
     if (tutorials.length > 0) {
@@ -94,14 +92,20 @@ export default function CourseView() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 text-left">
-      <div className="mx-auto space-y-6 text-left">
-        {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 text-left">
-          <Link to="/dashboard" className="hover:underline">
+      <div className="mx-auto space-y-4 sm:space-y-6 text-left">
+        {/* Breadcrumb Navigation */}
+        <nav 
+          className="flex flex-row gap-1 sm:gap-2 text-gray-700 text-xs sm:text-base overflow-x-auto w-full scrollbar-hide pb-1 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8" 
+          aria-label="Breadcrumb"
+        >
+          <Link 
+            to="/dashboard" 
+            className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded whitespace-nowrap flex-shrink-0"
+          >
             Dashboard
           </Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-700 font-medium">
+          <span className="text-gray-500 flex-shrink-0" aria-hidden="true">/</span>
+          <span className="text-gray-900 truncate max-w-[120px] sm:max-w-none" aria-current="page" title={course?.name || "Course"}>
             {course?.name || "Course"}
           </span>
         </nav>
@@ -176,12 +180,12 @@ export default function CourseView() {
                       <div className="w-full sm:max-w-sm">
                         <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
                           <span>Progress</span>
-                          <span>{progressPercent}%</span>
+                          <span>{course?.progress || 0}%</span>
                         </div>
                         <div className="w-full h-2 bg-gray-200 rounded-full">
                           <div
                             className="h-2 bg-blue-500 rounded-full transition-all"
-                            style={{ width: `${progressPercent}%` }}
+                            style={{ width: `${course?.progress || 0}%` }}
                           />
                         </div>
                       </div>
@@ -268,7 +272,7 @@ export default function CourseView() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {similar.map((c, idx) => (
-                  <RecommendedCard key={idx} {...c} />
+                  <CourseCard key={idx} name={c.title} rating={c.rating} id={c.id || idx + 1} thumbnail_url={c.thumbnail_url} />
                 ))}
               </div>
             </section>

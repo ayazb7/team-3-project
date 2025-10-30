@@ -62,6 +62,7 @@ CREATE TABLE courses (
     learning_objectives JSON,
     duration_min_minutes INT,
     duration_max_minutes INT,
+    thumbnail_url VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
