@@ -3,6 +3,7 @@ import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 import app
+from .courses import calculate_course_progress
 
 bp = Blueprint('tutorials', __name__, url_prefix='/tutorials')
 
@@ -87,34 +88,16 @@ def complete_tutorial(tutorial_id):
                 feedback = VALUES(feedback)
         """, (user_id, tutorial_id, feedback))
 
-        # 4. Count total tutorials in the course
-        cursor.execute("""
-            SELECT COUNT(*) AS total_tutorials
-            FROM course_tutorials
-            WHERE course_id = %s
-        """, (course_id,))
-        total_tutorials = cursor.fetchone()['total_tutorials']
+        # 4. Calculate progress using the same formula as get_courses
+        # This includes both completed tutorials AND submitted quizzes
+        progress_percentage = calculate_course_progress(cursor, course_id, user_id)
 
-        # 5. Count completed tutorials for this user in that course
+        # 5. Update or insert into user_course_progress
         cursor.execute("""
-            SELECT COUNT(*) AS completed_tutorials
-            FROM user_tutorial_progress utp
-            JOIN course_tutorials ct ON utp.tutorial_id = ct.tutorial_id
-            WHERE utp.user_id = %s
-              AND ct.course_id = %s
-              AND utp.completed = TRUE
-        """, (user_id, course_id))
-        completed_tutorials = cursor.fetchone()['completed_tutorials']
-
-        # 6. Calculate progress
-        progress_percentage = int((completed_tutorials / total_tutorials) * 100) if total_tutorials > 0 else 0
-
-        # 7. Update or insert into user_course_progress
-        cursor.execute("""
-            INSERT INTO user_course_progress 
+            INSERT INTO user_course_progress
             (user_id, course_id, progress_percentage, last_updated)
             VALUES (%s, %s, %s, NOW())
-            ON DUPLICATE KEY UPDATE 
+            ON DUPLICATE KEY UPDATE
                 progress_percentage = VALUES(progress_percentage),
                 last_updated = NOW()
         """, (user_id, course_id, progress_percentage))
@@ -124,9 +107,7 @@ def complete_tutorial(tutorial_id):
 
         return jsonify({
             "message": "Tutorial completed successfully",
-            "course_progress": progress_percentage,
-            "completed_tutorials": completed_tutorials,
-            "total_tutorials": total_tutorials
+            "course_progress": progress_percentage
         }), 200
 
     except Exception as e:
