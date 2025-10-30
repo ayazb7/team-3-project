@@ -309,6 +309,32 @@ def submit_quiz(quiz_id):
             VALUES (%s, %s, %s, %s)
         """, final_answers_data)
 
+        cursor.execute("""
+            SELECT tutorial_id FROM quizzes WHERE id = %s
+        """, (quiz_id,))
+        quiz_data = cursor.fetchone()
+        
+        if quiz_data:
+            tutorial_id = quiz_data['tutorial_id']
+            cursor.execute("""
+                SELECT id FROM user_tutorial_progress 
+                WHERE user_id = %s AND tutorial_id = %s
+            """, (user_id, tutorial_id))
+            existing_progress = cursor.fetchone()
+            
+            if existing_progress:
+                cursor.execute("""
+                    UPDATE user_tutorial_progress 
+                    SET completed = TRUE, completed_at = NOW()
+                    WHERE user_id = %s AND tutorial_id = %s
+                """, (user_id, tutorial_id))
+            else:
+                cursor.execute("""
+                    INSERT INTO user_tutorial_progress 
+                    (user_id, tutorial_id, completed, completed_at)
+                    VALUES (%s, %s, TRUE, NOW())
+                """, (user_id, tutorial_id))
+
         app.mysql.connection.commit()
 
         return jsonify({

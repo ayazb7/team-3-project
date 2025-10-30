@@ -86,7 +86,7 @@ VALUES
 (2, 'Your pet’s name or birthday', TRUE),
 (2, 'A mix of random letters and numbers', FALSE),
 (2, 'Unrelated words and symbols', FALSE),
-(2, 'None of the above', FALSE);
+(2, 'None of these options', FALSE);
 
 -- Question 3
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)

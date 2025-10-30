@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 
@@ -47,7 +46,7 @@ const Learning = () => {
   const [holdProgress, setHoldProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const { courseId, tutorialId } = useParams();
-  const { accessToken } = useAuth();
+  const { api } = useAuth();
   const [hasPopup, setHasPopup] = useState(false);
   const navigate = useNavigate();
 
@@ -63,27 +62,12 @@ const Learning = () => {
   // Fetch tutorial and course data
   useEffect(() => {
     const fetchData = async () => {
+      if (!api) return;
+
       try {
-        const tutorialRes = await axios.get(
-          `http://localhost:5000/courses/${courseId}/tutorials/${tutorialId}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        const courseRes = await axios.get(
-          `http://localhost:5000/courses/${courseId}`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
-
-        const quizzesRes = await axios.get(
-          `http://localhost:5000/tutorials/${tutorialId}/quizzes`,
-          {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          }
-        );
+        const tutorialRes = await api.get(`/courses/${courseId}/tutorials/${tutorialId}`);
+        const courseRes = await api.get(`/courses/${courseId}`);
+        const quizzesRes = await api.get(`/tutorials/${tutorialId}/quizzes`);
 
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
@@ -97,7 +81,7 @@ const Learning = () => {
     };
 
     fetchData();
-  }, [courseId, tutorialId, accessToken]);
+  }, [courseId, tutorialId, api]);
 
   // Load Teachable Machine scripts
   useEffect(() => {

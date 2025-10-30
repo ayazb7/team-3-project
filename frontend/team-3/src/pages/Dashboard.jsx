@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Clock, Play, GraduationCap, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import StatCard from '../components/StatCard';
 import CourseCard from '../components/CourseCard';
@@ -93,9 +92,7 @@ const SectionHeader = ({ title, subtitle }) => (
 );
 
 export default function Dashboard() {
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const api = axios.create({ baseURL: API_URL });
-  const { accessToken } = useAuth();
+  const { api } = useAuth();
 
   const stats = [
     { label: 'Courses Completed', value: '10', icon: GraduationCap, color: 'bg-blue-50' },
@@ -141,25 +138,23 @@ export default function Dashboard() {
   useEffect(() => {
     let isMounted = true;
 
-    api
-      .get(`/courses`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      .then((res) => {
-        setContinueCourses(res.data)
-      })
-      .catch((e) => {
-        if (!isMounted) return;
-        setErr(e?.response?.data?.message || "Unable to load course.");
-      })
-      .finally(() => {
-        if (!isMounted) return;
-      });
+    if (api) {
+      api
+        .get(`/courses`)
+        .then((res) => {
+          if (!isMounted) return;
+          setContinueCourses(res.data);
+        })
+        .catch((e) => {
+          if (!isMounted) return;
+          console.error("Error loading courses:", e?.response?.data?.message || "Unable to load courses.");
+        });
+    }
 
-      return () => {
-        isMounted = false;
-      };
-  }, [accessToken]);
+    return () => {
+      isMounted = false;
+    };
+  }, [api]);
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
