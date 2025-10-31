@@ -1,41 +1,68 @@
-const CourseCard = ({ name, progress, progress_percentage, rating, id, thumbnail_url }) => {
-  // Prioritize freshly calculated 'progress' over database 'progress_percentage'
-  const displayProgress = progress !== undefined ? progress : (progress_percentage || 0);
+import { FaGraduationCap } from "react-icons/fa";
+import { FaClock } from "react-icons/fa";
+import catImg from "../../public/cato.jpg";
+import { courseDifficultyColorMap } from "./utils";
 
+const CourseCard = (props) => {
   return (
     <a
-      href={'/dashboard/course/' + id}
-      className="block rounded-xl overflow-hidden shadow-sm transform transition-transform hover:scale-105 bg-white"
+      href={"/dashboard/course/" + props.id}
+      className="block overflow-hidden transform transition-colors hover:bg-gray-300  rounded-lg py-4 px-2 w-full"
     >
-      <div
-        className="relative h-48 bg-gray-200 bg-cover bg-center group/card"
-        style={thumbnail_url ? { backgroundImage: `url(${thumbnail_url})` } : {}}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity">
-          <span className="py-1.5 px-4 text-white rounded text-sm font-medium">
-            View
-          </span>
-        </div>
+      <div className=" bg-gray-200 overflow-hidden rounded-xl aspect-video">
+        <img
+          alt="catImg"
+          src={props.thumbnail_url ? props.thumbnail_url : catImg}
+          className="  object-fill object-center"
+        />
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-col gap-3 p-4 h-auto flex-1">
         <h3
-          className="font-medium text-gray-900 text-lg truncate"
-          title={name}
+          className="font-medium text-gray-900 text-lg  line-clamp-2 text-start"
+          title={props.name}
         >
-          {name}
+          {props.name}
         </h3>
 
-        {displayProgress !== undefined && displayProgress !== null ? (
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+        {
+          <div
+            className={`w-full bg-gray-200 rounded-full h-auto ${
+              !props.progress && "hidden"
+            }`}
+          >
             <div
               className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${displayProgress}%` }}
+              style={{ width: `${props.progress}%` }}
             />
           </div>
-        ) : rating ? (
-          <p className="text-sm text-gray-500 mt-1">{rating}</p>
-        ) : null}
+        }
+        {/* {props.description && (
+        <p className="text-ellipsis">{props.description}</p>
+      )} */}
+
+        {/* Badges */}
+        <div className="">
+          <div className="flex flex-wrap gap-2 text-left text-xs lg:text-sm">
+            <span
+              className={`inline-flex items-center gap-2  rounded-full  p-2  ${
+                courseDifficultyColorMap[
+                  props.difficulty?.toLowerCase() || "beginner"
+                ]
+              }`}
+            >
+              <FaGraduationCap className="w-4 h-4" />
+              {props.difficulty || "Digital Skills"}
+            </span>
+            <span className="inline-flex items-center gap-2  text-gray-700 ">
+              <FaClock className="w-4 h-4" />
+              {props.duration_min_minutes} - {props.duration_max_minutes} mins
+            </span>
+            {/* <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm">
+                        Type: {courseType}
+                      </span> */}
+          </div>
+        </div>
       </div>
     </a>
   );

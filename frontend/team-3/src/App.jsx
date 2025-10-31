@@ -10,6 +10,7 @@ import Layout from "./components/Layout.jsx";
 import Learning from "./pages/Learning.jsx";
 import CourseView from "./pages/CourseView.jsx";
 import BotRender from "./pages/BotRender.jsx";
+import Courses from "./pages/Courses.jsx";
 import Quiz from "./pages/Quiz.jsx";
 
 function App() {
@@ -19,14 +20,7 @@ function App() {
         <Route index element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/courses"
-          element={
-            <div className="min-h-screen flex items-center justify-center">
-              <h1 className="text-3xl font-bold">Courses Page - Coming Soon</h1>
-            </div>
-          }
-        />
+        <Route path="/courses" element={<Courses />} />
         <Route
           path="/about"
           element={
@@ -50,6 +44,7 @@ function App() {
         <Route path="activity" element={<div />} />
         <Route path="support" element={<div />} />
         <Route path="course/:id" element={<CourseView />} />
+        <Route path="courses" element={<Courses />} />
         <Route
           path="course/:courseId/learning/:tutorialId"
           element={<Learning />}

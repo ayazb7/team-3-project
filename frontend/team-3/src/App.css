@@ -38,9 +38,12 @@
 }
 
 ul,
-li,
 ol {
   @apply list-disc ml-5;
+  @apply text-left text-start align-top;
+}
+
+li {
 }
 
 h1 {

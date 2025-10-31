@@ -26,6 +26,18 @@ const SkeletonLoader = () => {
   );
 };
 
+const getRawTxtFromVtt = (txt) => {
+  const lines = txt
+    .split("\n")
+    .filter(
+      (line) =>
+        line.trim() !== "" &&
+        !line.includes("-->") &&
+        !line.startsWith("WEBTVV")
+    );
+  return lines.join(" ");
+};
+
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/Ijgcx-Ji5/";
 const CONFIDENCE_THRESHOLD = 0.85;
 const NEUTRAL_THRESHOLD = 0.7;
@@ -70,7 +82,9 @@ const Learning = () => {
       if (!api) return;
 
       try {
-        const tutorialRes = await api.get(`/courses/${courseId}/tutorials/${tutorialId}`);
+        const tutorialRes = await api.get(
+          `/courses/${courseId}/tutorials/${tutorialId}`
+        );
         const courseRes = await api.get(`/courses/${courseId}`);
         const quizzesRes = await api.get(`/tutorials/${tutorialId}/quizzes`);
         const allTutorialsRes = await api.get(`/courses/${courseId}/tutorials`);
@@ -309,10 +323,7 @@ const Learning = () => {
     setCompletingTutorial(true);
 
     try {
-      const response = await api.post(
-        `/tutorials/${tutorialId}/complete`,
-        {}
-      );
+      const response = await api.post(`/tutorials/${tutorialId}/complete`, {});
 
       setIsCompleted(true);
       console.log("Tutorial marked as completed", response.data);
@@ -340,7 +351,6 @@ const Learning = () => {
           navigate(`/dashboard/course/${courseId}`);
         }
       }
-
     } catch (error) {
       console.error("Error marking tutorial as completed:", error);
       alert("Failed to mark tutorial as completed. Please try again.");
@@ -368,17 +378,17 @@ const Learning = () => {
   }
 
   return (
-    <div className="relative flex flex-col justify-start items-start h-full w-full p-10 gap-5 text-foreground !text-start overflow-scroll">
-      <div className="flex flex-row gap-2 text-gray-700">
-        <Link to="/dashboard" className="text-blue-500 hover:underline">
-          Dashboard
+    <div className="relative flex flex-col justify-start items-start h-full w-full p-4 md:p-6 lg:p-8 gap-5 text-foreground !text-start overflow-scroll">
+      <div className="flex flex-row gap-2 text-gray-700 font-medium text-sm ">
+        <Link to="/dashboard" className="text-blue-500 ">
+          <p className="hover:underline">Dashboard</p>
         </Link>
         <span className="text-gray-500">/</span>
         <Link
           to={`/dashboard/course/${courseData?.id}`}
           className="text-blue-500 hover:underline"
         >
-          {courseData?.name || "Course"}
+          <p className="hover:underline">{courseData?.name || "Course"}</p>
         </Link>
         <span className="text-gray-500">/</span>
         <span className="text-gray-900">
@@ -388,7 +398,9 @@ const Learning = () => {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            <p className="text-black text-xl font-bold">{tutorialData?.title}</p>
+            <p className="text-black text-xl font-bold">
+              {tutorialData?.title}
+            </p>
             {isCompleted && (
               <span className="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                 <CheckCircle className="w-4 h-4" />
@@ -473,6 +485,21 @@ const Learning = () => {
               )}
             </div>
           </div>
+          {!hasCompletedQuiz && quizzes.length > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>
+                Please complete the quiz before marking this tutorial as
+                completed.
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -661,6 +688,14 @@ const Learning = () => {
             <p className="font-bold">Created at: </p>
             {tutorialData?.created_at || "Unknown"}
           </div>
+        </div>
+        <div
+          className={`${
+            activeTab === 1 ? "flex" : "hidden"
+          } flex-col w-full h-full p-5 gap-3 text-black max-h-100 overflow-y-scroll`}
+        >
+          <p className="font-bold">Transcript</p>
+          <p>{getRawTxtFromVtt(tutorialData?.video_transcript)}</p>
         </div>
       </div>
     </div>

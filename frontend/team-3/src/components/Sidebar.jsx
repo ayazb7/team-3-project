@@ -10,6 +10,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { IoBookOutline } from "react-icons/io5";
 
 const MenuItem = ({ item, isCollapsed, location, navigate, onClick }) => {
   const IconComponent = item.icon;
@@ -56,6 +57,12 @@ export default function Sidebar() {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: ChartLine, to: "/dashboard" },
+    {
+      id: "courses",
+      label: "Courses",
+      icon: IoBookOutline,
+      to: "/dashboard/courses",
+    },
     {
       id: "local-events",
       label: "Find Local Events",

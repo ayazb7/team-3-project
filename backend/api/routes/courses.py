@@ -246,7 +246,8 @@ def get_tutorial(course_id, tutorial_id):
             t.video_provider,
             t.video_url,
             t.category,
-            t.created_at
+            t.created_at,
+            t.video_transcript
         FROM course_tutorials AS ct
         INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
         WHERE ct.course_id = %s AND t.id = %s
