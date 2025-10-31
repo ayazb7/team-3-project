@@ -76,6 +76,29 @@ def calculate_course_progress(cursor, course_id, user_id):
     progress = (completed_items / total_items) * 100
     return round(progress, 2)
 
+@bp.route('/public', methods=['GET'])
+def get_public_courses():
+    """
+    Returns all courses without authentication for landing page display.
+    Returns basic course information: name, difficulty, durations, and thumbnail.
+    """
+    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+                    SELECT
+                        c.id,
+                        c.name,
+                        c.difficulty,
+                        c.duration_min_minutes,
+                        c.duration_max_minutes,
+                        c.thumbnail_url
+                    FROM courses c
+                    ORDER BY c.id
+                    """)
+    courses = cursor.fetchall()
+    cursor.close()
+    return jsonify(courses), 200
+
+
 @bp.route('', methods=['GET'])
 @jwt_required()
 def get_courses():
@@ -343,5 +366,94 @@ def get_course_progress(course_id):
 
     except Exception as e:
         print(f"Error fetching course progress: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@bp.route('/<int:course_id>/next-step', methods=['GET'])
+@jwt_required()
+def get_next_step(course_id):
+    """
+    Determines the next step (tutorial or quiz) for the user in a course.
+    The flow is: tutorial -> quiz -> next tutorial -> quiz -> etc.
+    
+    Returns JSON:
+        {
+            "type": "tutorial" | "quiz",
+            "tutorial_id": <int>,
+            "quiz_id": <int> (only if type is "quiz"),
+            "is_first_step": <boolean>
+        }
+    """
+    try:
+        user_id = get_jwt_identity()
+        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        
+        cursor.execute("""
+            SELECT t.id
+            FROM course_tutorials AS ct
+            INNER JOIN tutorials AS t ON ct.tutorial_id = t.id
+            WHERE ct.course_id = %s
+            ORDER BY t.id
+        """, (course_id,))
+        tutorials = cursor.fetchall()
+        
+        if not tutorials:
+            cursor.close()
+            return jsonify({'error': 'No tutorials found for this course'}), 404
+        
+        for tutorial in tutorials:
+            tutorial_id = tutorial['id']
+            
+            cursor.execute("""
+                SELECT completed
+                FROM user_tutorial_progress
+                WHERE user_id = %s AND tutorial_id = %s
+            """, (user_id, tutorial_id))
+            progress = cursor.fetchone()
+            tutorial_completed = progress['completed'] if progress else False
+            
+            if not tutorial_completed:
+                cursor.close()
+                return jsonify({
+                    'type': 'tutorial',
+                    'tutorial_id': tutorial_id,
+                    'is_first_step': tutorial_id == tutorials[0]['id']
+                }), 200
+            
+            cursor.execute("""
+                SELECT q.id
+                FROM quizzes q
+                WHERE q.tutorial_id = %s
+            """, (tutorial_id,))
+            quiz = cursor.fetchone()
+            
+            if quiz:
+                quiz_id = quiz['id']
+                
+                cursor.execute("""
+                    SELECT COUNT(*) as count
+                    FROM user_quiz_results
+                    WHERE user_id = %s AND quiz_id = %s
+                """, (user_id, quiz_id))
+                quiz_result = cursor.fetchone()
+                quiz_completed = quiz_result['count'] > 0 if quiz_result else False
+                
+                if not quiz_completed:
+                    cursor.close()
+                    return jsonify({
+                        'type': 'quiz',
+                        'tutorial_id': tutorial_id,
+                        'quiz_id': quiz_id,
+                        'is_first_step': False
+                    }), 200
+        
+        cursor.close()
+        return jsonify({
+            'type': 'completed',
+            'tutorial_id': tutorials[0]['id'],
+            'is_first_step': False
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting next step: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
