@@ -24,7 +24,7 @@ const LandingPage = () => {
     };
 
     getCourses();
-  });
+  }, []);
 
   return (
     <div className="h-full w-full pt-20 md:text-lg lg:text-xl xl:text-3xl">

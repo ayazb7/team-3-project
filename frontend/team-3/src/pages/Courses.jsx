@@ -6,19 +6,36 @@ import { InterpolateSmooth } from "three";
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
-  const { accessToken } = useAuth();
-
+  const { accessToken, fetchUserDetails } = useAuth();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     const getCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/courses", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        await fetchUserDetails();
+        setIsLoggedIn(true && accessToken);
 
-        console.log("successfully requested data", res.data);
-        setCourses(res.data);
+        try {
+          const res = await axios.get("http://localhost:5000/courses", {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          console.log("successfully requested data", res.data);
+          setCourses(res.data);
+        } catch (err) {
+          console.log(err);
+        }
       } catch (err) {
-        console.log(err);
+        console.log("Error fetching user details using public route....", err);
+
+        try {
+          const publicRes = await axios.get(
+            "http://localhost:5000/courses/public"
+          );
+          console.log("successfully requested public data", publicRes.data);
+          setCourses(publicRes.data);
+        } catch (publicErr) {
+          console.log("Error fetching public courses", publicErr);
+        }
       }
     };
 
@@ -44,16 +61,18 @@ const Courses = () => {
           })}
         </div>
       </div>
-      <div className="w-full flex flex-col gap-5 justify-start items-start">
-        <p className="text-lg font-medium">
-          Recommended for you based on your current courses
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify center items-center w-full gap-2 items-stretch grid-flow-row-dense">
-          {courses.map((item, index) => {
-            return <CourseCard {...item} />;
-          })}
+      {isLoggedIn && (
+        <div className="w-full flex flex-col gap-5 justify-start items-start">
+          <p className="text-lg font-medium">
+            Recommended for you based on your current courses
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify center items-center w-full gap-2 items-stretch grid-flow-row-dense">
+            {courses.map((item, index) => {
+              return <CourseCard {...item} />;
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
