@@ -168,4 +168,216 @@ describe('Login page', () => {
     expect(howTo).toHaveAttribute('target', '_blank');
     expect(howTo).toHaveAttribute('rel', expect.stringContaining('noopener'));
   });
+
+  test('clears error message on resubmit', async () => {
+    // First login fails
+    loginMock.mockResolvedValueOnce({
+      success: false,
+      message: 'Invalid credentials',
+    });
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'user@test.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+
+    // Error message appears
+    expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
+
+    // Second login succeeds
+    loginMock.mockResolvedValueOnce({ success: true });
+
+    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+
+    // Error message should be cleared
+    await waitFor(() => {
+      expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
+    });
+  });
+
+  test('handles network error gracefully', async () => {
+    loginMock.mockResolvedValueOnce({
+      success: false,
+      message: 'Network error. Please try again.',
+    });
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'user@test.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+
+    expect(await screen.findByText('Network error. Please try again.')).toBeInTheDocument();
+  });
+
+  test('email input has correct placeholder', () => {
+    renderWithRouter();
+    const emailInput = screen.getByLabelText('Email');
+    expect(emailInput).toHaveAttribute('placeholder', 'e.g: elon@tesla.com');
+  });
+
+  test('password input has correct placeholder', () => {
+    renderWithRouter();
+    const passwordInput = screen.getByLabelText('Password');
+    expect(passwordInput).toHaveAttribute('placeholder', 'e.g. ********');
+  });
+
+  test('form submission prevents default behavior', async () => {
+    loginMock.mockResolvedValueOnce({ success: true });
+    renderWithRouter();
+
+    const form = screen.getByRole('button', { name: /Sign In/i }).closest('form');
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+    const preventDefaultSpy = vi.spyOn(submitEvent, 'preventDefault');
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password123' },
+    });
+
+    form.dispatchEvent(submitEvent);
+
+    await waitFor(() => {
+      expect(preventDefaultSpy).toHaveBeenCalled();
+    });
+  });
+
+  test('disables submit button during loading', async () => {
+    let resolveLogin;
+    const loginPromise = new Promise((res) => (resolveLogin = res));
+    loginMock.mockReturnValueOnce(loginPromise);
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: /Sign In/i });
+    fireEvent.click(submitButton);
+
+    expect(submitButton).toBeDisabled();
+
+    resolveLogin({ success: true });
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
+  });
+
+  test('Sign Up button does not submit form', () => {
+    renderWithRouter();
+
+    const signUpButton = screen.getByRole('button', { name: /Sign Up/i });
+    expect(signUpButton).toHaveAttribute('type', 'button');
+
+    fireEvent.click(signUpButton);
+
+    // login should not have been called
+    expect(loginMock).not.toHaveBeenCalled();
+  });
+
+  test('email field accepts valid email format', () => {
+    renderWithRouter();
+    const emailInput = screen.getByLabelText('Email');
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    expect(emailInput).toHaveValue('user@example.com');
+  });
+
+  test('password field accepts any text', () => {
+    renderWithRouter();
+    const passwordInput = screen.getByLabelText('Password');
+
+    fireEvent.change(passwordInput, { target: { value: 'MySecretPassword123!' } });
+    expect(passwordInput).toHaveValue('MySecretPassword123!');
+  });
+
+  test('displays correct heading and subheading', () => {
+    renderWithRouter();
+    expect(screen.getByText('Welcome Back!')).toBeInTheDocument();
+    expect(screen.getByText('Login to access your learning dashboard')).toBeInTheDocument();
+  });
+
+  test('show password checkbox is unchecked by default', () => {
+    renderWithRouter();
+    const checkbox = screen.getByRole('checkbox', { name: /Show Password/i });
+    expect(checkbox).not.toBeChecked();
+  });
+
+  test('show password checkbox label is clickable', () => {
+    renderWithRouter();
+    const checkbox = screen.getByRole('checkbox', { name: /Show Password/i });
+    const label = screen.getByText('Show Password');
+
+    fireEvent.click(label);
+    expect(checkbox).toBeChecked();
+  });
+
+  test('error message has proper styling classes', async () => {
+    loginMock.mockResolvedValueOnce({
+      success: false,
+      message: 'Test error',
+    });
+
+    renderWithRouter();
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'test@test.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'password' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+
+    const errorMessage = await screen.findByText('Test error');
+    expect(errorMessage).toBeInTheDocument();
+    // Check it's in a container with red styling
+    expect(errorMessage.closest('div')).toHaveClass('text-red-600');
+  });
+
+  test('maintains email and password values during loading', async () => {
+    let resolveLogin;
+    const loginPromise = new Promise((res) => (resolveLogin = res));
+    loginMock.mockReturnValueOnce(loginPromise);
+
+    renderWithRouter();
+
+    const emailValue = 'test@example.com';
+    const passwordValue = 'password123';
+
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: emailValue },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: passwordValue },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+
+    // Values should be maintained during loading
+    expect(screen.getByLabelText('Email')).toHaveValue(emailValue);
+    expect(screen.getByLabelText('Password')).toHaveValue(passwordValue);
+
+    resolveLogin({ success: true });
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Sign In/i })).not.toBeDisabled();
+    });
+  });
 });
