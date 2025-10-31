@@ -34,18 +34,17 @@ export default function CourseView() {
   const [tutorials, setTutorials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [similarCourses, setSimilarCourses] = useState([]);
 
   // MVP hard-coded bits
   // const courseType = "Cyber Security";
   // const duration = "45–60 mins";
 
-  
-
-  const similar = [
-    { title: "Password Managers 101", rating: "92% Rating" },
-    { title: "Avoiding Phishing Emails", rating: "88% Rating" },
-    { title: "Two-Factor Authentication", rating: "95% Rating" },
-  ];
+  // const similar = [
+  //   { title: "Password Managers 101", rating: "92% Rating" },
+  //   { title: "Avoiding Phishing Emails", rating: "88% Rating" },
+  //   { title: "Two-Factor Authentication", rating: "95% Rating" },
+  // ];
 
   useEffect(() => {
     let isMounted = true;
@@ -82,6 +81,18 @@ export default function CourseView() {
         console.error(e);
       });
 
+    api
+      .get(`/courses`)
+      .then((res) => {
+        if (!isMounted) return;
+        // Filter out the current course from similar courses
+        const similar = res.data.filter((course) => course.id !== parseInt(id));
+        setSimilarCourses(similar);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error(e);
+      });
     return () => {
       isMounted = false;
     };
@@ -96,7 +107,7 @@ export default function CourseView() {
     try {
       // Send progress update to backend
       await api.post(`/courses/${id}/progress`, {
-        progress_percentage: 1
+        progress_percentage: 1,
       });
 
       console.log("Progress updated");
@@ -109,12 +120,14 @@ export default function CourseView() {
       // Navigate to first tutorial
       navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
     } catch (error) {
-      console.error("Error updating course progress:", error.response?.data || error.message);
+      console.error(
+        "Error updating course progress:",
+        error.response?.data || error.message
+      );
       // Still navigate even if the request fails
       navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 text-left">
@@ -243,7 +256,9 @@ export default function CourseView() {
                             onClick={startCourse}
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition-transform"
                           >
-                            {course?.progress > 0 ? "Continue Course" : "Start Course"}
+                            {course?.progress > 0
+                              ? "Continue Course"
+                              : "Start Course"}
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         )}
@@ -319,13 +334,14 @@ export default function CourseView() {
                 Similar Courses
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {similar.map((c, idx) => (
+                {similarCourses.map((c, idx) => (
                   <CourseCard
-                    key={idx}
-                    name={c.title}
-                    rating={c.rating}
-                    id={c.id || idx + 1}
-                    thumbnail_url={c.thumbnail_url}
+                    // key={idx}
+                    // name={c.title}
+                    // rating={c.rating}
+                    // id={c.id || idx + 1}
+                    // thumbnail_url={c.thumbnail_url}
+                    {...c}
                   />
                 ))}
               </div>

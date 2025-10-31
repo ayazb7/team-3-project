@@ -19,6 +19,15 @@ const Courses = () => {
         setCourses(res.data);
       } catch (err) {
         console.log(err);
+        try {
+          const publicRes = await axios.get(
+            "http://localhost:5000/courses/public"
+          );
+          console.log("successfully requested public data", publicRes.data);
+          setCourses(publicRes.data);
+        } catch (publicErr) {
+          console.log("Error fetching public courses", publicErr);
+        }
       }
     };
 

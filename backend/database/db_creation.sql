@@ -46,7 +46,8 @@ CREATE TABLE tutorials (
     video_provider ENUM('synthesia', 'youtube') DEFAULT 'synthesia',
     video_url VARCHAR(255),
     category VARCHAR(100) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    video_transcript text
 );
 
 -- =============================================================
