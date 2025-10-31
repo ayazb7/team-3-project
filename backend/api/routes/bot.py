@@ -3,7 +3,6 @@ from openai import OpenAI, pydantic_function_tool
 import json
 import pydantic
 
-print(pydantic.__version__)
 
 client = OpenAI()
 

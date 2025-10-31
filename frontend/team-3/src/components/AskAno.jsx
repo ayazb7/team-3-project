@@ -92,7 +92,7 @@ const AskAno = () => {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [loading]);
+  }, []);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -249,7 +249,7 @@ const AskAno = () => {
                 />
                 {messages.length === 0 && (
                   <div className="flex flex-row gap-3 mb-2 p-2 rounded self-start">
-                    <p>Ask me anything about FlowState! I'm here to help.</p>
+                    <p>Ask me anything about Sky Wise! I'm here to help.</p>
                   </div>
                 )}
               </div>
