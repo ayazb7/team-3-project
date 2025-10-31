@@ -211,20 +211,6 @@ def get_tutorial(course_id, tutorial_id):
     Returns a specific tutorial for a specific course, including quiz completion status
     """
     user_id = get_jwt_identity()
-    Returns a specific tutorial for a specific course
-
-    Response:
-        {
-            "category": string,
-            "description": string,
-            "id": number,
-            "title": string,
-            "video_provider": enum string (synthesia or youtube),
-            "video_url": url string
-            "created_at": datetime string,
-            "video_transcript": transcript string
-        }
-    """
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
     # Get tutorial details
