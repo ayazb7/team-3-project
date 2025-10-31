@@ -183,6 +183,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     refresh: refreshAccessToken,
     api,
+    fetchUserDetails,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
