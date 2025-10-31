@@ -105,26 +105,36 @@ export default function CourseView() {
     }
 
     try {
-      // Send progress update to backend
-      await api.post(`/courses/${id}/progress`, {
-        progress_percentage: 1,
-      });
+      const nextStepRes = await api.get(`/courses/${id}/next-step`);
+      const nextStep = nextStepRes.data;
 
-      console.log("Progress updated");
+      console.log("Next step:", nextStep);
 
-      setCourse((prev) => ({
-        ...prev,
-        progress: 1,
-      }));
+      if (nextStep.is_first_step && course?.progress === 0) {
+        await api.post(`/courses/${id}/progress`, {
+          progress_percentage: 1,
+        });
 
-      // Navigate to first tutorial
-      navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
+        setCourse((prev) => ({
+          ...prev,
+          progress: 1,
+        }));
+      }
+
+      if (nextStep.type === "tutorial") {
+        navigate(`/dashboard/course/${id}/learning/${nextStep.tutorial_id}`);
+      } else if (nextStep.type === "quiz") {
+        navigate(
+          `/dashboard/course/${id}/learning/${nextStep.tutorial_id}/quiz/${nextStep.quiz_id}`
+        );
+      } else if (nextStep.type === "completed") {
+        navigate(`/dashboard/course/${id}/learning/${nextStep.tutorial_id}`);
+      }
     } catch (error) {
       console.error(
-        "Error updating course progress:",
+        "Error getting next step:",
         error.response?.data || error.message
       );
-      // Still navigate even if the request fails
       navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
     }
   };

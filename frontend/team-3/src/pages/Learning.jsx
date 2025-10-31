@@ -328,14 +328,28 @@ const Learning = () => {
       setIsCompleted(true);
       console.log("Tutorial marked as completed", response.data);
 
-      // Check if there's a next tutorial
-      const hasNextTutorial = currentTutorialIndex < allTutorials.length - 1;
+      try {
+        const nextStepRes = await api.get(`/courses/${courseId}/next-step`);
+        const nextStep = nextStepRes.data;
 
-      if (hasNextTutorial) {
-        const nextTutorial = allTutorials[currentTutorialIndex + 1];
-        navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
-      } else {
-        navigate(`/dashboard/course/${courseId}`);
+        console.log("Next step after completion:", nextStep);
+
+        if (nextStep.type === 'tutorial') {
+          navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}`);
+        } else if (nextStep.type === 'quiz') {
+          navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}/quiz/${nextStep.quiz_id}`);
+        } else if (nextStep.type === 'completed') {
+          navigate(`/dashboard/course/${courseId}`);
+        }
+      } catch (navError) {
+        console.error("Error getting next step:", navError);
+        const hasNextTutorial = currentTutorialIndex < allTutorials.length - 1;
+        if (hasNextTutorial) {
+          const nextTutorial = allTutorials[currentTutorialIndex + 1];
+          navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
+        } else {
+          navigate(`/dashboard/course/${courseId}`);
+        }
       }
     } catch (error) {
       console.error("Error marking tutorial as completed:", error);
@@ -395,7 +409,7 @@ const Learning = () => {
             )}
           </div>
           {allTutorials.length > 1 && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 px-2">
               <span>
                 Tutorial {currentTutorialIndex + 1} of {allTutorials.length}
               </span>
@@ -406,9 +420,18 @@ const Learning = () => {
 
       {!isCompleted && (
         <div className="flex flex-col gap-3 w-full">
-          <div className="flex flex-row min-w-full justify-center items-center">
-            <p>Browse this tutorial</p>
-            <div className="ml-auto flex gap-3">
+          <div className="flex flex-row min-w-full justify-between items-center gap-4">
+            {!hasCompletedQuiz && quizzes.length > 0 ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <span>Please complete the quiz before marking this tutorial as completed.</span>
+              </div>
+            ) : (
+              <div></div>
+            )}
+            <div className="flex gap-3 ml-auto">
               {quizzes.length > 0 && (
                 <button
                   onClick={() =>
@@ -419,7 +442,7 @@ const Learning = () => {
                   className={`px-6 py-2 rounded-lg font-medium transition-all ${
                     hasCompletedQuiz
                       ? "bg-green-600 text-white hover:bg-green-700"
-                      : "bg-green-600 text-white hover:bg-green-700 animate-pulse"
+                      : "bg-green-600 text-white hover:bg-green-700"
                   }`}
                 >
                   {hasCompletedQuiz ? "Retake Quiz" : "Start Quiz"}
@@ -462,51 +485,39 @@ const Learning = () => {
               )}
             </div>
           </div>
-          {!hasCompletedQuiz && quizzes.length > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>
-                Please complete the quiz before marking this tutorial as
-                completed.
-              </span>
-            </div>
-          )}
         </div>
       )}
 
       {/* Tutorial Navigation */}
       {allTutorials.length > 1 && (
-        <div className="flex justify-between items-center w-full pt-4 border-t border-gray-200">
-          <button
-            onClick={goToPreviousTutorial}
-            disabled={currentTutorialIndex === 0}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-              currentTutorialIndex === 0
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <ChevronRight className="w-4 h-4 rotate-180" />
-            Previous Tutorial
-          </button>
-          <button
-            onClick={goToNextTutorial}
-            disabled={currentTutorialIndex === allTutorials.length - 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-              currentTutorialIndex === allTutorials.length - 1
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-            }`}
-          >
-            Next Tutorial
-            <ChevronRight className="w-4 h-4" />
-          </button>
+        <div className="flex flex-col gap-3 w-full pt-4 border-t border-gray-200">
+          <div className="flex justify-between items-center w-full">
+            <button
+              onClick={goToPreviousTutorial}
+              disabled={currentTutorialIndex === 0}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                currentTutorialIndex === 0
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <ChevronRight className="w-4 h-4 rotate-180" />
+              Previous Tutorial
+            </button>
+            <button
+              onClick={goToNextTutorial}
+              disabled={currentTutorialIndex === allTutorials.length - 1 || (quizzes.length > 0 && !hasCompletedQuiz)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                currentTutorialIndex === allTutorials.length - 1 || (quizzes.length > 0 && !hasCompletedQuiz)
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+              }`}
+              title={(quizzes.length > 0 && !hasCompletedQuiz) ? "Complete the quiz before proceeding to the next tutorial" : ""}
+            >
+              Next Tutorial
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
       <div className="w-full h-1/2 shrink-0">

@@ -156,12 +156,28 @@ export default function Quiz() {
     return null;
   };
 
-  const handleNextTutorial = () => {
-    const nextTutorial = getNextTutorial();
-    if (nextTutorial) {
-      navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
-    } else {
-      navigate(`/dashboard/course/${courseId}`);
+  const handleNextTutorial = async () => {
+    try {
+      const nextStepRes = await api.get(`/courses/${courseId}/next-step`);
+      const nextStep = nextStepRes.data;
+
+      console.log("Next step after quiz:", nextStep);
+
+      if (nextStep.type === 'tutorial') {
+        navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}`);
+      } else if (nextStep.type === 'quiz') {
+        navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}/quiz/${nextStep.quiz_id}`);
+      } else if (nextStep.type === 'completed') {
+        navigate(`/dashboard/course/${courseId}`);
+      }
+    } catch (error) {
+      console.error("Error getting next step:", error);
+      const nextTutorial = getNextTutorial();
+      if (nextTutorial) {
+        navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
+      } else {
+        navigate(`/dashboard/course/${courseId}`);
+      }
     }
   };
 

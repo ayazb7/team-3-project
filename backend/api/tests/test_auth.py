@@ -111,3 +111,45 @@ def test_login_success(client, mock_mysql):
     cursor.close.assert_called_once()
 
 
+def test_refresh_access_token_success(client):
+    """
+    Test that a valid refresh token can be exchanged for a new access token.
+    """
+    from flask_jwt_extended import create_refresh_token
+    
+    with client.application.app_context():
+        refresh_token = create_refresh_token(identity="123")
+    
+    headers = {"Authorization": f"Bearer {refresh_token}"}
+    response = client.get('/refresh', headers=headers)
+    
+    assert response.status_code == 200
+    body = response.get_json()
+    assert 'access_token' in body
+    assert isinstance(body['access_token'], str)
+
+
+def test_refresh_access_token_missing_token(client):
+    """
+    Test that refresh endpoint requires a valid refresh token.
+    """
+    response = client.get('/refresh')
+    
+    assert response.status_code == 401
+
+
+def test_refresh_access_token_with_access_token(client):
+    """
+    Test that using an access token instead of a refresh token fails.
+    """
+    from flask_jwt_extended import create_access_token
+    
+    with client.application.app_context():
+        access_token = create_access_token(identity="123")
+    
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = client.get('/refresh', headers=headers)
+    
+    assert response.status_code == 422
+
+
