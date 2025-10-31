@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
     if (!refreshToken) {
       return false;
     }
-    
+
     try {
       // Use raw axios to avoid interceptor loop - we need to bypass the interceptor for refresh calls
       const response = await axios.get(`${API_URL}/refresh`, {
@@ -74,10 +74,10 @@ export const AuthProvider = ({ children }) => {
         originalRequest?.url?.includes("/login") ||
         originalRequest?.url?.includes("/register") ||
         originalRequest?.url?.includes("/refresh");
-      
+
       if (status === 401 && !originalRequest._retry && !isAuthEndpoint) {
         originalRequest._retry = true;
-        
+
         try {
           const refreshed = await refreshAccessToken();
           if (refreshed) {
@@ -94,11 +94,11 @@ export const AuthProvider = ({ children }) => {
           return Promise.reject(refreshError);
         }
       }
-      
+
       if (status === 401 && originalRequest?.url?.includes("/refresh")) {
         logout();
       }
-      
+
       return Promise.reject(error);
     }
   );
@@ -164,7 +164,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
   const fetchUserDetails = async () => {
     try {
       const res = await api.get(`/user_details`);
@@ -183,7 +182,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     refresh: refreshAccessToken,
-    api, 
+    api,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
