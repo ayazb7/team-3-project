@@ -39,15 +39,14 @@ create table users (
 --  TABLE: TUTORIALS
 -- =============================================================
 
-create table tutorials (
-	id int primary key auto_increment,
-    title varchar(255) not null,
-    description text,
-    video_provider enum('synthesia', 'youtube') default 'synthesia',
-    video_url varchar(255),
-    category varchar(100) not null,
-    created_at datetime default current_timestamp,
-    video_transcript mediumtext
+CREATE TABLE tutorials (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    video_provider ENUM('synthesia', 'youtube') DEFAULT 'synthesia',
+    video_url VARCHAR(255),
+    category VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =============================================================
@@ -110,8 +109,10 @@ create table user_tutorial_progress (
     tutorial_id int not null,
     completed boolean default false,
     completed_at datetime,
+    feedback ENUM('positive', 'negative') DEFAULT NULL,
     foreign key (user_id) references users(id),
-    foreign key (tutorial_id) references tutorials(id)
+    foreign key (tutorial_id) references tutorials(id),
+    unique key unique_user_tutorial (user_id, tutorial_id)
 );
 
 
@@ -123,10 +124,11 @@ create table user_course_progress (
     id int primary key auto_increment,
     user_id int not null,
     course_id int not null,
-    progress_percentage decimal(5,2) not null, 
+    progress_percentage decimal(5,2) not null,
     last_updated datetime default current_timestamp,
     foreign key (user_id) references users(id),
-    foreign key (course_id) references courses(id)
+    foreign key (course_id) references courses(id),
+    unique key unique_user_course (user_id, course_id)
 );
 
 -- =============================================================

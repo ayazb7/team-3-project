@@ -39,6 +39,8 @@ export default function CourseView() {
   // const courseType = "Cyber Security";
   // const duration = "45–60 mins";
 
+  
+
   const similar = [
     { title: "Password Managers 101", rating: "92% Rating" },
     { title: "Avoiding Phishing Emails", rating: "88% Rating" },
@@ -52,6 +54,7 @@ export default function CourseView() {
 
     if (!api) return;
 
+    // Fetch course info
     api
       .get(`/courses/${id}`)
       .then((res) => {
@@ -67,6 +70,7 @@ export default function CourseView() {
         setLoading(false);
       });
 
+    // Fetch tutorials
     api
       .get(`/courses/${id}/tutorials`)
       .then((res) => {
@@ -83,13 +87,34 @@ export default function CourseView() {
     };
   }, [id, api]);
 
-  const startCourse = () => {
-    if (tutorials.length > 0) {
-      navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
-    } else {
+  const startCourse = async () => {
+    if (tutorials.length === 0) {
       alert("No tutorials found for this course.");
+      return;
+    }
+
+    try {
+      // Send progress update to backend
+      await api.post(`/courses/${id}/progress`, {
+        progress_percentage: 1
+      });
+
+      console.log("Progress updated");
+
+      setCourse((prev) => ({
+        ...prev,
+        progress: 1,
+      }));
+
+      // Navigate to first tutorial
+      navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
+    } catch (error) {
+      console.error("Error updating course progress:", error.response?.data || error.message);
+      // Still navigate even if the request fails
+      navigate(`/dashboard/course/${id}/learning/${tutorials[0].id}`);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 text-left">
@@ -206,13 +231,22 @@ export default function CourseView() {
 
                       {/* CTA bottom-right */}
                       <div className="flex sm:justify-end">
-                        <button
-                          onClick={startCourse}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition-transform"
-                        >
-                          Start Course
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+                        {course?.progress === 100 ? (
+                          <button
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-400 text-white font-medium cursor-not-allowed"
+                            disabled
+                          >
+                            Course Completed
+                          </button>
+                        ) : (
+                          <button
+                            onClick={startCourse}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition-transform"
+                          >
+                            {course?.progress > 0 ? "Continue Course" : "Start Course"}
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -107,43 +107,34 @@ const SectionHeader = ({ title, subtitle }) => (
 export default function Dashboard() {
   const { api } = useAuth();
 
-  const stats = [
+  const [stats, setStats] = useState([
     {
       label: "Courses Completed",
-      value: "10",
+      value: "0",
       icon: GraduationCap,
       color: "bg-blue-50",
     },
     {
       label: "Tutorials Watched",
-      value: "31",
+      value: "0",
       icon: Play,
       color: "bg-green-50",
     },
     {
       label: "Time Spent",
-      value: "5.3",
+      value: "0",
       subtext: "this week",
       icon: Clock,
       color: "bg-red-50",
     },
-  ];
+  ]);
 
-  // const continueCourses = [
-  //   { id: 1, title: 'Borderlands 4 Walkthrough', progress: 15 },
-  //   { id: 1, title: 'Fundamentals of AWS', progress: 65 },
-  //   { id: 1, title: 'How to open an Email', progress: 35 }
-  // ];
-
-  const recommended = [
-    { id: 1, title: "Internet Navigation & Safety", rating: "94% Rating" },
-    {
-      id: 1,
-      title: "Social Media & Professional Networking",
-      rating: "87% Rating",
-    },
-    { id: 1, title: "Video Communication", rating: "11% Rating" },
-  ];
+  const [continueCourses, setContinueCourses] = useState([]);
+  const [completedCourses, setCompletedCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
+  const [weeklyActivity, setWeeklyActivity] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const events = [
     {
@@ -164,7 +155,6 @@ export default function Dashboard() {
   ];
 
   const [scrolling, setScrolling] = useState(false);
-  const [continueCourses, setContinueCourses] = useState([]);
 
   const preventScroll = (e) => {
     if (scrolling) {
@@ -180,24 +170,88 @@ export default function Dashboard() {
     };
   }, [scrolling]);
 
+  // Fetch dashboard stats
   useEffect(() => {
     let isMounted = true;
 
-    if (api) {
-      api
-        .get(`/courses`)
-        .then((res) => {
-          if (!isMounted) return;
-          setContinueCourses(res.data);
-        })
-        .catch((e) => {
-          if (!isMounted) return;
-          console.error(
-            "Error loading courses:",
-            e?.response?.data?.message || "Unable to load courses."
-          );
-        });
-    }
+    if (!api) return;
+
+    // Fetch dashboard stats
+    api
+      .get("/dashboard/stats")
+      .then((res) => {
+        if (!isMounted) return;
+
+        const data = res.data;
+
+        // Update stats with real data
+        setStats([
+          {
+            label: "Courses Completed",
+            value: data.courses_completed.toString(),
+            icon: GraduationCap,
+            color: "bg-blue-50",
+          },
+          {
+            label: "Tutorials Watched",
+            value: data.tutorials_watched.toString(),
+            icon: Play,
+            color: "bg-green-50",
+          },
+          {
+            label: "Time Spent",
+            value: data.time_spent_hours.toString(),
+            subtext: "this week",
+            icon: Clock,
+            color: "bg-red-50",
+          },
+        ]);
+
+        // Store weekly activity for WeekProgress component
+        setWeeklyActivity(data.weekly_activity);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error("Error fetching dashboard stats:", e);
+        // Keep default values on error
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [api]);
+
+  // Fetch courses
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!api) return;
+
+    api
+      .get("/courses")
+      .then((res) => {
+        if (!isMounted) return;
+
+        const courses = res.data;
+        const inProgressCourses = courses.filter(
+          (course) => course.progress > 0 && course.progress < 100
+        );
+        const completedCourses = courses.filter(
+          (course) => course.progress >= 100
+        );
+
+        setContinueCourses(inProgressCourses);
+        setCompletedCourses(completedCourses);
+        setAllCourses(courses);
+      })
+      .catch((e) => {
+        if (!isMounted) return;
+        console.error("Error fetching courses:", e);
+        setError(e?.response?.data?.message || "Unable to load courses.");
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
     return () => {
       isMounted = false;
@@ -246,6 +300,13 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
@@ -256,46 +317,69 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Continue Section */}
-            <div className="Continue">
-              <SectionHeader
-                title="Continue?"
-                subtitle="View your recently accessed courses."
-              />
-              <Carousel
-                items={continueCourses}
-                renderItem={(course, idx) => (
-                  <CourseCard key={idx} {...course} id={course.id} />
-                )}
-                className="pb-6"
-              />
-            </div>
+            {/* Continue Section - Only show if there are courses in progress */}
+            {!loading && continueCourses.length > 0 && (
+              <div className="Continue">
+                <SectionHeader
+                  title="Continue?"
+                  subtitle="View your recently accessed courses."
+                />
+                <Carousel
+                  items={continueCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
+              </div>
+            )}
 
-            {/* Recommended Section */}
-            <div className="Recommended">
+            {/* Completed Courses Section */}
+            {!loading && completedCourses.length > 0 && (
+              <div className="CompletedCourses">
+                <SectionHeader
+                  title="Completed Courses"
+                  subtitle="Courses you've finished — great work!"
+                />
+                <Carousel
+                  items={completedCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
+              </div>
+            )}
+
+            {/* All Courses Section */}
+            <div className="AllCourses">
               <SectionHeader
-                title="Recommended For You"
-                subtitle="Tailored just for you."
+                title="All Courses"
+                subtitle="Explore all available learning paths."
               />
-              <Carousel
-                items={recommended}
-                renderItem={(item, idx) => (
-                  <CourseCard
-                    key={idx}
-                    name={item.title}
-                    rating={item.rating}
-                    id={item.id}
-                    thumbnail_url={item.thumbnail_url}
-                  />
-                )}
-                className="pb-6"
-              />
+              {loading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : allCourses.length > 0 ? (
+                <Carousel
+                  items={allCourses}
+                  renderItem={(course, idx) => (
+                    <CourseCard key={idx} {...course} id={course.id} />
+                  )}
+                  className="pb-6"
+                />
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  No courses available at the moment.
+                </div>
+              )}
             </div>
           </div>
 
           <div className="space-y-4 md:space-y-6">
             {/* Week Progress */}
-            <WeekProgress />
+            <WeekProgress weeklyActivity={weeklyActivity} />
 
             {/* Nearby Events */}
             <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
