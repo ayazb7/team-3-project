@@ -26,7 +26,11 @@ const CourseCard = (props) => {
         </h3>
 
         {
-          <div className="w-full bg-gray-200 rounded-full h-auto ">
+          <div
+            className={`w-full bg-gray-200 rounded-full h-auto ${
+              !props.progress && "hidden"
+            }`}
+          >
             <div
               className="bg-blue-500 h-2 rounded-full transition-all duration-300"
               style={{ width: `${props.progress}%` }}

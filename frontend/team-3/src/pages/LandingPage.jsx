@@ -1,13 +1,29 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import ModelViewer from "../components/ModelViewer";
 import VideoBlock from "../components/VideoBlock";
+import CourseCard from "../components/CourseCard";
 import catImg from "../../public/landing_placeholder.png";
 import Button from "../components/Button";
+import axios from "axios";
 
 const LandingPage = () => {
+  const [courses, setCourses] = useState([]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const getCourses = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/courses/public");
+        console.log("successfully requested data", res.data);
+        setCourses(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getCourses();
   });
 
   return (
@@ -41,11 +57,20 @@ const LandingPage = () => {
             Featured Courses
           </p>
         </div>
-        {/* hard coding video blocks for now  */}
         <div className="flex flex-col md:flex-row gap-10">
-          <VideoBlock />
-          <VideoBlock />
-          <VideoBlock />
+          {courses.map((item, index) => {
+            return (
+              <CourseCard
+                key={index}
+                difficulty={item.difficulty}
+                thumbnail_url={item.thumbnail_url}
+                duration_max_minutes={item.duration_max_minutes}
+                duration_min_minutes={item.duration_min_minutes}
+                name={item.name}
+                id={item.id}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
