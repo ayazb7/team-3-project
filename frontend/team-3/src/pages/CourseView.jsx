@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import CourseCard from "../components/CourseCard.jsx";
+import { courseDifficultyColorMap } from "../components/utils.jsx";
 
 const Skeleton = () => (
   <div className="animate-pulse space-y-6 text-left">
@@ -94,18 +95,24 @@ export default function CourseView() {
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 text-left">
       <div className="mx-auto space-y-4 sm:space-y-6 text-left">
         {/* Breadcrumb Navigation */}
-        <nav 
-          className="flex flex-row gap-1 sm:gap-2 text-gray-700 text-xs sm:text-base overflow-x-auto w-full scrollbar-hide pb-1 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8" 
+        <nav
+          className="flex flex-row gap-1 sm:gap-2 text-gray-700 text-xs sm:text-base overflow-x-auto w-full scrollbar-hide pb-1 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8"
           aria-label="Breadcrumb"
         >
-          <Link 
-            to="/dashboard" 
+          <Link
+            to="/dashboard"
             className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded whitespace-nowrap flex-shrink-0"
           >
             Dashboard
           </Link>
-          <span className="text-gray-500 flex-shrink-0" aria-hidden="true">/</span>
-          <span className="text-gray-900 truncate max-w-[120px] sm:max-w-none" aria-current="page" title={course?.name || "Course"}>
+          <span className="text-gray-500 flex-shrink-0" aria-hidden="true">
+            /
+          </span>
+          <span
+            className="text-gray-900 truncate max-w-[120px] sm:max-w-none"
+            aria-current="page"
+            title={course?.name || "Course"}
+          >
             {course?.name || "Course"}
           </span>
         </nav>
@@ -161,13 +168,20 @@ export default function CourseView() {
                   <div className="mt-auto pt-6">
                     {/* Badges */}
                     <div className="flex flex-wrap gap-2 text-left mb-4">
-                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm">
+                      <span
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full  text-sm ${
+                          courseDifficultyColorMap[
+                            course?.difficulty.toLowerCase()
+                          ]
+                        }`}
+                      >
                         <GraduationCap className="w-4 h-4" />
                         {course?.difficulty || "Digital Skills"}
                       </span>
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
                         <Clock className="w-4 h-4" />
-                        {course.duration_min_minutes} - {course.duration_max_minutes} mins
+                        {course.duration_min_minutes} -{" "}
+                        {course.duration_max_minutes} mins
                       </span>
                       {/* <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 text-sm">
                         Type: {courseType}
@@ -272,7 +286,13 @@ export default function CourseView() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {similar.map((c, idx) => (
-                  <CourseCard key={idx} name={c.title} rating={c.rating} id={c.id || idx + 1} thumbnail_url={c.thumbnail_url} />
+                  <CourseCard
+                    key={idx}
+                    name={c.title}
+                    rating={c.rating}
+                    id={c.id || idx + 1}
+                    thumbnail_url={c.thumbnail_url}
+                  />
                 ))}
               </div>
             </section>

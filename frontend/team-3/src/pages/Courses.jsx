@@ -40,15 +40,7 @@ const Courses = () => {
         <p className="text-lg font-medium">Get started with these</p>
         <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 justify-center items-center w-full gap-2 items-stretch grid-flow-row-dense">
           {courses.map((item, index) => {
-            return (
-              <CourseCard
-                name={item.name}
-                id={item.id}
-                min_minutes={item.duration_min_minutes}
-                max_minutes={item.duration_max_minutes}
-                difficulty={item.difficulty}
-              />
-            );
+            return <CourseCard {...item} />;
           })}
         </div>
       </div>
@@ -58,15 +50,7 @@ const Courses = () => {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify center items-center w-full gap-2 items-stretch grid-flow-row-dense">
           {courses.map((item, index) => {
-            return (
-              <CourseCard
-                name={item.name}
-                id={item.id}
-                min_minutes={item.duration_min_minutes}
-                max_minutes={item.duration_max_minutes}
-                difficulty={item.difficulty}
-              />
-            );
+            return <CourseCard {...item} />;
           })}
         </div>
       </div>

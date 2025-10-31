@@ -1,10 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Clock, Play, GraduationCap, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Clock,
+  Play,
+  GraduationCap,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import StatCard from '../components/StatCard';
-import CourseCard from '../components/CourseCard';
-import EventCard from '../components/EventCard';
-import WeekProgress from '../components/WeekProgress.jsx';
+import StatCard from "../components/StatCard";
+import CourseCard from "../components/CourseCard";
+import EventCard from "../components/EventCard";
+import WeekProgress from "../components/WeekProgress.jsx";
 
 const Carousel = ({ items, renderItem, className }) => {
   const containerRef = useRef(null);
@@ -16,7 +23,8 @@ const Carousel = ({ items, renderItem, className }) => {
     if (container) {
       setIsStartReached(container.scrollLeft <= 0);
       setIsEndReached(
-        container.scrollLeft >= container.scrollWidth - container.clientWidth - 1
+        container.scrollLeft >=
+          container.scrollWidth - container.clientWidth - 1
       );
     }
   };
@@ -26,11 +34,13 @@ const Carousel = ({ items, renderItem, className }) => {
       const container = containerRef.current;
       const scrollAmount = container.clientWidth;
       const maxScroll = container.scrollWidth - container.clientWidth;
-      const newScroll = container.scrollLeft + (direction === 'right' ? scrollAmount : -scrollAmount);
-      
+      const newScroll =
+        container.scrollLeft +
+        (direction === "right" ? scrollAmount : -scrollAmount);
+
       container.scrollTo({
         left: Math.max(0, Math.min(maxScroll, newScroll)),
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -39,41 +49,44 @@ const Carousel = ({ items, renderItem, className }) => {
     const container = containerRef.current;
     if (container) {
       checkScrollPosition();
-      container.addEventListener('scroll', checkScrollPosition);
-      window.addEventListener('resize', checkScrollPosition);
+      container.addEventListener("scroll", checkScrollPosition);
+      window.addEventListener("resize", checkScrollPosition);
       return () => {
-        container.removeEventListener('scroll', checkScrollPosition);
-        window.removeEventListener('resize', checkScrollPosition);
+        container.removeEventListener("scroll", checkScrollPosition);
+        window.removeEventListener("resize", checkScrollPosition);
       };
     }
   }, []);
 
   return (
     <div className="relative group/carousel">
-      <div 
+      <div
         ref={containerRef}
         className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${className}`}
       >
         {items.map((item, idx) => (
-          <div key={idx} className="flex-none w-[85%] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] snap-start">
+          <div
+            key={idx}
+            className="flex-none w-[85%] sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] snap-start"
+          >
             {renderItem(item, idx)}
           </div>
         ))}
       </div>
-      
+
       {!isStartReached && (
         <button
-          onClick={() => scroll('left')}
+          onClick={() => scroll("left")}
           className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
       )}
-      
+
       {!isEndReached && (
         <button
-          onClick={() => scroll('right')}
+          onClick={() => scroll("right")}
           className="opacity-0 group-hover/carousel:opacity-100 md:opacity-100 transition-opacity absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 active:scale-95 transition-transform"
           aria-label="Scroll right"
         >
@@ -95,9 +108,25 @@ export default function Dashboard() {
   const { api } = useAuth();
 
   const stats = [
-    { label: 'Courses Completed', value: '10', icon: GraduationCap, color: 'bg-blue-50' },
-    { label: 'Tutorials Watched', value: '31', icon: Play, color: 'bg-green-50' },
-    { label: 'Time Spent', value: '5.3', subtext: 'this week', icon: Clock, color: 'bg-red-50' }
+    {
+      label: "Courses Completed",
+      value: "10",
+      icon: GraduationCap,
+      color: "bg-blue-50",
+    },
+    {
+      label: "Tutorials Watched",
+      value: "31",
+      icon: Play,
+      color: "bg-green-50",
+    },
+    {
+      label: "Time Spent",
+      value: "5.3",
+      subtext: "this week",
+      icon: Clock,
+      color: "bg-red-50",
+    },
   ];
 
   // const continueCourses = [
@@ -107,15 +136,31 @@ export default function Dashboard() {
   // ];
 
   const recommended = [
-    { id: 1, title: 'Internet Navigation & Safety', rating: '94% Rating' },
-    { id: 1, title: 'Social Media & Professional Networking', rating: '87% Rating' },
-    { id: 1, title: 'Video Communication', rating: '11% Rating' }
+    { id: 1, title: "Internet Navigation & Safety", rating: "94% Rating" },
+    {
+      id: 1,
+      title: "Social Media & Professional Networking",
+      rating: "87% Rating",
+    },
+    { id: 1, title: "Video Communication", rating: "11% Rating" },
   ];
 
   const events = [
-    { title: 'Sky Showcase', location: 'Sky Central - Osterley Campus', date: 'Thursday 13th November 2025' },
-    { title: 'Sky Showcase', location: 'Sky Central - Osterley Campus', date: 'Thursday 13th November 2025' },
-    { title: 'Sky Showcase', location: 'Sky Central - Osterley Campus', date: 'Thursday 13th November 2025' }
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
   ];
 
   const [scrolling, setScrolling] = useState(false);
@@ -129,9 +174,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener("touchmove", preventScroll, { passive: false });
     return () => {
-      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener("touchmove", preventScroll);
     };
   }, [scrolling]);
 
@@ -147,7 +192,10 @@ export default function Dashboard() {
         })
         .catch((e) => {
           if (!isMounted) return;
-          console.error("Error loading courses:", e?.response?.data?.message || "Unable to load courses.");
+          console.error(
+            "Error loading courses:",
+            e?.response?.data?.message || "Unable to load courses."
+          );
         });
     }
 
@@ -171,16 +219,28 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Dashboard
+            </h1>
             <p className="text-left text-gray-500 mt-1">Welcome back</p>
           </div>
           <div className="flex gap-2">
-            <button 
+            <button
               className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:scale-95 transition-transform"
-              onClick={() => console.log('Toggle light mode')}
+              onClick={() => console.log("Toggle light mode")}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
               </svg>
             </button>
           </div>
@@ -198,9 +258,9 @@ export default function Dashboard() {
 
             {/* Continue Section */}
             <div className="Continue">
-              <SectionHeader 
-                title="Continue?" 
-                subtitle="View your recently accessed courses." 
+              <SectionHeader
+                title="Continue?"
+                subtitle="View your recently accessed courses."
               />
               <Carousel
                 items={continueCourses}
@@ -213,14 +273,20 @@ export default function Dashboard() {
 
             {/* Recommended Section */}
             <div className="Recommended">
-              <SectionHeader 
-                title="Recommended For You" 
-                subtitle="Tailored just for you." 
+              <SectionHeader
+                title="Recommended For You"
+                subtitle="Tailored just for you."
               />
               <Carousel
                 items={recommended}
                 renderItem={(item, idx) => (
-                  <CourseCard key={idx} name={item.title} rating={item.rating} id={item.id} thumbnail_url={item.thumbnail_url} />
+                  <CourseCard
+                    key={idx}
+                    name={item.title}
+                    rating={item.rating}
+                    id={item.id}
+                    thumbnail_url={item.thumbnail_url}
+                  />
                 )}
                 className="pb-6"
               />
@@ -237,7 +303,9 @@ export default function Dashboard() {
                 <h3 className="font-semibold text-gray-900">Nearby Events</h3>
                 <MapPin className="w-5 h-5 text-gray-400" />
               </div>
-              <p className="text-xs text-gray-500 mb-4">Connect with other learners at these events!</p>
+              <p className="text-xs text-gray-500 mb-4">
+                Connect with other learners at these events!
+              </p>
               <div className="space-y-3">
                 {events.map((event, idx) => (
                   <EventCard key={idx} {...event} />
