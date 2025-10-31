@@ -99,8 +99,8 @@ const Carousel = ({ items, renderItem, className }) => {
 
 const SectionHeader = ({ title, subtitle }) => (
   <div className="text-center mb-6">
-    <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-    <p className="text-gray-500 text-sm mt-1">{subtitle}</p>
+    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">{title}</h2>
+    <p className="text-gray-500 text-sm md:text-base mt-1">{subtitle}</p>
   </div>
 );
 
@@ -272,8 +272,8 @@ export default function Dashboard() {
       <div className="mx-auto justify-center items-center">
         {/* Header */}
         <div className="flex justify-between items-center mb-6 md:mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <div className="text-left">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
               Dashboard
             </h1>
             <p className="text-left text-gray-500 mt-1">Welcome back</p>
