@@ -299,13 +299,26 @@ const Learning = () => {
     }
   };
 
-  const handleFeedback = (type) => {
+  const handleFeedback = async (type) => {
     if (feedback) return;
 
-    setFeedback(type);
-    setPendingFeedback(null);
-    stopWebcam();
-    console.log("Feedback submitted:", type);
+    try {
+      // Submit feedback to backend
+      await api.post(`/tutorials/${tutorialId}/feedback`, {
+        feedback_type: type,
+      });
+
+      setFeedback(type);
+      setPendingFeedback(null);
+      stopWebcam();
+      console.log("Feedback submitted successfully:", type);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      // Still show feedback UI even if submission fails
+      setFeedback(type);
+      setPendingFeedback(null);
+      stopWebcam();
+    }
   };
 
   const cancelFeedback = () => {

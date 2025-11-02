@@ -202,23 +202,134 @@ def test_complete_tutorial_update_existing_incomplete(client, mock_mysql, auth_h
     Test completing a tutorial when an incomplete record exists.
     """
     cursor = mock_mysql.connection.cursor.return_value
-    
+
     cursor.fetchone.side_effect = [
         {'completed': False},
-        {'course_id': 1}, 
-        {'count': 4},  
-        {'count': 4}, 
-        {'count': 3}, 
-        {'count': 2},  
+        {'course_id': 1},
+        {'count': 4},
+        {'count': 4},
+        {'count': 3},
+        {'count': 2},
     ]
 
-    response = client.post('/tutorials/1/complete', 
-                          json={'feedback': 'positive'}, 
+    response = client.post('/tutorials/1/complete',
+                          json={'feedback': 'positive'},
                           headers=auth_headers)
     body = response.get_json()
 
     assert response.status_code == 200
     assert body['message'] == 'Tutorial completed successfully'
-    assert abs(body['course_progress'] - 62.5) < 0.01  
+    assert abs(body['course_progress'] - 62.5) < 0.01
+    mock_mysql.connection.commit.assert_called_once()
+
+
+# =============================================================
+# FEEDBACK ENDPOINT TESTS
+# =============================================================
+
+def test_submit_feedback_success(client, mock_mysql, auth_headers):
+    """Test successful feedback submission"""
+    cursor = mock_mysql.connection.cursor.return_value
+
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'positive'},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['message'] == 'Feedback submitted successfully'
+    assert data['feedback'] == 'positive'
+    mock_mysql.connection.commit.assert_called_once()
+    cursor.close.assert_called()
+
+
+def test_submit_feedback_negative(client, mock_mysql, auth_headers):
+    """Test submitting negative feedback"""
+    cursor = mock_mysql.connection.cursor.return_value
+
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'negative'},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['message'] == 'Feedback submitted successfully'
+    assert data['feedback'] == 'negative'
+
+
+def test_submit_feedback_update_existing(client, mock_mysql, auth_headers):
+    """Test updating existing feedback"""
+    cursor = mock_mysql.connection.cursor.return_value
+
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'positive'},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['message'] == 'Feedback submitted successfully'
+    assert data['feedback'] == 'positive'
+    mock_mysql.connection.commit.assert_called_once()
+
+
+def test_submit_feedback_invalid_type(client, mock_mysql, auth_headers):
+    """Test submitting feedback with invalid type"""
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'invalid'},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'Invalid feedback type' in data['error']
+
+
+def test_submit_feedback_missing_type(client, mock_mysql, auth_headers):
+    """Test submitting feedback without feedback_type"""
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'feedback_type is required' in data['error']
+
+
+def test_submit_feedback_unauthorized(client, mock_mysql):
+    """Test submitting feedback without authentication"""
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'positive'}
+    )
+
+    # Should return 401 Unauthorized (JWT required)
+    assert response.status_code == 401
+
+
+def test_submit_feedback_allows_without_completion(client, mock_mysql, auth_headers):
+    """Test that feedback can be submitted without completing tutorial"""
+    cursor = mock_mysql.connection.cursor.return_value
+
+    response = client.post(
+        '/tutorials/2/feedback',
+        json={'feedback_type': 'positive'},
+        headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['message'] == 'Feedback submitted successfully'
+    # Should not affect completion status
     mock_mysql.connection.commit.assert_called_once()
 
