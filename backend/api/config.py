@@ -14,3 +14,5 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
+    WEB3FORMS_ACCESS_KEY = os.getenv('WEB3FORMS_ACCESS_KEY')
+
