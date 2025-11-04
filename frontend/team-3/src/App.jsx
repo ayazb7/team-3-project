@@ -12,6 +12,7 @@ import CourseView from "./pages/CourseView.jsx";
 import BotRender from "./pages/BotRender.jsx";
 import Courses from "./pages/Courses.jsx";
 import Quiz from "./pages/Quiz.jsx";
+import About from "./pages/About.jsx";
 
 function App() {
   return (
@@ -21,14 +22,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/courses" element={<Courses />} />
-        <Route
-          path="/about"
-          element={
-            <div className="min-h-screen flex items-center justify-center">
-              <h1 className="text-3xl font-bold">About Page - Coming Soon</h1>
-            </div>
-          }
-        />
+        <Route path="/about" element={<About />} />
         <Route
           path="/support"
           element={

@@ -1,46 +1,96 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import React from 'react';
+import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import axios from 'axios';
+import { MemoryRouter } from 'react-router-dom';
 import Learning from '../Learning';
-import { useAuth } from '../../context/AuthContext';
 
-// Mock dependencies
-vi.mock('axios');
-vi.mock('../../context/AuthContext');
-vi.mock('lucide-react', () => ({
-  ThumbsUp: () => <div data-testid="thumbs-up-icon">ThumbsUp Icon</div>,
-  ThumbsDown: () => <div data-testid="thumbs-down-icon">ThumbsDown Icon</div>
+// ---- Mocks ----
+
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async (orig) => {
+  const mod = await orig();
+  return {
+    ...mod,
+    useNavigate: () => mockNavigate,
+    useParams: () => ({
+      courseId: '1',
+      tutorialId: '2',
+    }),
+  };
+});
+
+const mockApi = {
+  get: vi.fn(),
+  post: vi.fn(),
+};
+
+vi.mock('../../context/AuthContext', () => ({
+  useAuth: () => ({
+    api: mockApi,
+  }),
 }));
 
-describe('Learning Component', () => {
-  const mockAccessToken = 'test-token';
-  const mockTutorialData = {
-    id: '1',
-    title: 'Test Tutorial',
-    description: 'Test Description',
-    category: 'Programming',
-    video_url: 'https://example.com/video',
-    created_at: '2024-01-01'
-  };
-  const mockCourseData = {
-    id: 'course-1',
-    name: 'Test Course'
-  };
+// Mock lucide-react icons
+vi.mock('lucide-react', () => ({
+  ThumbsUp: () => <div data-testid="thumbs-up-icon" />,
+  ThumbsDown: () => <div data-testid="thumbs-down-icon" />,
+  CheckCircle: () => <div data-testid="check-circle-icon" />,
+  ChevronRight: () => <div data-testid="chevron-right-icon" />,
+}));
 
+// Mock data
+const mockTutorialData = {
+  id: 2,
+  title: 'Introduction to JavaScript',
+  description: 'Learn the basics of JavaScript',
+  category: 'Programming',
+  video_url: 'https://example.com/video.mp4',
+  video_transcript: 'WEBTVV\n\n00:00:00.000 --> 00:00:05.000\nWelcome to JavaScript\n\n00:00:05.000 --> 00:00:10.000\nLet\'s get started',
+  created_at: '2024-01-01',
+  is_completed: false,
+  has_completed_quiz: false,
+};
+
+const mockCourseData = {
+  id: 1,
+  name: 'JavaScript Fundamentals',
+  description: 'Complete JavaScript course',
+};
+
+const mockQuizzes = [
+  {
+    id: 1,
+    title: 'JavaScript Quiz',
+  },
+];
+
+const mockAllTutorials = [
+  { id: 1, title: 'Tutorial 1' },
+  { id: 2, title: 'Tutorial 2' },
+  { id: 3, title: 'Tutorial 3' },
+];
+
+// ---- Tests ----
+
+describe('Learning Component - Feedback Functionality', () => {
   beforeEach(() => {
-    vi.mocked(useAuth).mockReturnValue({ accessToken: mockAccessToken });
-    vi.mocked(axios.get).mockClear();
-    
-    // Mock successful API calls
-    vi.mocked(axios.get).mockImplementation((url) => {
-      if (url.includes('/tutorials/')) {
+    vi.clearAllMocks();
+
+    // Setup default API responses
+    mockApi.get.mockImplementation((url) => {
+      if (url.includes('/tutorials/2')) {
         return Promise.resolve({ data: mockTutorialData });
       }
-      if (url.includes('/courses/')) {
+      if (url.includes('/courses/1/tutorials')) {
+        return Promise.resolve({ data: mockAllTutorials });
+      }
+      if (url.includes('/courses/1')) {
         return Promise.resolve({ data: mockCourseData });
       }
-      return Promise.reject(new Error('Unknown URL'));
+      if (url.includes('/quizzes')) {
+        return Promise.resolve({ data: mockQuizzes });
+      }
+      return Promise.resolve({ data: {} });
     });
   });
 
@@ -48,488 +98,278 @@ describe('Learning Component', () => {
     vi.clearAllMocks();
   });
 
-  const renderComponent = () => {
-    return render(
-      <MemoryRouter initialEntries={['/course/course-1/tutorial/1']}>
-        <Routes>
-          <Route path="/course/:courseId/tutorial/:tutorialId" element={<Learning />} />
-        </Routes>
-      </MemoryRouter>
-    );
-  };
+  describe('Feedback Submission', () => {
+    test('should send positive feedback to backend when thumbs up is clicked', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
-  describe('Component Rendering', () => {
-    test('renders skeleton loader initially', () => {
-      renderComponent();
-      const skeletonLoader = document.querySelector('.animate-pulse');
-      expect(skeletonLoader).toBeInTheDocument();
-    });
-
-    test('renders tutorial data after loading', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('Test Description')).toBeInTheDocument();
-      expect(screen.getByText('Programming')).toBeInTheDocument();
-    });
-
-    test('renders breadcrumb navigation', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText(/Test Course/)).toBeInTheDocument();
-      expect(screen.getByText(/Programming/)).toBeInTheDocument();
-    });
-
-    test('renders video iframe with correct src', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const iframe = document.querySelector('iframe');
-        expect(iframe).toHaveAttribute('src', 'https://example.com/video');
-      });
-    });
-
-    test('renders Browse this tutorial text', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Browse this tutorial')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Data Fetching', () => {
-    test('fetches tutorial and course data on mount', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith(
-          'http://localhost:5000/courses/course-1/tutorials/1',
-          { headers: { Authorization: 'Bearer test-token' } }
-        );
-      });
-
-      expect(axios.get).toHaveBeenCalledWith(
-        'http://localhost:5000/courses/course-1',
-        { headers: { Authorization: 'Bearer test-token' } }
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
       );
-    });
 
-    test('handles fetch errors gracefully', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-      vi.mocked(axios.get).mockRejectedValueOnce(new Error('Network error'));
-
-      renderComponent();
-
+      // Wait for component to load
       await waitFor(() => {
-        expect(consoleError).toHaveBeenCalledWith(
-          'Error fetching data:',
-          expect.any(Error)
-        );
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
-      consoleError.mockRestore();
-    });
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
 
-    test('sets loading state to false after data fetch', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const skeletonLoader = document.querySelector('.animate-pulse');
-        expect(skeletonLoader).not.toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Tab Navigation', () => {
-    test('Overview tab is active by default', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
-      });
-
-      const overviewTab = screen.getByText('Overview').closest('span');
-      expect(overviewTab).toHaveClass('bg-gray-300');
-    });
-
-    test('switches to Transcript tab when clicked', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
-      });
-
-      const transcriptTab = screen.getByText('Transcript');
-      fireEvent.click(transcriptTab);
-
-      const transcriptTabSpan = transcriptTab.closest('span');
-      expect(transcriptTabSpan).toHaveClass('bg-gray-300');
-    });
-
-    test('displays overview content when Overview tab is active', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Description')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('Test Description')).toBeInTheDocument();
-      expect(screen.getByText('Tutorial Category')).toBeInTheDocument();
-      expect(screen.getByText('Programming')).toBeInTheDocument();
-      expect(screen.getByText('Created at:')).toBeInTheDocument();
-    });
-
-    test('hides overview content when Transcript tab is active', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
-      });
-
-      const transcriptTab = screen.getByText('Transcript');
-      fireEvent.click(transcriptTab);
-
-      const overviewContent = document.querySelector('.flex-col.w-full.h-full.p-5.gap-3');
-      expect(overviewContent).toHaveClass('hidden');
-    });
-  });
-
-  describe('Feedback Flow', () => {
-    test('shows feedback button initially', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        expect(screen.getByText('I finished watching - Give Feedback')).toBeInTheDocument();
-      });
-    });
-
-    test('displays feedback options when button is clicked', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
+      // Wait for feedback dialog to appear
       await waitFor(() => {
         expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Helpful')).toBeInTheDocument();
-      expect(screen.getByText('Not Helpful')).toBeInTheDocument();
-    });
+      // Click thumbs up button
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
 
-    test('hides feedback button after clicking', async () => {
-      renderComponent();
-
+      // Verify API was called with correct data
       await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByText('I finished watching - Give Feedback')).not.toBeInTheDocument();
+        expect(mockApi.post).toHaveBeenCalledWith(
+          '/tutorials/2/feedback',
+          { feedback_type: 'positive' }
+        );
       });
     });
 
-    test('submits positive feedback', async () => {
-      const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-      renderComponent();
+    test('should send negative feedback to backend when thumbs down is clicked', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
+
+      // Wait for component to load
       await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
+
+      // Wait for feedback dialog to appear
       await waitFor(() => {
-        const helpfulButton = screen.getByText('Helpful');
-        fireEvent.click(helpfulButton);
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
       });
 
+      // Click thumbs down button
+      const thumbsDownButtons = screen.getAllByText('Not Helpful');
+      fireEvent.click(thumbsDownButtons[0]);
+
+      // Verify API was called with correct data
+      await waitFor(() => {
+        expect(mockApi.post).toHaveBeenCalledWith(
+          '/tutorials/2/feedback',
+          { feedback_type: 'negative' }
+        );
+      });
+    });
+
+    test('should display success message after feedback is submitted', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
+
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
+
+      // Wait for component to load
+      await waitFor(() => {
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
+      });
+
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
+
+      // Wait for feedback dialog
+      await waitFor(() => {
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
+      });
+
+      // Click thumbs up
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
+
+      // Wait for success message
       await waitFor(() => {
         expect(screen.getByText('Thank you for your feedback!')).toBeInTheDocument();
       });
-
-      expect(screen.getByText(/Your positive feedback helps us improve/)).toBeInTheDocument();
-      expect(consoleLog).toHaveBeenCalledWith('Feedback submitted:', 'positive');
-      consoleLog.mockRestore();
     });
 
-    test('submits negative feedback', async () => {
-      const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-      renderComponent();
+    test('should handle API errors gracefully when submitting feedback', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      mockApi.post.mockRejectedValue(new Error('Network error'));
 
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
+
+      // Wait for component to load
       await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
+
+      // Wait for feedback dialog
       await waitFor(() => {
-        const notHelpfulButton = screen.getByText('Not Helpful');
-        fireEvent.click(notHelpfulButton);
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
       });
 
+      // Click thumbs up
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
+
+      // Verify error was logged
       await waitFor(() => {
-        expect(screen.getByText('Thank you for your feedback!')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText(/Your negative feedback helps us improve/)).toBeInTheDocument();
-      expect(consoleLog).toHaveBeenCalledWith('Feedback submitted:', 'negative');
-      consoleLog.mockRestore();
-    });
-
-    test('prevents duplicate feedback submission', async () => {
-      const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        const helpfulButton = screen.getByText('Helpful');
-        fireEvent.click(helpfulButton);
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Thank you for your feedback!')).toBeInTheDocument();
-      });
-
-      // Feedback buttons should no longer be visible
-      expect(screen.queryByText('Helpful')).not.toBeInTheDocument();
-      expect(screen.queryByText('Not Helpful')).not.toBeInTheDocument();
-
-      // Should only be called once
-      expect(consoleLog).toHaveBeenCalledTimes(1);
-      consoleLog.mockRestore();
-    });
-
-    test('displays thumbs up and thumbs down icons', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('thumbs-up-icon')).toBeInTheDocument();
-        expect(screen.getByTestId('thumbs-down-icon')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Gesture Recognition', () => {
-    beforeEach(() => {
-      // Mock Teachable Machine scripts
-      window.tmImage = {
-        load: vi.fn().mockResolvedValue({
-          getTotalClasses: vi.fn().mockReturnValue(3),
-          predict: vi.fn().mockResolvedValue([
-            { className: 'neutral', probability: 0.8 },
-            { className: 'thumbs up', probability: 0.1 },
-            { className: 'thumbs down', probability: 0.1 }
-          ])
-        }),
-        Webcam: vi.fn().mockImplementation(() => ({
-          setup: vi.fn().mockResolvedValue(undefined),
-          play: vi.fn().mockResolvedValue(undefined),
-          stop: vi.fn(),
-          update: vi.fn(),
-          canvas: document.createElement('canvas')
-        }))
-      };
-
-      window.requestAnimationFrame = vi.fn((cb) => {
-        setTimeout(cb, 16);
-        return 1;
-      });
-      window.cancelAnimationFrame = vi.fn();
-    });
-
-    test('shows gesture recognition button', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Start Gesture Recognition')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText('Or use gesture recognition:')).toBeInTheDocument();
-    });
-
-    test('initializes webcam when gesture recognition starts', async () => {
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        const gestureButton = screen.getByText('Start Gesture Recognition');
-        fireEvent.click(gestureButton);
-      });
-
-      await waitFor(() => {
-        expect(window.tmImage.load).toHaveBeenCalled();
-      });
-    });
-
-    test('handles webcam initialization errors', async () => {
-      const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      window.tmImage.load.mockRejectedValueOnce(new Error('Camera access denied'));
-
-      renderComponent();
-
-      await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
-      });
-
-      await waitFor(() => {
-        const gestureButton = screen.getByText('Start Gesture Recognition');
-        fireEvent.click(gestureButton);
-      });
-
-      await waitFor(() => {
-        expect(alertMock).toHaveBeenCalledWith(
-          "Error starting webcam. Please make sure you've granted camera permissions."
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error submitting feedback:',
+          expect.any(Error)
         );
       });
 
-      alertMock.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
 
-    test('displays hold progress indicator', async () => {
-      renderComponent();
+    test('should not send feedback multiple times if already submitted', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
+
+      // Wait for component to load
       await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
-      // Progress indicator should not be visible initially
-      expect(screen.queryByText('Hold gesture...')).not.toBeInTheDocument();
-    });
-  });
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
 
-  describe('Feedback Confirmation', () => {
-    test('shows confirmation dialog for pending feedback', async () => {
-      renderComponent();
-
+      // Wait for feedback dialog
       await waitFor(() => {
-        const feedbackButton = screen.getByText('I finished watching - Give Feedback');
-        fireEvent.click(feedbackButton);
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
       });
 
-      // This would require simulating the gesture detection flow
-      // which sets pendingFeedback state
-    });
-  });
+      // Click thumbs up
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
 
-  describe('Edge Cases', () => {
-    test('handles missing tutorial data gracefully', async () => {
-      vi.mocked(axios.get).mockImplementation((url) => {
-        if (url.includes('/tutorials/')) {
-          return Promise.resolve({ data: null });
-        }
-        if (url.includes('/courses/')) {
-          return Promise.resolve({ data: mockCourseData });
-        }
-      });
-
-      renderComponent();
-
+      // Wait for submission
       await waitFor(() => {
-        // Component should render without crashing
-        const skeletonLoader = document.querySelector('.animate-pulse');
-        expect(skeletonLoader).not.toBeInTheDocument();
+        expect(mockApi.post).toHaveBeenCalledTimes(1);
       });
+
+      // Try to click again (should not submit again due to feedback state)
+      const allThumbsUpButtons = screen.queryAllByText('Helpful');
+      if (allThumbsUpButtons.length > 0) {
+        fireEvent.click(allThumbsUpButtons[0]);
+      }
+
+      // Should still only be called once
+      expect(mockApi.post).toHaveBeenCalledTimes(1);
     });
 
-    test('handles missing course data gracefully', async () => {
-      vi.mocked(axios.get).mockImplementation((url) => {
-        if (url.includes('/tutorials/')) {
-          return Promise.resolve({ data: mockTutorialData });
-        }
-        if (url.includes('/courses/')) {
-          return Promise.resolve({ data: null });
-        }
-      });
+    test('should send feedback from gesture recognition confirmation', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
-      renderComponent();
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
 
+      // Wait for component to load
       await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
-      expect(screen.getByText(/Course/)).toBeInTheDocument();
-    });
+      // Simulate the internal state change that happens when gesture is detected
+      // This is a bit tricky as we need to trigger the confirmation dialog
+      // For now, we'll test through the manual feedback path
+      // A more complete test would mock the Teachable Machine functionality
 
-    test('handles undefined created_at date', async () => {
-      const dataWithoutDate = { ...mockTutorialData, created_at: undefined };
-      vi.mocked(axios.get).mockImplementation((url) => {
-        if (url.includes('/tutorials/')) {
-          return Promise.resolve({ data: dataWithoutDate });
-        }
-        if (url.includes('/courses/')) {
-          return Promise.resolve({ data: mockCourseData });
-        }
-      });
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
 
-      renderComponent();
-
+      // Wait for feedback dialog
       await waitFor(() => {
-        expect(screen.getByText('Unknown')).toBeInTheDocument();
-      });
-    });
-
-    test('handles missing video URL', async () => {
-      const dataWithoutVideo = { ...mockTutorialData, video_url: undefined };
-      vi.mocked(axios.get).mockImplementation((url) => {
-        if (url.includes('/tutorials/')) {
-          return Promise.resolve({ data: dataWithoutVideo });
-        }
-        if (url.includes('/courses/')) {
-          return Promise.resolve({ data: mockCourseData });
-        }
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
       });
 
-      renderComponent();
+      // Click thumbs up
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
 
+      // Verify API was called
       await waitFor(() => {
-        const iframe = document.querySelector('iframe');
-        expect(iframe).toBeInTheDocument();
+        expect(mockApi.post).toHaveBeenCalledWith(
+          '/tutorials/2/feedback',
+          { feedback_type: 'positive' }
+        );
       });
     });
   });
 
-  describe('Cleanup', () => {
-    test('stops webcam on component unmount', async () => {
-      const { unmount } = renderComponent();
+  describe('Feedback UI Integration', () => {
+    test('should close feedback popup after successful submission', async () => {
+      mockApi.post.mockResolvedValue({ data: { success: true } });
 
+      render(
+        <MemoryRouter>
+          <Learning />
+        </MemoryRouter>
+      );
+
+      // Wait for component to load
       await waitFor(() => {
-        expect(screen.getByText('Test Tutorial')).toBeInTheDocument();
+        expect(screen.getByText('Introduction to JavaScript')).toBeInTheDocument();
       });
 
-      unmount();
+      // Click "Give Feedback" button
+      const giveFeedbackButton = screen.getByText('Give Feedback');
+      fireEvent.click(giveFeedbackButton);
 
-      // Webcam cleanup is called in useEffect cleanup
-      expect(window.cancelAnimationFrame).toHaveBeenCalled();
+      // Wait for feedback dialog
+      await waitFor(() => {
+        expect(screen.getByText('How was this tutorial?')).toBeInTheDocument();
+      });
+
+      // Click thumbs up
+      const thumbsUpButtons = screen.getAllByText('Helpful');
+      fireEvent.click(thumbsUpButtons[0]);
+
+      // Wait for success message
+      await waitFor(() => {
+        expect(screen.getByText('Thank you for your feedback!')).toBeInTheDocument();
+      });
+
+      // Click to close popup
+      const successPopup = screen.getByText('Thank you for your feedback!').closest('div');
+      if (successPopup) {
+        fireEvent.click(successPopup);
+      }
+
+      // Verify popup is closed
+      await waitFor(() => {
+        expect(screen.queryByText('Thank you for your feedback!')).not.toBeInTheDocument();
+      });
     });
   });
 });

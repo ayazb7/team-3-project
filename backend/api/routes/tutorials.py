@@ -113,3 +113,51 @@ def complete_tutorial(tutorial_id):
     except Exception as e:
         print(f"Error completing tutorial: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+@bp.route('/<int:tutorial_id>/feedback', methods=['POST'])
+@jwt_required()
+def submit_feedback(tutorial_id):
+    """
+    Submit or update feedback for a tutorial without completing it.
+    Allows users to give feedback while watching.
+
+    Expects JSON body:
+        { "feedback_type": "positive" or "negative" }
+    """
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json() or {}
+        feedback_type = data.get("feedback_type")
+
+        # Validate feedback type is provided
+        if not feedback_type:
+            return jsonify({"error": "feedback_type is required"}), 400
+
+        # Validate feedback type
+        if feedback_type not in ['positive', 'negative']:
+            return jsonify({"error": "Invalid feedback type. Must be 'positive' or 'negative'"}), 400
+
+        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+        # Insert or update feedback (keep completion status unchanged)
+        # This allows feedback without completion
+        cursor.execute("""
+            INSERT INTO user_tutorial_progress
+            (user_id, tutorial_id, feedback)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                feedback = VALUES(feedback)
+        """, (user_id, tutorial_id, feedback_type))
+
+        app.mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({
+            "message": "Feedback submitted successfully",
+            "feedback": feedback_type
+        }), 200
+
+    except Exception as e:
+        print(f"Error submitting feedback: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500

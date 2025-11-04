@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import ModelViewer from "../components/ModelViewer";
 import VideoBlock from "../components/VideoBlock";
 import CourseCard from "../components/CourseCard";
-import catImg from "../../public/landing_placeholder.png";
+import catImg from "../assets/landing_placeholder.png";
 import Button from "../components/Button";
 import axios from "axios";
 
