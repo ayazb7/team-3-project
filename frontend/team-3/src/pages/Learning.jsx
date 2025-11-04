@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ThumbsUp, ThumbsDown, CheckCircle, ChevronRight } from "lucide-react";
-
+ 
 const RenderOption = ({ label, onClick, roundDirection, className }) => {
   return (
     <span
@@ -15,7 +15,7 @@ const RenderOption = ({ label, onClick, roundDirection, className }) => {
     </span>
   );
 };
-
+ 
 const SkeletonLoader = () => {
   return (
     <div className="animate-pulse flex flex-col gap-5 w-full p-10 h-full">
@@ -25,24 +25,25 @@ const SkeletonLoader = () => {
     </div>
   );
 };
-
+ 
 const getRawTxtFromVtt = (txt) => {
+  if (!txt || typeof txt !== "string") return "";
   const lines = txt
     .split("\n")
     .filter(
       (line) =>
         line.trim() !== "" &&
         !line.includes("-->") &&
-        !line.startsWith("WEBTVV")
+        !line.startsWith("WEBVTT")
     );
   return lines.join(" ");
 };
-
+ 
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/Ijgcx-Ji5/";
 const CONFIDENCE_THRESHOLD = 0.85;
 const NEUTRAL_THRESHOLD = 0.7;
 const HOLD_DURATION_FRAMES = 60; // ~2 seconds at 30fps
-
+ 
 const Learning = () => {
   // State
   const [tutorialData, setTutorialData] = useState();
@@ -66,7 +67,7 @@ const Learning = () => {
   const { api } = useAuth();
   const [hasPopup, setHasPopup] = useState(false);
   const navigate = useNavigate();
-
+ 
   // Refs
   const webcamContainerRef = useRef(null);
   const labelContainerRef = useRef(null);
@@ -75,12 +76,12 @@ const Learning = () => {
   const maxPredictionsRef = useRef(0);
   const animationFrameRef = useRef(null);
   const detectionCountRef = useRef({ positive: 0, negative: 0 });
-
+ 
   // Fetch tutorial and course data
   useEffect(() => {
     const fetchData = async () => {
       if (!api) return;
-
+ 
       try {
         const tutorialRes = await api.get(
           `/courses/${courseId}/tutorials/${tutorialId}`
@@ -88,22 +89,22 @@ const Learning = () => {
         const courseRes = await api.get(`/courses/${courseId}`);
         const quizzesRes = await api.get(`/tutorials/${tutorialId}/quizzes`);
         const allTutorialsRes = await api.get(`/courses/${courseId}/tutorials`);
-
+ 
         setTutorialData(tutorialRes.data);
         setCourseData(courseRes.data);
         setQuizzes(quizzesRes.data);
         setAllTutorials(allTutorialsRes.data);
-
+ 
         // Find current tutorial index
         const currentIndex = allTutorialsRes.data.findIndex(
           (t) => t.id === parseInt(tutorialId)
         );
         setCurrentTutorialIndex(currentIndex);
-
+ 
         // Check if tutorial is already completed and if quiz is done
         setIsCompleted(tutorialRes.data.is_completed || false);
         setHasCompletedQuiz(tutorialRes.data.has_completed_quiz || false);
-
+ 
         console.log("Data fetched successfully", tutorialRes.data);
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -111,15 +112,15 @@ const Learning = () => {
         setLoading(false);
       }
     };
-
+ 
     fetchData();
   }, [courseId, tutorialId, api]);
-
+ 
   // Load Teachable Machine scripts
   useEffect(() => {
     const loadScripts = async () => {
       if (window.tmImage) return;
-
+ 
       const loadScript = (src) => {
         return new Promise((resolve, reject) => {
           const script = document.createElement("script");
@@ -129,7 +130,7 @@ const Learning = () => {
           document.body.appendChild(script);
         });
       };
-
+ 
       try {
         await loadScript(
           "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"
@@ -141,35 +142,35 @@ const Learning = () => {
         console.error("Error loading scripts:", err);
       }
     };
-
+ 
     loadScripts();
   }, []);
-
+ 
   // Cleanup on unmount
   useEffect(() => {
     return () => stopWebcam();
   }, []);
-
+ 
   // Initialize Teachable Machine
   const initTeachableMachine = async () => {
     try {
       const modelURL = `${MODEL_URL}model.json`;
       const metadataURL = `${MODEL_URL}metadata.json`;
-
+ 
       modelRef.current = await window.tmImage.load(modelURL, metadataURL);
       maxPredictionsRef.current = modelRef.current.getTotalClasses();
-
+ 
       webcamRef.current = new window.tmImage.Webcam(300, 300, true);
       await webcamRef.current.setup();
       await webcamRef.current.play();
-
+ 
       window.requestAnimationFrame(loop);
-
+ 
       if (webcamContainerRef.current) {
         webcamContainerRef.current.innerHTML = "";
         webcamContainerRef.current.appendChild(webcamRef.current.canvas);
       }
-
+ 
       if (labelContainerRef.current) {
         labelContainerRef.current.innerHTML = "";
         for (let i = 0; i < maxPredictionsRef.current; i++) {
@@ -183,7 +184,7 @@ const Learning = () => {
       );
     }
   };
-
+ 
   const loop = async () => {
     if (webcamRef.current) {
       webcamRef.current.update();
@@ -191,12 +192,12 @@ const Learning = () => {
       animationFrameRef.current = window.requestAnimationFrame(loop);
     }
   };
-
+ 
   const predict = async () => {
     if (!modelRef.current || !webcamRef.current) return;
-
+ 
     const prediction = await modelRef.current.predict(webcamRef.current.canvas);
-
+ 
     // Update label display
     prediction.forEach((pred, i) => {
       const classPrediction = `${pred.className}: ${pred.probability.toFixed(
@@ -206,7 +207,7 @@ const Learning = () => {
         labelContainerRef.current.childNodes[i].innerHTML = classPrediction;
       }
     });
-
+ 
     // Check for neutral state
     const isNeutral = prediction.some((pred) => {
       const className = pred.className.toLowerCase();
@@ -217,12 +218,12 @@ const Learning = () => {
           className.includes("nothing"))
       );
     });
-
+ 
     if (isNeutral) {
       updateProgress();
       return;
     }
-
+ 
     // Check for gestures
     const gesture = prediction.find((pred) => {
       if (pred.probability <= CONFIDENCE_THRESHOLD) return false;
@@ -234,7 +235,7 @@ const Learning = () => {
         className === "thumbsdown"
       );
     });
-
+ 
     if (gesture) {
       const gestureType = gesture.className.toLowerCase().includes("up")
         ? "positive"
@@ -244,19 +245,19 @@ const Learning = () => {
       updateProgress();
     }
   };
-
+ 
   const handleGestureDetection = (gestureType) => {
     detectionCountRef.current[gestureType]++;
-
+ 
     const otherType = gestureType === "positive" ? "negative" : "positive";
     detectionCountRef.current[otherType] = 0;
-
+ 
     const progress = Math.min(
       (detectionCountRef.current[gestureType] / HOLD_DURATION_FRAMES) * 100,
       100
     );
     setHoldProgress(progress);
-
+ 
     if (detectionCountRef.current[gestureType] >= HOLD_DURATION_FRAMES) {
       setDetectedGesture(
         gestureType === "positive" ? "thumbs_up" : "thumbs_down"
@@ -266,7 +267,7 @@ const Learning = () => {
       resetDetectionCount();
     }
   };
-
+ 
   const updateProgress = () => {
     if (
       detectionCountRef.current.positive > 0 ||
@@ -284,12 +285,12 @@ const Learning = () => {
       setHoldProgress(0);
     }
   };
-
+ 
   const resetDetectionCount = () => {
     detectionCountRef.current = { positive: 0, negative: 0 };
     setHoldProgress(0);
   };
-
+ 
   const stopWebcam = () => {
     if (animationFrameRef.current) {
       window.cancelAnimationFrame(animationFrameRef.current);
@@ -298,16 +299,16 @@ const Learning = () => {
       webcamRef.current.stop();
     }
   };
-
+ 
   const handleFeedback = async (type) => {
     if (feedback) return;
-
+ 
     try {
       // Submit feedback to backend
       await api.post(`/tutorials/${tutorialId}/feedback`, {
         feedback_type: type,
       });
-
+ 
       setFeedback(type);
       setPendingFeedback(null);
       stopWebcam();
@@ -320,7 +321,7 @@ const Learning = () => {
       stopWebcam();
     }
   };
-
+ 
   const cancelFeedback = () => {
     setPendingFeedback(null);
     setDetectedGesture("");
@@ -329,24 +330,24 @@ const Learning = () => {
       initTeachableMachine();
     }
   };
-
+ 
   const markAsCompleted = async () => {
     if (completingTutorial || isCompleted) return;
-
+ 
     setCompletingTutorial(true);
-
+ 
     try {
       const response = await api.post(`/tutorials/${tutorialId}/complete`, {});
-
+ 
       setIsCompleted(true);
       console.log("Tutorial marked as completed", response.data);
-
+ 
       try {
         const nextStepRes = await api.get(`/courses/${courseId}/next-step`);
         const nextStep = nextStepRes.data;
-
+ 
         console.log("Next step after completion:", nextStep);
-
+ 
         if (nextStep.type === 'tutorial') {
           navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}`);
         } else if (nextStep.type === 'quiz') {
@@ -371,25 +372,25 @@ const Learning = () => {
       setCompletingTutorial(false);
     }
   };
-
+ 
   const goToNextTutorial = () => {
     if (currentTutorialIndex < allTutorials.length - 1) {
       const nextTutorial = allTutorials[currentTutorialIndex + 1];
       navigate(`/dashboard/course/${courseId}/learning/${nextTutorial.id}`);
     }
   };
-
+ 
   const goToPreviousTutorial = () => {
     if (currentTutorialIndex > 0) {
       const previousTutorial = allTutorials[currentTutorialIndex - 1];
       navigate(`/dashboard/course/${courseId}/learning/${previousTutorial.id}`);
     }
   };
-
+ 
   if (loading) {
     return <SkeletonLoader />;
   }
-
+ 
   return (
     <div className="relative flex flex-col justify-start items-start h-full w-full p-4 md:p-6 lg:p-8 gap-5 text-foreground !text-start overflow-scroll">
       <div className="flex flex-row gap-2 text-gray-700 font-medium text-sm ">
@@ -430,7 +431,7 @@ const Learning = () => {
           )}
         </div>
       </div>
-
+ 
       {!isCompleted && (
         <div className="flex flex-col gap-3 w-full">
           <div className="flex flex-row min-w-full justify-between items-center gap-4">
@@ -500,7 +501,7 @@ const Learning = () => {
           </div>
         </div>
       )}
-
+ 
       {/* Tutorial Navigation */}
       {allTutorials.length > 1 && (
         <div className="flex flex-col gap-3 w-full pt-4 border-t border-gray-200">
@@ -541,13 +542,13 @@ const Learning = () => {
           className="w-full h-full rounded-lg"
         ></iframe>
       </div>
-
+ 
       {videoEnded && !feedback && !pendingFeedback && hasPopup && (
         <div className="absolute z-100 w-1/2 border-2 bg-opacity-50 m-auto top-1/2 -translate-y-1/2 left-0 right-0 flex flex-col items-center gap-6 p-8 bg-gray-50 rounded-lg">
           <h3 className="text-2xl font-bold text-black">
             How was this tutorial?
           </h3>
-
+ 
           <div className="flex gap-6">
             <button
               onClick={() => handleFeedback("positive")}
@@ -564,7 +565,7 @@ const Learning = () => {
               <span className="text-lg font-medium">Not Helpful</span>
             </button>
           </div>
-
+ 
           <div className="text-center w-full">
             <p className="text-gray-600 mb-4">Or use gesture recognition:</p>
             <button
@@ -573,12 +574,12 @@ const Learning = () => {
             >
               Start Gesture Recognition
             </button>
-
+ 
             <div
               ref={webcamContainerRef}
               className="flex justify-center mb-4"
             ></div>
-
+ 
             {holdProgress > 0 && (
               <div className="w-full max-w-md mx-auto mb-4">
                 <div className="flex justify-between items-center mb-2">
@@ -597,12 +598,12 @@ const Learning = () => {
                 </div>
               </div>
             )}
-
+ 
             <div
               ref={labelContainerRef}
               className="text-left max-w-md mx-auto"
             ></div>
-
+ 
             {detectedGesture && (
               <p className="text-lg font-medium text-green-600 mt-4">
                 Detected: {detectedGesture.replace("_", " ")}!
@@ -611,7 +612,7 @@ const Learning = () => {
           </div>
         </div>
       )}
-
+ 
       {pendingFeedback && hasPopup && (
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 m-auto w-1/2 flex flex-col items-center gap-6 p-8 bg-blue-50 rounded-lg border-2 border-blue-300">
           <h3 className="text-2xl font-bold text-black">
@@ -627,7 +628,7 @@ const Learning = () => {
             Is this correct? The tutorial was{" "}
             {pendingFeedback === "positive" ? "helpful" : "not helpful"}?
           </p>
-
+ 
           <div className="flex gap-4">
             <button
               onClick={() => handleFeedback(pendingFeedback)}
@@ -644,7 +645,7 @@ const Learning = () => {
           </div>
         </div>
       )}
-
+ 
       {feedback && hasPopup && (
         <div
           className="absolute m-auto top-1/2 -translate-y-1/2 w-1/2 left-0 right-0 border-2 flex flex-col items-center gap-4 p-8 bg-green-50 rounded-lg"
@@ -660,7 +661,7 @@ const Learning = () => {
           <p>Click to remove this popup.</p>
         </div>
       )}
-
+ 
       <div className="w-full flex-grow h-auto flex flex-col bg-gray-200 rounded-lg">
         <div className="grid grid-cols-2 text-center items-center h-10 divide-x divide-gray-400 shadow-lg shrink-0">
           <RenderOption
@@ -696,15 +697,17 @@ const Learning = () => {
           } flex-col w-full h-full p-5 gap-3 text-black max-h-100 overflow-y-scroll`}
         >
           <p className="font-bold">Transcript</p>
-          if (tutorialData?.video_transcript) {
-              <p>{getRawTxtFromVtt(tutorialData?.video_transcript)}</p>
-            } else {
-              <p>No transcript available</p>
-            }
+          {tutorialData?.video_transcript ? (
+            <p>{getRawTxtFromVtt(tutorialData.video_transcript)}</p>
+          ) : (
+            <p>No transcript available</p>
+          )}
         </div>
       </div>
     </div>
   );
 };
-
+ 
 export default Learning;
+
+

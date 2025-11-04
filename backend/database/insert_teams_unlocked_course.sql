@@ -1,5 +1,5 @@
 -- =============================================================
--- SKYWISE DATABASE - DIGITAL BASICS COURSE
+-- SKYWISE DATABASE - TEAMS UNLOCKED COURSE
 -- Project Group: Flow State (Team 3)
 -- =============================================================
 
@@ -8,15 +8,16 @@ USE skywise_db;
 -- =============================================================
 --  COURSE DETAILS - TEAMS UNLOCKED
 -- =============================================================
-INSERT INTO courses (name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives, thumbnail_url)
+INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives, thumbnail_url)
 VALUES
 (
+  2,
   'Teams Unlocked',
   'Step into the world of seamless online collaboration with Teams Unlocked! This course is designed to help you master Microsoft Teams, one of the most powerful tools for communication and teamwork.',
   'Beginner',
   45,
   60,
-  'In this course, you’ll learn how to join and schedule meetings, manage your calendar, and communicate effectively with colleagues, classmates, or teammates. By the end, you’ll feel confident navigating Teams, organizing online meetings, and collaborating efficiently — making remote work or study simpler and more productive.',
+  'In this course, you\'ll learn how to join and schedule meetings, manage your calendar, and communicate effectively with colleagues, classmates, or teammates. By the end, you\'ll feel confident navigating Teams, organizing online meetings, and collaborating efficiently — making remote work or study simpler and more productive.',
   '[
     "Join and schedule meetings confidently in Microsoft Teams",
     "Communicate clearly using chat, calls, and video meetings",
@@ -27,25 +28,30 @@ VALUES
 );
 
 -- =============================================================
---  COURSE REQUIREMENTS (Prerequisites)
+--  COURSE PREREQUISITES
 -- =============================================================
-INSERT INTO course_requirements (course_id, requirement_text)
+INSERT INTO course_prerequisites (course_id, prerequisite_course_id)
+VALUES (2, 1);
+
+-- =============================================================
+--  COURSE REQUIREMENTS
+-- =============================================================
+INSERT INTO course_requirements (id, course_id, requirement_text)
 VALUES
-(4, 'Basic computer and internet use'),
-(4, 'Access to Microsoft Teams or Microsoft 365 account'),
-(4, 'Stable internet connection'),
-(4, 'Headset or microphone for calls');
+(4, 2, 'Access to Microsoft Teams or Microsoft 365 account'),
+(5, 2, 'Headset or microphone for calls');
 
 -- =============================================================
 --  TEAMS TUTORIAL
 -- =============================================================
-INSERT INTO tutorials (title, description, video_provider, video_url, category)
+INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
 (
+ 3,
  'Teams Unlocked: Getting Started with Microsoft Teams',
  'Learn how to use Microsoft Teams for chatting, calling, and hosting meetings. This tutorial walks you through joining meetings, scheduling events, and collaborating with teammates in a simple and practical way.',
  'synthesia',
- 'https://share.synthesia.io/1eba2b49-af85-4e94-9bac-644704110b1f',
+ 'https://share.synthesia.io/embeds/videos/1eba2b49-af85-4e94-9bac-644704110b1f',
  'Online Collaboration' 
 );
 
@@ -53,13 +59,13 @@ VALUES
 --  COURSE - TUTORIAL LINK
 -- =============================================================
 INSERT INTO course_tutorials (course_id, tutorial_id)
-VALUES (4, 4);
+VALUES (2, 3);
 
 -- =============================================================
 --  QUIZ FOR THE TEAMS TUTORIAL
 -- =============================================================
 INSERT INTO quizzes (id, tutorial_id, title)
-VALUES (3, 4, 'Teams Unlocked Quiz');
+VALUES (3, 3, 'Teams Unlocked Quiz');
 
 -- =============================================================
 --  QUIZ QUESTIONS & OPTIONS (TEAMS)
