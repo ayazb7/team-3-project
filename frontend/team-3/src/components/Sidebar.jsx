@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { IoBookOutline } from "react-icons/io5";
+import logo from "../assets/logo.png";
+
 
 const MenuItem = ({ item, isCollapsed, location, navigate, onClick }) => {
   const IconComponent = item.icon;
@@ -115,22 +117,7 @@ export default function Sidebar() {
             isCollapsed && !isMobileOpen ? "justify-center" : ""
           }`}
         >
-          <h1
-            className={`font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent ${
-              isCollapsed && !isMobileOpen
-                ? "text-base leading-tight"
-                : "text-2xl"
-            }`}
-          >
-            {isCollapsed && !isMobileOpen ? (
-              <div className="text-center">
-                <div>Sky</div>
-                <div>Wise</div>
-              </div>
-            ) : (
-              "SkyWise"
-            )}
-          </h1>
+          <img src={logo} alt="SkyWise Logo" className="w-12 h-10" />
         </div>
       )}
 
@@ -217,9 +204,10 @@ export default function Sidebar() {
       <header className="md:hidden sticky top-0 left-0 right-0 z-50 flex items-center justify-between h-16 px-4 bg-sidebar text-sidebar-foreground border-b border-sidebar-border relative shadow-lg overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-sidebar-accent/30 pointer-events-none"></div>
 
-        <h1 className="text-xl font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent relative z-10">
+        <img src={logo} alt="SkyWise Logo" className="w-12 h-10" />
+        {/* <h1 className="text-xl font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent relative z-10">
           SkyWise
-        </h1>
+        </h1> */}
         <button
           onClick={toggleMobileSidebar}
           className="p-2 hover:bg-sidebar-accent rounded-md transition-all hover:shadow-md relative z-10"
