@@ -696,7 +696,11 @@ const Learning = () => {
           } flex-col w-full h-full p-5 gap-3 text-black max-h-100 overflow-y-scroll`}
         >
           <p className="font-bold">Transcript</p>
-          <p>{getRawTxtFromVtt(tutorialData?.video_transcript)}</p>
+          if (tutorialData?.video_transcript) {
+              <p>{getRawTxtFromVtt(tutorialData?.video_transcript)}</p>
+            } else {
+              <p>No transcript available</p>
+            }
         </div>
       </div>
     </div>
