@@ -81,9 +81,9 @@ function Register() {
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
             
             <div className="max-w-md mx-auto w-full">
-              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-2">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
                 Create an account
-              </h2>
+              </h3>
               <p className="text-slate-600 mb-8">
                 Join us and start your learning journey
               </p>
