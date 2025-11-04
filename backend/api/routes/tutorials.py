@@ -3,7 +3,7 @@ import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 import app
-from .courses import calculate_course_progress
+from courses_routes_utils import calculate_course_progress
 
 bp = Blueprint('tutorials', __name__, url_prefix='/tutorials')
 

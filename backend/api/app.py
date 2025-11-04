@@ -45,7 +45,9 @@ def create_app(testing: bool = False) -> Flask:
     app.register_blueprint(tutorials_bp)
     # app.register_blueprint(bot_bp)
 
-    import routes.bot
+    import routes.bot as bot
+    with app.app_context():
+       bot.init() 
     return app
 
 if __name__ == '__main__':
