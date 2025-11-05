@@ -226,11 +226,11 @@ def get_user_details(user_id):
                 c.id,
                 c.name,
                 ucp.progress_percentage,
-                ucp.updated_at
+                ucp.last_updated
             FROM user_course_progress ucp
             JOIN courses c ON ucp.course_id = c.id
             WHERE ucp.user_id = %s
-            ORDER BY ucp.updated_at DESC
+            ORDER BY ucp.last_updated DESC
         ''', (user_id,))
         course_progress = [{
             'course_id': row[0],
