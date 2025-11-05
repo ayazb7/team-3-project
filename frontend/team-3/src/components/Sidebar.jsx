@@ -8,6 +8,7 @@ import {
   PanelLeft,
   X,
   Menu,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { IoBookOutline } from "react-icons/io5";
@@ -50,14 +51,14 @@ const MenuItem = ({ item, isCollapsed, location, navigate, onClick }) => {
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, username, email } = useAuth();
+  const { logout, username, email, role } = useAuth();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const initial = username?.charAt(0).toUpperCase() ?? "TU";
 
-  const menuItems = [
+  const baseMenuItems = [
     { id: "dashboard", label: "Dashboard", icon: ChartLine, to: "/dashboard" },
     {
       id: "courses",
@@ -84,6 +85,19 @@ export default function Sidebar() {
       to: "/dashboard/support",
     },
   ];
+
+  // Add admin item if user is admin
+  const menuItems = role === 'admin'
+    ? [
+        ...baseMenuItems,
+        {
+          id: "admin",
+          label: "Admin Panel",
+          icon: Shield,
+          to: "/admin",
+        },
+      ]
+    : baseMenuItems;
 
   const toggleDesktopSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
