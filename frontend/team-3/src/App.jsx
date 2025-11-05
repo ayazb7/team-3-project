@@ -16,7 +16,7 @@ import About from "./pages/About.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CourseManagement from "./pages/CourseManagement.jsx";
 import UserMetrics from "./pages/UserMetrics.jsx";
-import Contact from "./pages/Contact.jsx";
+import ContactForm from "./components/ContactForm.jsx";
 
 function App() {
   return (
@@ -27,13 +27,13 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/courses" element={<Courses />} />
         <Route path="/about" element={<About />} />
-        <Route path="/support" element={<Contact />} />
+        <Route path="/support" element={<ContactForm />} />
       </Route>
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="find-local-events" element={<div />} />
         <Route path="activity" element={<div />} />
-        <Route path="support" element={<Contact />} />
+        <Route path="support" element={<ContactForm />} />
         <Route path="course/:id" element={<CourseView />} />
         <Route path="courses" element={<Courses />} />
         <Route
