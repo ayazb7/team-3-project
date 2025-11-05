@@ -131,4 +131,19 @@ The admin panel follows your existing design system:
 4. Navigate to /admin in your browser
 5. Run the tests to verify everything works
 
+## Troubleshooting
+
+**401 Unauthorized Errors:**
+- Ensure you're logged in as an admin user
+- Check that the `role` column was added to the users table
+- Verify your user has `role='admin'` in the database
+
+**Table Not Found Errors:**
+- Make sure you ran `db_creation.sql` first
+- Verify all tables exist: `user_tutorial_progress`, `user_quiz_results`, `course_prerequisites`
+
+**Course Deletion Issues:**
+- Courses with prerequisites will be cleaned up automatically
+- All related user progress and requirements are deleted with the course
+
 Enjoy your new admin panel!
