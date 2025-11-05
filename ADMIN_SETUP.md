@@ -13,14 +13,6 @@ A comprehensive admin panel has been created with data visualization, course man
 ### 1. Database Setup
 Run the SQL migration to add the admin role field:
 
-```bash
-# Connect to your MySQL database and run:
-mysql -u your_username -p your_database < backend/database/add_admin_role.sql
-
-# Then, promote your user to admin (replace with your email):
-mysql -u your_username -p your_database
-```
-
 ```sql
 UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
 ```
