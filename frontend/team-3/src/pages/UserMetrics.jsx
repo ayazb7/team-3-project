@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Users, ArrowLeft, TrendingUp, BookOpen, Play, Award, AlertCircle } from 'lucide-react';
 import StatCard from '../components/StatCard';
+import { useAuth } from '../context/AuthContext';
 
 const UserMetrics = () => {
   const [users, setUsers] = useState([]);
@@ -12,6 +12,7 @@ const UserMetrics = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { api } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -19,7 +20,7 @@ const UserMetrics = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/admin/users');
+      const response = await api.get('/admin/users');
       setUsers(response.data);
       setLoading(false);
     } catch (err) {
@@ -36,7 +37,7 @@ const UserMetrics = () => {
   const fetchUserDetails = async (userId) => {
     setDetailsLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/admin/users/${userId}`);
+      const response = await api.get(`/admin/users/${userId}`);
       setUserDetails(response.data);
       setDetailsLoading(false);
     } catch (err) {

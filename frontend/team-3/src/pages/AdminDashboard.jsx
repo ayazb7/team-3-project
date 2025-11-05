@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Users, BookOpen, GraduationCap, TrendingUp, AlertCircle } from 'lucide-react';
 import StatCard from '../components/StatCard';
+import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { api } = useAuth();
 
   useEffect(() => {
     fetchAdminStats();
@@ -16,7 +17,7 @@ const AdminDashboard = () => {
 
   const fetchAdminStats = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/admin/dashboard/stats');
+      const response = await api.get('/admin/dashboard/stats');
       setStats(response.data);
       setLoading(false);
     } catch (err) {

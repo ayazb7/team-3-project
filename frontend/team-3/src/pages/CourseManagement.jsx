@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Plus, Edit, Trash2, X, BookOpen, AlertCircle, Check } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const CourseManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -11,6 +11,7 @@ const CourseManagement = () => {
   const [editingCourse, setEditingCourse] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
+  const { api } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -28,7 +29,7 @@ const CourseManagement = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/admin/courses');
+      const response = await api.get('/admin/courses');
       setCourses(response.data);
       setLoading(false);
     } catch (err) {
@@ -53,10 +54,10 @@ const CourseManagement = () => {
 
     try {
       if (editingCourse) {
-        await axios.put(`http://localhost:5000/admin/courses/${editingCourse.id}`, formData);
+        await api.put(`/admin/courses/${editingCourse.id}`, formData);
         setSuccessMessage('Course updated successfully!');
       } else {
-        await axios.post('http://localhost:5000/admin/courses', formData);
+        await api.post('/admin/courses', formData);
         setSuccessMessage('Course created successfully!');
       }
 
@@ -91,7 +92,7 @@ const CourseManagement = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/admin/courses/${courseId}`);
+      await api.delete(`/admin/courses/${courseId}`);
       setSuccessMessage('Course deleted successfully!');
       fetchCourses();
       setTimeout(() => setSuccessMessage(''), 3000);
