@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   );
   const [username, setUsername] = useState(null);
   const [email, setEmail] = useState(null);
+  const [role, setRole] = useState(null);
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -19,6 +20,9 @@ export const AuthProvider = ({ children }) => {
   // Define logout and refreshAccessToken before interceptor uses them
   const logout = () => {
     setAccessToken(null);
+    setUsername(null);
+    setEmail(null);
+    setRole(null);
     Cookies.remove("accessToken");
     Cookies.remove("refreshToken");
     navigate("/login");
@@ -169,6 +173,7 @@ export const AuthProvider = ({ children }) => {
       const res = await api.get(`/user_details`);
       setUsername(res.data?.username || null);
       setEmail(res.data?.email || null);
+      setRole(res.data?.role || null);
     } catch (_) {
       console.error("Error fetching user details");
     }
@@ -178,6 +183,7 @@ export const AuthProvider = ({ children }) => {
     accessToken,
     username,
     email,
+    role,
     login,
     register,
     logout,

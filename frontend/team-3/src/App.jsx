@@ -13,6 +13,9 @@ import BotRender from "./pages/BotRender.jsx";
 import Courses from "./pages/Courses.jsx";
 import Quiz from "./pages/Quiz.jsx";
 import About from "./pages/About.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import CourseManagement from "./pages/CourseManagement.jsx";
+import UserMetrics from "./pages/UserMetrics.jsx";
 import Contact from "./pages/Contact.jsx";
 
 function App() {
@@ -41,6 +44,11 @@ function App() {
           path="course/:courseId/learning/:tutorialId/quiz/:quizId"
           element={<Quiz />}
         />
+      </Route>
+      <Route path="/admin" element={<MainLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="courses" element={<CourseManagement />} />
+        <Route path="users" element={<UserMetrics />} />
       </Route>
     </Routes>
   );
