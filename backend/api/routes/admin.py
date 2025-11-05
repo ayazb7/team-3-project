@@ -132,11 +132,11 @@ def get_all_users():
                 u.role,
                 u.created_at,
                 COUNT(DISTINCT ucp.course_id) as courses_enrolled,
-                COUNT(DISTINCT utw.tutorial_id) as tutorials_watched,
+                COUNT(DISTINCT utp.tutorial_id) as tutorials_watched,
                 COALESCE(SUM(ucp.progress_percentage), 0) / NULLIF(COUNT(DISTINCT ucp.course_id), 0) as avg_progress
             FROM users u
             LEFT JOIN user_course_progress ucp ON u.id = ucp.user_id
-            LEFT JOIN user_tutorial_watch utw ON u.id = utw.user_id
+            LEFT JOIN user_tutorial_progress utp ON u.id = utp.user_id AND utp.completed = TRUE
             GROUP BY u.id, u.username, u.email, u.role, u.created_at
             ORDER BY u.created_at DESC
         ''')
@@ -193,19 +193,20 @@ def get_user_details(user_id):
 
         # Tutorials watched
         cursor.execute('''
-            SELECT COUNT(*) FROM user_tutorial_watch WHERE user_id = %s
+            SELECT COUNT(*) FROM user_tutorial_progress
+            WHERE user_id = %s AND completed = TRUE
         ''', (user_id,))
         tutorials_watched = cursor.fetchone()[0]
 
         # Quizzes submitted
         cursor.execute('''
-            SELECT COUNT(*) FROM user_quiz_submissions WHERE user_id = %s
+            SELECT COUNT(*) FROM user_quiz_results WHERE user_id = %s
         ''', (user_id,))
         quizzes_submitted = cursor.fetchone()[0]
 
         # Average quiz score
         cursor.execute('''
-            SELECT AVG(score) FROM user_quiz_submissions WHERE user_id = %s
+            SELECT AVG(score) FROM user_quiz_results WHERE user_id = %s
         ''', (user_id,))
         result = cursor.fetchone()
         avg_quiz_score = round(result[0], 2) if result[0] else 0
