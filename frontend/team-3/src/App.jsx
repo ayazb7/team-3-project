@@ -33,7 +33,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path="find-local-events" element={<div />} />
         <Route path="activity" element={<div />} />
-        <Route path="support" element={<div />} />
+        <Route path="support" element={<Contact />} />
         <Route path="course/:id" element={<CourseView />} />
         <Route path="courses" element={<Courses />} />
         <Route
