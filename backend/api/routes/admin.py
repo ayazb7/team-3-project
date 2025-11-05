@@ -392,7 +392,7 @@ def delete_course(course_id):
         # Delete related records (due to foreign key constraints)
         cursor.execute('DELETE FROM user_course_progress WHERE course_id = %s', (course_id,))
         cursor.execute('DELETE FROM course_tutorials WHERE course_id = %s', (course_id,))
-        cursor.execute('DELETE FROM course_prerequisites WHERE course_id = %s OR prerequisite_id = %s', (course_id, course_id))
+        cursor.execute('DELETE FROM course_prerequisites WHERE course_id = %s OR prerequisite_course_id = %s', (course_id, course_id))
         cursor.execute('DELETE FROM course_requirements WHERE course_id = %s', (course_id,))
 
         # Delete the course
