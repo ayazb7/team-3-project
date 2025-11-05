@@ -1,188 +1,113 @@
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useState } from "react";
 
-function Contact() {
-  const { api } = useAuth();
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [status, setStatus] = useState({
-    loading: false,
-    success: null,
-    error: null,
-  });
+export default function ContactForm() {
+  const [result, setResult] = useState("");
 
-  const updateField = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setResult("Sending....");
+    const formData = new FormData(event.target);
+    formData.append("access_key", "e712c4f4-5fd7-48aa-ae50-f55d65b6eebe");
 
-  const validate = () => {
-    if (
-      !form.name.trim() ||
-      !form.email.trim() ||
-      !form.subject.trim() ||
-      !form.message.trim()
-    ) {
-      return "Please fill in all fields.";
-    }
-    const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim());
-    if (!emailOk) return "Please enter a valid email.";
-    return null;
-  };
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData,
+    });
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const validationError = validate();
-    if (validationError) {
-      setStatus({ loading: false, success: null, error: validationError });
-      return;
-    }
-    setStatus({ loading: true, success: null, error: null });
-    try {
-      const resp = await api.post(`/support_ticket`, form);
-      const data = resp?.data || {};
-      console.log("Response:", resp.status, data);
-
-      if (resp.status >= 200 && resp.status < 300) {
-        setStatus({
-          loading: false,
-          success: "Thanks! We received your message.",
-          error: null,
-        });
-        setForm({ name: "", email: "", subject: "", message: "" });
-      } else {
-        const errorMsg =
-          data?.error ||
-          data?.message ||
-          `Server error (${resp.status}). Please try again.`;
-        setStatus({
-          loading: false,
-          success: null,
-          error: errorMsg,
-        });
-      }
-    } catch (err) {
-      console.error("Request error:", err);
-      setStatus({
-        loading: false,
-        success: null,
-        error:
-          err?.response?.data?.error ||
-          err?.response?.data?.message ||
-          `Network error: ${err.message}. Please check your connection and try again.`,
-      });
+    const data = await response.json();
+    if (data.success) {
+      setResult("Form Submitted Successfully");
+      event.target.reset();
+    } else {
+      setResult("Error");
     }
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div className="text-center space-y-3">
-          <h1 className="!text-5xl sm:!text-6xl font-extrabold tracking-tight font-urbanist sky-gradient-text">
+    <div className="w-full min-h-[calc(100vh-64px)] flex items-center justify-center p-4 md:p-8 lg:p-12">
+      <div className="w-full max-w-3xl bg-gradient-to-br from-[#f8f9ff] to-[#f0f4ff] border border-[#ac1ec4]/20 rounded-2xl shadow-2xl overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
+
+        <div className="p-6 sm:p-10 lg:p-12">
+          <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2 text-center">
             Contact Us
-          </h1>
-          <div className="h-1 w-24 mx-auto rounded sky-gradient" />
-          <p className="text-gray-600">
-            Have a question or need help? Send us a message.
+          </h3>
+          <p className="text-center text-slate-600 mb-8">
+            Have a question or feedback? Send us a message below.
           </p>
-        </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="bg-white/50 dark:bg-white/10 backdrop-blur rounded-2xl border shadow-sm p-6 sm:p-8 space-y-5"
-        >
-          {status.error && (
-            <div className="rounded-md border border-red-200 bg-red-50 text-red-800 px-4 py-2 text-sm">
-              {status.error}
-            </div>
-          )}
-          {status.success && (
-            <div className="rounded-md border border-green-200 bg-green-50 text-green-800 px-4 py-2 text-sm">
-              {status.success}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="text-left">
-              <label htmlFor="name" className="block text-sm font-medium mb-1">
-                Name
+          <form onSubmit={onSubmit} className="space-y-6 max-w-2xl mx-auto">
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
+                Your Name
               </label>
-              <input
-                id="name"
-                name="name"
-                value={form.name}
-                onChange={updateField}
-                className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                placeholder="Jane Doe"
-                autoComplete="name"
-              />
+              <div className="flex items-center gap-2 bg-white/80 h-11 px-3 rounded-md ring-1 ring-[#ac1ec4]/30 focus-within:ring-2 focus-within:ring-[#ac1ec4] transition-all">
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="e.g: Ada Lovelace"
+                  aria-label="Name"
+                  className="w-full bg-transparent outline-none focus:ring-0 placeholder-slate-500"
+                />
+              </div>
             </div>
-            <div className="text-left">
-              <label htmlFor="email" className="block text-sm font-medium mb-1">
-                Email
+
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
+                Email Address
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={updateField}
-                className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                placeholder="jane@example.com"
-                autoComplete="email"
-              />
+              <div className="flex items-center gap-2 bg-white/80 h-11 px-3 rounded-md ring-1 ring-[#ac1ec4]/30 focus-within:ring-2 focus-within:ring-[#ac1ec4] transition-all">
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="e.g: ada@analytical.engine"
+                  aria-label="Email"
+                  className="w-full bg-transparent outline-none focus:ring-0 placeholder-slate-500"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="text-left">
-            <label htmlFor="subject" className="block text-sm font-medium mb-1">
-              Subject
-            </label>
-            <input
-              id="subject"
-              name="subject"
-              value={form.subject}
-              onChange={updateField}
-              className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="How can we help?"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-600 mb-2 text-left">
+                Message
+              </label>
+              <div className="bg-white/80 px-3 py-2 rounded-md ring-1 ring-[#ac1ec4]/30 focus-within:ring-2 focus-within:ring-[#ac1ec4] transition-all">
+                <textarea
+                  name="message"
+                  required
+                  rows="5"
+                  placeholder="How can we help?"
+                  aria-label="Message"
+                  className="w-full bg-transparent outline-none focus:ring-0 placeholder-slate-500 resize-y min-h-[120px]"
+                ></textarea>
+              </div>
+            </div>
 
-          <div className="text-left">
-            <label htmlFor="message" className="block text-sm font-medium mb-1">
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows={6}
-              value={form.message}
-              onChange={updateField}
-              className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              placeholder="Tell us a bit more..."
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
             <button
               type="submit"
-              disabled={status.loading}
-              className="px-6 py-2.5 rounded-lg font-semibold text-white bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] hover:shadow-lg hover:shadow-[#ac1ec4]/30 transition-all disabled:opacity-60"
+              className="w-full h-11 rounded-md font-semibold text-white bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] hover:shadow-lg hover:shadow-[#ac1ec4]/30 transition-all duration-200 hover:scale-[1.02]"
             >
-              {status.loading ? "Sending..." : "Send Message"}
+              Submit Form
             </button>
-            <p className="text-xs text-gray-500">
-              We’ll get back to you via email.
-            </p>
-          </div>
-        </form>
+
+            {result && (
+              <div
+                className={`text-sm text-center mt-2 p-3 rounded-md border ${
+                  result === "Form Submitted Successfully"
+                    ? "bg-green-50 text-green-600 border-green-200"
+                    : result === "Sending...."
+                    ? "bg-blue-50 text-blue-600 border-blue-200"
+                    : "bg-red-50 text-red-600 border-red-200"
+                }`}
+              >
+                {result}
+              </div>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );
 }
-
-export default Contact;
