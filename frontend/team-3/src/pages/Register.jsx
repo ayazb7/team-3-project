@@ -67,17 +67,13 @@ function Register() {
   };
  
   return (
-    <div className="w-full min-h-[calc(100vh-64px)] flex items-center justify-center p-4 md:p-8 lg:p-12">
-      {/* Unified Card with gradient background */}
+    <div className="w-full min-h-[80%] flex items-center justify-center p-4 md:p-8 lg:p-12">
       <div className="w-full max-w-[1400px] bg-gradient-to-br from-[#001433] via-[#002147] to-[#001433] rounded-3xl shadow-2xl overflow-hidden relative">
-        {/* Decorative gradient glows */}
         <div className="pointer-events-none absolute -top-20 -right-24 h-96 w-96 rounded-full bg-[#1c50fe]/20 blur-3xl"></div>
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-96 w-96 rounded-full bg-[#ac1ec4]/20 blur-3xl"></div>
  
         <div className="flex flex-col md:flex-row items-stretch min-h-[calc(100vh-160px)] relative z-10">
-          {/* Left: Registration Form */}
           <div className="w-full md:w-[42%] lg:w-[38%] bg-white/95 backdrop-blur-sm p-8 md:p-10 lg:p-12 flex flex-col justify-center relative">
-            {/* Top gradient accent */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
             
             <div className="max-w-md mx-auto w-full">
