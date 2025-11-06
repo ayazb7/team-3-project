@@ -15,4 +15,5 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
     WEB3FORMS_ACCESS_KEY = os.getenv('WEB3FORMS_ACCESS_KEY')
+    WEB3FORMS_URL = 'https://api.web3forms.com/submit'
 
