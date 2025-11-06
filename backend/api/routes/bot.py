@@ -43,11 +43,11 @@ def init():
 
     Should the user ever wnat to log out, tell them to navigate to the sidebar, or if they're on a mobile phone tell them to check in the menu button on the top right. There will be a log out button.
 
-    Here is the list of all available courses in json format. Reference this list of courses when the user asks about recommendations. ONLY SEND THE ONE MOST RELEVANT COURSE.
+    Here is the list of all available courses in json format. Reference this list of courses when the user asks about courses. Only return the most revelant course. NEVER RETURN RAW JSON.
 
     {courses}
 
-if and when the user asks about courses, use the given tool to send the course json back. Always give a brief description of the course after.
+    Whenever you talk about a course, make sure you make the tool call to show the course. Do not tell them how to navigate to it. Just use the tool.
     """
 
 
@@ -62,6 +62,7 @@ class courseInput(pydantic.BaseModel):
     courseJson: str
 
 def sendCourseDetails(course: dict) -> dict:
+    print("HITHITHITHTIHI")
     socketio.emit("renderCoursesInChat", {"data": course}, namespace='/chat')
 
 def trim_conversation(conversation, max_length=10):
@@ -72,25 +73,7 @@ def trim_conversation(conversation, max_length=10):
         return bridged_conversation
     return conversation
 
-
-@socketio.on('connect' , namespace='/chat')
-def handle_connect():
-    print('Client connected to /chat namespace')
-    socketio.emit('my response', {'data': 'Connected'})
-
-@socketio.on('disconnect', namespace='/chat')
-def handle_disconnect():
-    print('Client disconnected from /chat namespace')
-
-@socketio.on('message', namespace='/chat')
-def handle_message(message):
-    global conversation
-    print('Received message:', message)
-
-    # Trim conversation to last 10 messages
-    conversation = trim_conversation(conversation, max_length=10)
-
-    conversation.append({"role": "user", "content": message})
+def call_model(conversation):
     
 
     print(conversation)
@@ -124,17 +107,63 @@ def handle_message(message):
                     tool_calls[idx]["arguments"] += delta["arguments"]
 
 
-        final_response = stream.get_final_response()
+        return stream.get_final_response()
 
-        output = final_response.output 
-        if hasattr(output[0], "parsed_arguments"):
-            if output[0].name == "courseInput":
-                courseJson = json.loads(output[0].arguments)["courseJson"]
-                sendCourseDetails(json.loads(courseJson))
+
+@socketio.on('connect' , namespace='/chat')
+def handle_connect():
+    print('Client connected to /chat namespace')
+    socketio.emit('my response', {'data': 'Connected'})
+
+@socketio.on('disconnect', namespace='/chat')
+def handle_disconnect():
+    print('Client disconnected from /chat namespace')
+
+@socketio.on('message', namespace='/chat')
+def handle_message(message):
+    global conversation
+    conversation = trim_conversation(conversation, max_length=10)
+    conversation.append({"role": "user", "content": message})
+    print('Received message:', message)
+
+    final_response = call_model(conversation)
+
+    output = final_response.output 
+    if hasattr(output[0], "parsed_arguments"):
+        if output[0].name == "courseInput":
+            courseJson = json.loads(output[0].arguments, strict=False)["courseJson"]
+
+            explain_prompt = {
+                    "role": "user",
+                    "content": f"Now briefly explain this course: {json.dumps(courseJson)} DO NOT MAKE A TOOL CALL"
+                    }
+
+            conversation.append(explain_prompt)
+            explanation_res = call_model(conversation)
+
+            ex_text = explanation_res.output_text
+            print(explanation_res.output)
+            print(ex_text)
+            conversation.append({"role": "assistant", "content": ex_text})
+            print(courseJson)
+            sendCourseDetails(json.loads(courseJson, strict=False))
+
+
+            # courseName = courseJson["name"]
+
+            # conversation.append({"role": "assistant", "content": f"tool call executed {courseName}"})
+
+
+    else:
         conversation.append({"role": "assistant", "content": final_response.output_text})
-    
 
 
 
-    
+
+
+
+
+
+
+
 

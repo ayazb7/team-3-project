@@ -65,10 +65,14 @@ const AskAno = () => {
     });
 
     socketRef.current.on("completed", (data) => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: "Ano", text: partialResponseRef.current },
-      ]);
+      if (partialResponseRef.current) {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { isCourse: false, sender: "Ano", text: partialResponseRef.current },
+        ]);
+      }
+
+      console.log(messages);
       setPartialResponse("");
     });
 
@@ -78,7 +82,9 @@ const AskAno = () => {
 
     socketRef.current.on("response", (data) => {
       setCoursesInChat([]);
-      setPartialResponse((prev) => prev + data.data);
+      if (data.data) {
+        setPartialResponse((prev) => prev + data.data);
+      }
       setLoading(false);
     });
 
@@ -87,10 +93,17 @@ const AskAno = () => {
       console.log(data.data[0]);
 
       if (data.data.constructor != Array) {
-        setCoursesInChat([data.data]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { isCourse: true, sender: "Ano", text: [data.data] },
+        ]);
       } else {
-        setCoursesInChat(data.data);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { isCourse: true, sender: "Ano", text: data.data },
+        ]);
       }
+      setPartialResponse("");
       setLoading(false);
     });
 
@@ -117,7 +130,7 @@ const AskAno = () => {
 
       setMessages((prevMessages) => [
         ...prevMessages,
-        { sender: "me", text: trimmedMessage },
+        { isCourse: false, sender: "me", text: trimmedMessage },
       ]);
     }
     setPrompt("");
@@ -157,15 +170,8 @@ const AskAno = () => {
                   </div>
                 )}
               </div>
-              {coursesInChat && (
-                <div className="flex flex-col gap-3 ">
-                  {coursesInChat.map((item, idx) => {
-                    return <CourseCard {...item} background="bg-gray-200" />;
-                  })}
-                </div>
-              )}
               {partialResponse && (
-                <div className="text-sm font-normal py-2.5 text-gray-900 dark:text-white whitespace-pre-wrap prose ">
+                <div className="text-sm font-normal py-2.5 text-black dark:text-white whitespace-pre-wrap prose ">
                   <Markdown remarkPlugins={[remarkGfm]}>
                     {partialResponse}
                   </Markdown>
@@ -184,11 +190,21 @@ const AskAno = () => {
                     {msg.sender === "me" ? (
                       <ChatBubble message={msg.text} sender="" />
                     ) : (
-                      <div className="text-sm font-normal py-2.5 text-gray-900 dark:text-white whitespace-pre-wrap prose ">
-                        <Markdown remarkPlugins={[remarkGfm]}>
-                          {msg.text}
-                        </Markdown>
-                      </div>
+                      (msg.isCourse && (
+                        <div className="flex flex-col gap-3 ">
+                          {msg.text.map((item, idx) => {
+                            return (
+                              <CourseCard {...item} background="bg-gray-200" />
+                            );
+                          })}
+                        </div>
+                      )) || (
+                        <div className="text-sm font-normal py-2.5 text-gray-900 dark:text-white whitespace-pre-wrap prose ">
+                          <Markdown remarkPlugins={[remarkGfm]}>
+                            {msg.text}
+                          </Markdown>
+                        </div>
+                      )
                     )}
                   </div>
                 );

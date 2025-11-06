@@ -99,7 +99,9 @@ const Carousel = ({ items, renderItem, className }) => {
 
 const SectionHeader = ({ title, subtitle }) => (
   <div className="text-center mb-6">
-    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">{title}</h2>
+    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+      {title}
+    </h2>
     <p className="text-gray-500 text-sm md:text-base mt-1">{subtitle}</p>
   </div>
 );
