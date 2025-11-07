@@ -37,6 +37,7 @@ def get_tutorials():
 def complete_tutorial(tutorial_id):
     """
     Marks a tutorial as completed by the user and updates the user's overall course progress.
+    If the tutorial has an associated quiz, the user must pass it with 80% or higher before completing the tutorial.
     Once marked as completed, the user cannot complete it again.
 
     Expects JSON body:
@@ -63,7 +64,32 @@ def complete_tutorial(tutorial_id):
                 "message": "Tutorial already marked as completed. You cannot change it again."
             }), 400
 
-        # 2. Get the course_id for this tutorial (via the junction table)
+        # 2. Check if there's a quiz for this tutorial and if it's been passed
+        cursor.execute("""
+            SELECT id FROM quizzes WHERE tutorial_id = %s
+        """, (tutorial_id,))
+        quiz = cursor.fetchone()
+
+        if quiz:
+            quiz_id = quiz['id']
+            # Check if user has passed the quiz (score >= 80%)
+            cursor.execute("""
+                SELECT MAX(score) as best_score
+                FROM user_quiz_results
+                WHERE user_id = %s AND quiz_id = %s
+            """, (user_id, quiz_id))
+            quiz_result = cursor.fetchone()
+            best_score = quiz_result['best_score'] if quiz_result and quiz_result['best_score'] is not None else 0
+
+            if best_score < 80:
+                cursor.close()
+                return jsonify({
+                    "error": "You must pass the quiz with 80% or higher before completing this tutorial.",
+                    "required_score": 80,
+                    "best_score": best_score
+                }), 403
+
+        # 3. Get the course_id for this tutorial (via the junction table)
         cursor.execute("""
             SELECT course_id
             FROM course_tutorials
@@ -77,7 +103,7 @@ def complete_tutorial(tutorial_id):
 
         course_id = course_result['course_id']
 
-        # 3. Insert or update completion record
+        # 4. Insert or update completion record
         cursor.execute("""
             INSERT INTO user_tutorial_progress
             (user_id, tutorial_id, completed, completed_at, feedback)
@@ -88,11 +114,11 @@ def complete_tutorial(tutorial_id):
                 feedback = VALUES(feedback)
         """, (user_id, tutorial_id, feedback))
 
-        # 4. Calculate progress using the same formula as get_courses
-        # This includes both completed tutorials AND submitted quizzes
+        # 5. Calculate progress using the same formula as get_courses
+        # This includes both completed tutorials AND passed quizzes
         progress_percentage = calculate_course_progress(cursor, course_id, user_id)
 
-        # 5. Update or insert into user_course_progress
+        # 6. Update or insert into user_course_progress
         cursor.execute("""
             INSERT INTO user_course_progress
             (user_id, course_id, progress_percentage, last_updated)
