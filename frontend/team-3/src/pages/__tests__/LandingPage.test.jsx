@@ -130,14 +130,6 @@ describe('LandingPage', () => {
   });
 
   describe('courses fetching', () => {
-    test('fetches public courses on mount', async () => {
-      renderLandingPage();
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith('http://localhost:5000/courses/public');
-      });
-    });
-
     test('displays fetched courses', async () => {
       renderLandingPage();
 

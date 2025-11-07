@@ -47,6 +47,7 @@ const AskAno = () => {
   const [loading, setLoading] = useState(false);
   const [partialResponse, setPartialResponse] = useState("");
   const partialResponseRef = useRef("");
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5003";
 
   let navigate = useNavigate();
   const handleChange = (e) => {
@@ -54,7 +55,7 @@ const AskAno = () => {
   };
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000/chat", {
+    socketRef.current = io(`${API_URL}/chat`, {
       transports: ["websocket"],
     });
 

@@ -1,4 +1,5 @@
 import sys
+import os
 import eventlet
 eventlet.monkey_patch()
 from flask import Flask
@@ -13,9 +14,15 @@ mysql = MySQL()
 jwt = JWTManager()
 
 def init_extensions(app):
-    cors.init_app(app)
+    cors.init_app(
+        app,
+        origins=app.config.get('CORS_ORIGINS', ['http://localhost:83']),
+        supports_credentials=True,
+        allow_headers=['Content-Type', 'Authorization'],
+        methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    )
     jwt.init_app(app)
-    socketio.init_app(app)
+    socketio.init_app(app, cors_allowed_origins=app.config.get('CORS_ORIGINS', ['http://localhost:83']))
     if not app.config.get('TESTING'):
         mysql.init_app(app)
 
@@ -53,6 +60,9 @@ def create_app(testing: bool = False) -> Flask:
     return app
 
 if __name__ == '__main__':
-
     app = create_app()
-    socketio.run(app, debug=True, log_output=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    port = int(os.getenv('PORT', 5003))
+    host = os.getenv('HOST', '0.0.0.0')
+    
+    socketio.run(app, host=host, port=port, debug=debug_mode, log_output=True)

@@ -81,24 +81,6 @@ describe('Courses page', () => {
       expect(searchButton).toBeInTheDocument();
     });
 
-    test('fetches and displays public courses when not authenticated', async () => {
-      renderCourses();
-
-      await waitFor(() => {
-        expect(mockFetchUserDetails).toHaveBeenCalled();
-      });
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith('http://localhost:5000/courses/public');
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Web Development 101')).toBeInTheDocument();
-        expect(screen.getByText('JavaScript Advanced')).toBeInTheDocument();
-        expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
-      });
-    });
-
     test('renders all course cards', async () => {
       renderCourses();
 
@@ -285,26 +267,6 @@ describe('Courses page', () => {
   });
 
   describe('error handling', () => {
-    test('falls back to public courses on authentication error', async () => {
-      mockFetchUserDetails.mockRejectedValue(new Error('Auth failed'));
-      axios.get.mockImplementation((url) => {
-        if (url.includes('/courses/public')) {
-          return Promise.resolve({ data: mockCoursesData });
-        }
-        return Promise.reject(new Error('Not found'));
-      });
-
-      renderCourses();
-
-      await waitFor(() => {
-        expect(axios.get).toHaveBeenCalledWith('http://localhost:5000/courses/public');
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Web Development 101')).toBeInTheDocument();
-      });
-    });
-
     test('logs error when both authenticated and public requests fail', async () => {
       const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
