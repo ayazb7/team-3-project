@@ -17,7 +17,6 @@ def calculate_course_progress(cursor, course_id, user_id):
     Returns:
         float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
     """
-    # Get total tutorials for this course
     cursor.execute("""
         SELECT COUNT(*) as count
         FROM course_tutorials
@@ -26,7 +25,6 @@ def calculate_course_progress(cursor, course_id, user_id):
     total_tutorials_result = cursor.fetchone()
     total_tutorials = total_tutorials_result['count'] if total_tutorials_result else 0
     
-    # Get total quizzes for this course (quizzes linked to tutorials in this course)
     cursor.execute("""
         SELECT COUNT(DISTINCT q.id) as count
         FROM quizzes q
@@ -37,11 +35,9 @@ def calculate_course_progress(cursor, course_id, user_id):
     total_quizzes_result = cursor.fetchone()
     total_quizzes = total_quizzes_result['count'] if total_quizzes_result else 0
     
-    # If no tutorials or quizzes, return 0
     if total_tutorials == 0 and total_quizzes == 0:
         return 0.0
     
-    # Get user's completed tutorials for this course
     cursor.execute("""
         SELECT COUNT(*) as count
         FROM user_tutorial_progress utp
@@ -53,7 +49,6 @@ def calculate_course_progress(cursor, course_id, user_id):
     completed_tutorials_result = cursor.fetchone()
     completed_tutorials = completed_tutorials_result['count'] if completed_tutorials_result else 0
     
-    # Get user's submitted quizzes for tutorials in this course
     cursor.execute("""
         SELECT COUNT(DISTINCT uqr.quiz_id) as count
         FROM user_quiz_results uqr
@@ -66,7 +61,6 @@ def calculate_course_progress(cursor, course_id, user_id):
     submitted_quizzes_result = cursor.fetchone()
     submitted_quizzes = submitted_quizzes_result['count'] if submitted_quizzes_result else 0
     
-    # Calculate progress percentage
     total_items = total_tutorials + total_quizzes
     completed_items = completed_tutorials + submitted_quizzes
     
@@ -122,7 +116,6 @@ def get_courses():
                     """)
     courses = cursor.fetchall()
 
-    # Calculate fresh progress for each course based on completed tutorials and quizzes
     for course in courses:
         course['progress'] = calculate_course_progress(cursor, course['id'], user_id)
 

@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS tutorials;
 DROP TABLE IF EXISTS course_requirements;
 DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS user_preferences;
 DROP TABLE IF EXISTS users;
 
 -- =============================================================

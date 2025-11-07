@@ -181,9 +181,15 @@ export default function Sidebar() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors">
-                        Settings
-                    </button> */}
+          <button
+            className="flex items-center justify-center w-full h-9 text-sm rounded-md border border-sidebar-primary/40 bg-sidebar-primary/10 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground hover:border-sidebar-primary transition-all cursor-pointer"
+            onClick={() => {
+              navigate("/dashboard/settings");
+              onItemClick?.();
+            }}
+          >
+            Settings
+          </button>
           <button
             className="flex items-center justify-center w-full h-9 text-sm rounded-md border border-sidebar-primary/40 bg-sidebar-primary/10 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground hover:border-sidebar-primary transition-all cursor-pointer"
             onClick={handleLogout}
