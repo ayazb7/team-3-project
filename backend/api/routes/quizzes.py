@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import random
 
 import app
+from .courses import calculate_course_progress
 
 bp = Blueprint('quizzes', __name__, url_prefix='')
 
@@ -230,6 +231,7 @@ def answer_question(quiz_id, question_id):
 def submit_quiz(quiz_id):
     """
     Submits all of a user's answers for a quiz, calculates the final score, and stores the results in the database.
+    Requires a score of 80% or higher to pass. Only passing quizzes mark the tutorial as completed and update course progress.
 
     Request Body:
         {
@@ -246,7 +248,9 @@ def submit_quiz(quiz_id):
             "result_id": number,
             "score": number,
             "correct_answers": number,
-            "total_questions": number
+            "total_questions": number,
+            "passed": boolean,
+            "passing_score": 80
         }
     """
     data = request.get_json()
@@ -309,31 +313,53 @@ def submit_quiz(quiz_id):
             VALUES (%s, %s, %s, %s)
         """, final_answers_data)
 
+        # Only mark tutorial as completed and update course progress if score >= 80%
+        passed = score >= 80
+
         cursor.execute("""
             SELECT tutorial_id FROM quizzes WHERE id = %s
         """, (quiz_id,))
         quiz_data = cursor.fetchone()
-        
-        if quiz_data:
+
+        if quiz_data and passed:
             tutorial_id = quiz_data['tutorial_id']
             cursor.execute("""
-                SELECT id FROM user_tutorial_progress 
+                SELECT id FROM user_tutorial_progress
                 WHERE user_id = %s AND tutorial_id = %s
             """, (user_id, tutorial_id))
             existing_progress = cursor.fetchone()
-            
+
             if existing_progress:
                 cursor.execute("""
-                    UPDATE user_tutorial_progress 
+                    UPDATE user_tutorial_progress
                     SET completed = TRUE, completed_at = NOW()
                     WHERE user_id = %s AND tutorial_id = %s
                 """, (user_id, tutorial_id))
             else:
                 cursor.execute("""
-                    INSERT INTO user_tutorial_progress 
+                    INSERT INTO user_tutorial_progress
                     (user_id, tutorial_id, completed, completed_at)
                     VALUES (%s, %s, TRUE, NOW())
                 """, (user_id, tutorial_id))
+
+            # Update course progress after passing quiz
+            cursor.execute("""
+                SELECT course_id FROM course_tutorials WHERE tutorial_id = %s LIMIT 1
+            """, (tutorial_id,))
+            course_result = cursor.fetchone()
+
+            if course_result:
+                course_id = course_result['course_id']
+                progress_percentage = calculate_course_progress(cursor, course_id, user_id)
+
+                cursor.execute("""
+                    INSERT INTO user_course_progress
+                    (user_id, course_id, progress_percentage, last_updated)
+                    VALUES (%s, %s, %s, NOW())
+                    ON DUPLICATE KEY UPDATE
+                        progress_percentage = VALUES(progress_percentage),
+                        last_updated = NOW()
+                """, (user_id, course_id, progress_percentage))
 
         app.mysql.connection.commit()
 
@@ -342,7 +368,9 @@ def submit_quiz(quiz_id):
             "result_id": result_id,
             "score": round(score, 2),
             "correct_answers": correct_answers_count,
-            "total_questions": total_questions
+            "total_questions": total_questions,
+            "passed": passed,
+            "passing_score": 80
         }), 201
     
     except MySQLdb.Error as e:

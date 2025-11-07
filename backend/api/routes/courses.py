@@ -10,10 +10,10 @@ bp = Blueprint('courses', __name__, url_prefix='/courses')
 
 def calculate_course_progress(cursor, course_id, user_id):
     """
-    Calculates user's progress for a course based on completed tutorials and submitted quizzes.
-    
-    Progress formula: (completed_tutorials + submitted_quizzes) / (total_tutorials + total_quizzes) * 100
-    
+    Calculates user's progress for a course based on completed tutorials and passed quizzes (score >= 80%).
+
+    Progress formula: (completed_tutorials + passed_quizzes) / (total_tutorials + total_quizzes) * 100
+
     Returns:
         float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
     """
@@ -49,20 +49,22 @@ def calculate_course_progress(cursor, course_id, user_id):
     completed_tutorials_result = cursor.fetchone()
     completed_tutorials = completed_tutorials_result['count'] if completed_tutorials_result else 0
     
+    # Get user's passed quizzes for tutorials in this course (score >= 80%)
     cursor.execute("""
         SELECT COUNT(DISTINCT uqr.quiz_id) as count
         FROM user_quiz_results uqr
         INNER JOIN quizzes q ON uqr.quiz_id = q.id
         INNER JOIN tutorials t ON q.tutorial_id = t.id
         INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
-        WHERE ct.course_id = %s 
+        WHERE ct.course_id = %s
         AND uqr.user_id = %s
+        AND uqr.score >= 80
     """, (course_id, user_id))
-    submitted_quizzes_result = cursor.fetchone()
-    submitted_quizzes = submitted_quizzes_result['count'] if submitted_quizzes_result else 0
+    passed_quizzes_result = cursor.fetchone()
+    passed_quizzes = passed_quizzes_result['count'] if passed_quizzes_result else 0
     
     total_items = total_tutorials + total_quizzes
-    completed_items = completed_tutorials + submitted_quizzes
+    completed_items = completed_tutorials + passed_quizzes
     
     if total_items == 0:
         return 0.0
@@ -98,7 +100,7 @@ def get_public_courses():
 def get_courses():
     """
     Returns all courses with summary data suitable for a list view.
-    Includes progress percentage for each course based on user's completed tutorials and submitted quizzes.
+    Includes progress percentage for each course based on user's completed tutorials and passed quizzes (score >= 80%).
     """
     user_id = get_jwt_identity()
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
