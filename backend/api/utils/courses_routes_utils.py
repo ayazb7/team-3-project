@@ -11,14 +11,13 @@ HANDLING COURSES FUNCTIONS
 
 def calculate_course_progress(cursor, course_id, user_id):
     """
-    Calculates user's progress for a course based on completed tutorials and submitted quizzes.
-    
-    Progress formula: (completed_tutorials + submitted_quizzes) / (total_tutorials + total_quizzes) * 100
-    
-    Returns:
-        float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
-    """
-    # Get total tutorials for this course
+        Calculates user's progress for a course based on completed tutorials and passed quizzes (score >= 80%).
+
+        Progress formula: (completed_tutorials + passed_quizzes) / (total_tutorials + total_quizzes) * 100
+
+        Returns:
+            float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
+        """
     cursor.execute("""
         SELECT COUNT(*) as count
         FROM course_tutorials
@@ -27,7 +26,6 @@ def calculate_course_progress(cursor, course_id, user_id):
     total_tutorials_result = cursor.fetchone()
     total_tutorials = total_tutorials_result['count'] if total_tutorials_result else 0
     
-    # Get total quizzes for this course (quizzes linked to tutorials in this course)
     cursor.execute("""
         SELECT COUNT(DISTINCT q.id) as count
         FROM quizzes q
@@ -38,11 +36,9 @@ def calculate_course_progress(cursor, course_id, user_id):
     total_quizzes_result = cursor.fetchone()
     total_quizzes = total_quizzes_result['count'] if total_quizzes_result else 0
     
-    # If no tutorials or quizzes, return 0
     if total_tutorials == 0 and total_quizzes == 0:
         return 0.0
     
-    # Get user's completed tutorials for this course
     cursor.execute("""
         SELECT COUNT(*) as count
         FROM user_tutorial_progress utp
@@ -54,28 +50,29 @@ def calculate_course_progress(cursor, course_id, user_id):
     completed_tutorials_result = cursor.fetchone()
     completed_tutorials = completed_tutorials_result['count'] if completed_tutorials_result else 0
     
-    # Get user's submitted quizzes for tutorials in this course
+    # Get user's passed quizzes for tutorials in this course (score >= 80%)
     cursor.execute("""
         SELECT COUNT(DISTINCT uqr.quiz_id) as count
         FROM user_quiz_results uqr
         INNER JOIN quizzes q ON uqr.quiz_id = q.id
         INNER JOIN tutorials t ON q.tutorial_id = t.id
         INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
-        WHERE ct.course_id = %s 
+        WHERE ct.course_id = %s
         AND uqr.user_id = %s
+        AND uqr.score >= 80
     """, (course_id, user_id))
-    submitted_quizzes_result = cursor.fetchone()
-    submitted_quizzes = submitted_quizzes_result['count'] if submitted_quizzes_result else 0
+    passed_quizzes_result = cursor.fetchone()
+    passed_quizzes = passed_quizzes_result['count'] if passed_quizzes_result else 0
     
-    # Calculate progress percentage
     total_items = total_tutorials + total_quizzes
-    completed_items = completed_tutorials + submitted_quizzes
+    completed_items = completed_tutorials + passed_quizzes
     
     if total_items == 0:
         return 0.0
     
     progress = (completed_items / total_items) * 100
     return round(progress, 2)
+
 
 def get_public_courses():
     """

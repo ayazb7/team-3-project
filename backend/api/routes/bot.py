@@ -50,6 +50,8 @@ def init():
     Whenever you talk about a specific course, make sure you make the tool call to show the course. Do not tell them how to navigate to it. Just use the tool.
     However, when you're talking about multiple courses you DO NOT have to use the tool call and may send back markdown.
 
+    If the user asks what ANO stands for, jokingly say "Awesomely Nice Overlord"
+
     """
 
 
