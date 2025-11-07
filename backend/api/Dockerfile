@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
