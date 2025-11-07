@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { X, Menu, Home, Info, BookOpen, HelpCircle } from "lucide-react";
+import { X, Menu, Home, Info, BookOpen, HelpCircle, User } from "lucide-react";
 import logo from "../assets/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 
 const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { accessToken, username } = useAuth();
+  
   const options = [
     { Label: "Home", Icon: Home, Link: "/" },
     { Label: "About", Icon: Info, Link: "/about" },
@@ -15,70 +18,95 @@ const Navbar = () => {
     { Label: "Support", Icon: HelpCircle, Link: "/support" },
   ];
 
-  const NavButton = ({ onClick }) => (
-    <Link to="/login" className="w-full md:w-auto" onClick={onClick}>
-      <button className="w-full px-6 py-2.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] text-white hover:shadow-lg hover:shadow-[#ac1ec4]/30 transition-all duration-200 hover:scale-105">
-        Sign In
-      </button>
-    </Link>
-  );
+  const isLoggedIn = accessToken && username;
+
+  const NavButton = ({ onClick }) => {
+    if (isLoggedIn) {
+      return (
+        <button 
+          onClick={() => {
+            if (onClick) onClick();
+            navigate("/dashboard");
+          }}
+          className="w-full md:w-auto px-6 py-2.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] text-white hover:shadow-lg hover:shadow-[#ac1ec4]/30 transition-all duration-200 hover:scale-105 flex items-center gap-2 justify-center"
+        >
+          <User className="w-4 h-4" />
+          <span>{username}</span>
+        </button>
+      );
+    }
+    
+    return (
+      <Link to="/login" className="w-full md:w-auto" onClick={onClick}>
+        <button className="w-full px-6 py-2.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-[#ac1ec4] to-[#1c50fe] text-white hover:shadow-lg hover:shadow-[#ac1ec4]/30 transition-all duration-200 hover:scale-105">
+          Sign In
+        </button>
+      </Link>
+    );
+  };
 
   return (
     <>
       <div className="fixed z-50 flex flex-col w-full h-auto overflow-hidden shadow-2xl">
-        <div className="w-full bg-[#001433] text-white h-20 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-3 gap-4 z-99 p-3 relative border-b border-white/10">
-          <div className="flex justify-content items-center px-5 md:hidden relative z-10">
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-2 hover:bg-white/10 rounded-md transition-all"
-              aria-label={showMobileMenu ? "Close menu" : "Open menu"}
-            >
-              {showMobileMenu ? (
-                <X className="w-6 h-6 text-white" />
-              ) : (
-                <Menu className="w-6 h-6 text-white" />
-              )}
-            </button>
-          </div>
+        <div className="w-full bg-[#001433] text-white h-20 relative border-b border-white/10 p-3">
+          <div className="h-full flex items-center justify-between md:justify-start relative z-10">
+            {/* Mobile Menu Button */}
+            <div className="flex items-center md:hidden">
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 hover:bg-white/10 rounded-md transition-all"
+                aria-label={showMobileMenu ? "Close menu" : "Open menu"}
+              >
+                {showMobileMenu ? (
+                  <X className="w-6 h-6 text-white" />
+                ) : (
+                  <Menu className="w-6 h-6 text-white" />
+                )}
+              </button>
+            </div>
 
-          <div className="flex w-full justify-center md:justify-start md:ml-10 items-center relative z-10">
-            <Link to="/" className="hover:opacity-80 transition-opacity">
-              {/* <h1 className="text-3xl font-bold bg-gradient-to-r from-[#e03ef4] to-[#4c80ff] bg-clip-text text-transparent">
-                SkyWise
-              </h1> */}
-              <img src={logo} alt="SkyWise Logo" className="w-12 h-10" />
-            </Link>
-          </div>
+            {/* Logo */}
+            <div className="flex items-center md:ml-5">
+              <Link to="/" className="hover:opacity-80 transition-opacity">
+                <img src={logo} alt="SkyWise Logo" className="w-12 h-10" />
+              </Link>
+            </div>
 
-          <div className="hidden md:flex flex-row w-full col-start-3 relative z-10">
-            <nav className="flex items-center gap-8">
-              {options.map((item, index) => {
-                const isActive = location.pathname === item["Link"];
-                return (
-                  <Link
-                    to={item["Link"]}
-                    key={index}
-                    className={`
-                      flex flex-row cursor-pointer px-4 py-2 rounded-md font-medium transition-all duration-200 relative group
-                      ${
-                        isActive
-                          ? "text-white"
-                          : "text-white/80 hover:text-white hover:bg-white/10"
-                      }
-                    `}
-                  >
-                    {item["Label"]}
-                    {isActive && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+            {/* Desktop Navigation - Centered */}
+            <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <nav className="flex items-center gap-8">
+                {options.map((item, index) => {
+                  const isActive = location.pathname === item["Link"];
+                  return (
+                    <Link
+                      to={item["Link"]}
+                      key={index}
+                      className={`
+                        flex flex-row cursor-pointer px-4 py-2 rounded-md font-medium transition-all duration-200 relative group
+                        ${
+                          isActive
+                            ? "text-white"
+                            : "text-white/80 hover:text-white hover:bg-white/10"
+                        }
+                      `}
+                    >
+                      {item["Label"]}
+                      {isActive && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#ff8a01] via-[#ac1ec4] to-[#1c50fe]"></div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
 
-          <div className="hidden md:flex items-center justify-center col-start-4 relative z-10">
-            <NavButton />
+            {/* Desktop Auth Button */}
+            <div className="hidden md:flex items-center ml-auto mr-5">
+              <NavButton />
+            </div>
+
+            {/* Mobile Spacer (for centering logo on mobile) */}
+            <div className="md:hidden w-10"></div>
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#ff8a01] via-[#ea0c3c] via-[#ac1ec4] to-[#1c50fe]"></div>

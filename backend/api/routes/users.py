@@ -1,5 +1,4 @@
-from flask import Blueprint, jsonify, request
-import requests, os, re
+from flask import Blueprint, jsonify
 import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -14,14 +13,13 @@ def user_details():
     Return details for the current authenticated user using JWT identity.
 
     Response:
-        { "id": number, "username": string, "email": string, "role": string }
+        { "id": number, "username": string, "email": string }
     """
     user_id = int(get_jwt_identity())
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT id, username, email, role FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT id, username, email FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
     if not user:
         return jsonify({'error': 'User not found'}), 404
     return jsonify(user), 200
-
