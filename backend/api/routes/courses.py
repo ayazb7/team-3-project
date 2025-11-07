@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
-import courses_routes_utils as utils
+import utils.courses_routes_utils as utils
 
 bp = Blueprint('courses', __name__, url_prefix='/courses')
 

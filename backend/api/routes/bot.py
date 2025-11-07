@@ -3,7 +3,7 @@ from openai import OpenAI, pydantic_function_tool
 import json
 from flask import jsonify
 import pydantic
-from courses_routes_utils import get_public_courses
+from utils.courses_routes_utils import get_public_courses
 from flask_jwt_extended import jwt_required
 
 client = None
@@ -43,11 +43,13 @@ def init():
 
     Should the user ever wnat to log out, tell them to navigate to the sidebar, or if they're on a mobile phone tell them to check in the menu button on the top right. There will be a log out button.
 
-    Here is the list of all available courses in json format. Reference this list of courses when the user asks about courses. Only return the most revelant course. NEVER RETURN RAW JSON.
+    Here is the list of all available courses in json format. Reference this list of courses when the user asks about courses. NEVER RETURN RAW JSON.
 
     {courses}
 
-    Whenever you talk about a course, make sure you make the tool call to show the course. Do not tell them how to navigate to it. Just use the tool.
+    Whenever you talk about a specific course, make sure you make the tool call to show the course. Do not tell them how to navigate to it. Just use the tool.
+    However, when you're talking about multiple courses you DO NOT have to use the tool call and may send back markdown.
+
     """
 
 
@@ -62,7 +64,6 @@ class courseInput(pydantic.BaseModel):
     courseJson: str
 
 def sendCourseDetails(course: dict) -> dict:
-    print("HITHITHITHTIHI")
     socketio.emit("renderCoursesInChat", {"data": course}, namespace='/chat')
 
 def trim_conversation(conversation, max_length=10):

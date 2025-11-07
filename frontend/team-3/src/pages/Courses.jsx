@@ -42,7 +42,7 @@ const Courses = () => {
     getCourses();
   }, []);
   return (
-    <div className="flex flex-col  items-center w-full h-full p-5 gap-10">
+    <div className="flex flex-col  items-center w-full h-lvh p-5 gap-10 overflow-y-scroll">
       <div className="w-[60%] lg:w-[40%] h-[10%] relative pb-10">
         <input
           type="text"

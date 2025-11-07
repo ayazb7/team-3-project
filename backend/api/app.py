@@ -36,6 +36,7 @@ def create_app(testing: bool = False) -> Flask:
     from routes.dashboard import bp as dashboard_bp
     from routes.tutorials import bp as tutorials_bp
     from routes.admin import bp as admin_bp
+    from routes.embedding import bp as embedding_bp
     # from routes.bot import bp as bot_bp
 
     app.register_blueprint(auth_bp)
@@ -45,6 +46,7 @@ def create_app(testing: bool = False) -> Flask:
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(tutorials_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(embedding_bp)
     # app.register_blueprint(bot_bp)
 
     import routes.bot as bot
