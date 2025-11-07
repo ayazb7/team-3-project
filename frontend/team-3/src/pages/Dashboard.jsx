@@ -3,20 +3,19 @@ import {
   Clock,
   Play,
   GraduationCap,
-  MapPin,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import StatCard from "../components/StatCard";
 import CourseCard from "../components/CourseCard";
-import EventCard from "../components/EventCard";
 import WeekProgress from "../components/WeekProgress.jsx";
 
 const Carousel = ({ items, renderItem, className }) => {
   const containerRef = useRef(null);
   const [isStartReached, setIsStartReached] = useState(true);
   const [isEndReached, setIsEndReached] = useState(false);
+  const shouldCenter = items.length < 3;
 
   const checkScrollPosition = () => {
     const container = containerRef.current;
@@ -62,7 +61,9 @@ const Carousel = ({ items, renderItem, className }) => {
     <div className="relative group/carousel">
       <div
         ref={containerRef}
-        className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${className}`}
+        className={`flex overflow-x-auto scrollbar-hide snap-x snap-mandatory gap-3 md:gap-4 py-2 px-1 ${
+          shouldCenter ? "justify-center" : "justify-start"
+        } ${className}`}
       >
         {items.map((item, idx) => (
           <div
@@ -99,7 +100,9 @@ const Carousel = ({ items, renderItem, className }) => {
 
 const SectionHeader = ({ title, subtitle }) => (
   <div className="text-center mb-6">
-    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">{title}</h2>
+    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+      {title}
+    </h2>
     <p className="text-gray-500 text-sm md:text-base mt-1">{subtitle}</p>
   </div>
 );
@@ -135,24 +138,6 @@ export default function Dashboard() {
   const [weeklyActivity, setWeeklyActivity] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const events = [
-    {
-      title: "Sky Showcase",
-      location: "Sky Central - Osterley Campus",
-      date: "Thursday 13th November 2025",
-    },
-    {
-      title: "Sky Showcase",
-      location: "Sky Central - Osterley Campus",
-      date: "Thursday 13th November 2025",
-    },
-    {
-      title: "Sky Showcase",
-      location: "Sky Central - Osterley Campus",
-      date: "Thursday 13th November 2025",
-    },
-  ];
 
   const [scrolling, setScrolling] = useState(false);
 
@@ -307,16 +292,20 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-              {stats.map((stat, idx) => (
-                <StatCard key={idx} {...stat} />
-              ))}
-            </div>
+        <div className="space-y-4 md:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 items-stretch">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="h-full">
+                <StatCard {...stat} />
+              </div>
+            ))}
 
+            <div className="md:col-span-2 lg:col-span-2 xl:col-span-2 h-full">
+              <WeekProgress weeklyActivity={weeklyActivity} />
+            </div>
+          </div>
+
+          <div className="space-y-4 md:space-y-6">
             {/* Continue Section - Only show if there are courses in progress */}
             {!loading && continueCourses.length > 0 && (
               <div className="Continue">
@@ -374,27 +363,6 @@ export default function Dashboard() {
                   No courses available at the moment.
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="space-y-4 md:space-y-6">
-            {/* Week Progress */}
-            <WeekProgress weeklyActivity={weeklyActivity} />
-
-            {/* Nearby Events */}
-            <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Nearby Events</h3>
-                <MapPin className="w-5 h-5 text-gray-400" />
-              </div>
-              <p className="text-xs text-gray-500 mb-4">
-                Connect with other learners at these events!
-              </p>
-              <div className="space-y-3">
-                {events.map((event, idx) => (
-                  <EventCard key={idx} {...event} />
-                ))}
-              </div>
             </div>
           </div>
         </div>

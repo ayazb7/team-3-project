@@ -32,7 +32,6 @@ function App() {
       </Route>
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
-        <Route path="find-local-events" element={<div />} />
         <Route path="activity" element={<div />} />
         <Route path="support" element={<ContactForm />} />
         <Route path="settings" element={<Settings />} />

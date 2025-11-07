@@ -1,12 +1,12 @@
 const WeekProgress = ({ weeklyActivity = {} }) => {
   const weekDays = [
-    { short: 'M', key: 'MO' },
-    { short: 'T', key: 'TU' },
-    { short: 'W', key: 'WE' },
-    { short: 'T', key: 'TH' },
-    { short: 'F', key: 'FR' },
-    { short: 'S', key: 'SA' },
-    { short: 'S', key: 'SU' }
+    { short: "M", key: "MO" },
+    { short: "T", key: "TU" },
+    { short: "W", key: "WE" },
+    { short: "T", key: "TH" },
+    { short: "F", key: "FR" },
+    { short: "S", key: "SA" },
+    { short: "S", key: "SU" },
   ];
 
   return (
@@ -14,8 +14,8 @@ const WeekProgress = ({ weeklyActivity = {} }) => {
       <div className="flex justify-around items-end h-32">
         {weekDays.map((day, idx) => {
           const isActive = weeklyActivity[day.key] || false;
-          const height = isActive ? (idx + 80) : (idx + 60);
-          const bgColor = isActive ? 'bg-blue-500' : 'bg-gray-300';
+          const height = isActive ? idx + 80 : idx + 60;
+          const bgColor = isActive ? "bg-blue-500" : "bg-gray-300";
 
           return (
             <div key={idx} className="flex flex-col items-center gap-2">
@@ -26,7 +26,9 @@ const WeekProgress = ({ weeklyActivity = {} }) => {
                 ></div>
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-6 h-6 bg-gray-200 rounded-full"></div>
               </div>
-              <span className="text-xs font-medium text-gray-600">{day.short}</span>
+              <span className="text-xs font-medium text-gray-600">
+                {day.short}
+              </span>
             </div>
           );
         })}
