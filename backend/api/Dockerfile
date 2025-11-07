@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1003 appuser && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 5003
