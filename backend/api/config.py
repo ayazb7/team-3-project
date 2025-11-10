@@ -14,8 +14,6 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
-    WEB3FORMS_ACCESS_KEY = os.getenv('WEB3FORMS_ACCESS_KEY')
-    WEB3FORMS_URL = 'https://api.web3forms.com/submit'
 
     # Option 1: Set CORS_ORIGINS as comma-separated list: "http://localhost:83,http://localhost:5173"
     # Option 2: Set FRONTEND_URL for a single origin: "https://your-deployed-frontend.com"

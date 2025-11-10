@@ -1,0 +1,79 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: team-3-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DB:-team_3_db}
+      MYSQL_USER: ${MYSQL_USER:-team3_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
+    ports:
+      - "3303:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/db_creation.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    networks:
+      - team-3-network
+
+  # Flask API Backend
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: team-3-api
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_DEBUG: ${FLASK_DEBUG:-True}
+      PORT: 5003
+      HOST: 0.0.0.0
+      # Database
+      MYSQL_HOST: ${MYSQL_HOST:-mysql}
+      MYSQL_USER: ${MYSQL_USER:-team3_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
+      MYSQL_DB: ${MYSQL_DB:-team_3_db}
+      # JWT & CORS
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:83,http://localhost:5173}
+      # APIs
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./backend/api:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - team-3-network
+    command: python app.py
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend/team-3
+      dockerfile: Dockerfile
+    container_name: team-3-frontend
+    ports:
+      - "83:83"
+    environment:
+      BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:5003}
+    depends_on:
+      - api
+    networks:
+      - team-3-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  team-3-network:
+    driver: bridge
+

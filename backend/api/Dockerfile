@@ -1,17 +1,19 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    default-libmysqlclient-dev \
-    gcc \
-    pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      default-libmysqlclient-dev \
+      gcc \
+      pkg-config && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* || true
 
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 COPY . .
 
