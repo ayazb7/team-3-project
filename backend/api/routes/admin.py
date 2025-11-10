@@ -49,10 +49,10 @@ def get_admin_dashboard_stats():
                 WHERE last_updated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 UNION
                 SELECT DISTINCT user_id FROM user_quiz_results
-                WHERE submitted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                WHERE attempted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 UNION
                 SELECT DISTINCT user_id FROM user_tutorial_progress
-                WHERE updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                WHERE completed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             ) AS active_users_union
         ''')
         active_users = cursor.fetchone()[0]
@@ -226,13 +226,13 @@ def get_user_details(user_id):
                 FROM user_course_progress
                 WHERE user_id = %s AND last_updated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 UNION ALL
-                SELECT DATE(submitted_at) as activity_date
+                SELECT DATE(attempted_at) as activity_date
                 FROM user_quiz_results
-                WHERE user_id = %s AND submitted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                WHERE user_id = %s AND attempted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 UNION ALL
-                SELECT DATE(updated_at) as activity_date
+                SELECT DATE(completed_at) as activity_date
                 FROM user_tutorial_progress
-                WHERE user_id = %s AND updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                WHERE user_id = %s AND completed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             ) AS all_activity
             GROUP BY DAYNAME(activity_date)
         ''', (user_id, user_id, user_id))
