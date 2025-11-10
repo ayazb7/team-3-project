@@ -107,33 +107,6 @@ INSERT INTO user_course_progress (user_id, course_id, progress_percentage, last_
 (@emily_id, 6, 100, DATE_SUB(NOW(), INTERVAL 29 DAY));
 
 -- =============================================================
---  SAMPLE QUIZ RESULTS DATA
--- =============================================================
-
--- Note: Quiz IDs depend on what's in your database. Assuming quizzes exist with IDs 1-10
--- Active users with recent quiz attempts
-INSERT INTO user_quiz_results (user_id, quiz_id, score, total_questions, correct_answers, attempted_at) VALUES
--- Recent quiz attempts (last 7 days)
-(@sarah_id, 1, 75.00, 10, 7, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(@sarah_id, 2, 80.00, 10, 8, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(@mike_id, 3, 85.00, 10, 8, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(@mike_id, 4, 70.00, 10, 7, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-(@emma_id, 5, 90.00, 10, 9, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(@emma_id, 2, 95.00, 10, 9, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(@david_id, 1, 100.00, 10, 10, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(@david_id, 6, 85.00, 10, 8, DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(@lisa_id, 7, 80.00, 10, 8, DATE_SUB(NOW(), INTERVAL 6 DAY)),
-(@james_id, 3, 90.00, 10, 9, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-
--- Older quiz attempts
-(@maria_id, 1, 65.00, 10, 6, DATE_SUB(NOW(), INTERVAL 15 DAY)),
-(@robert_id, 4, 75.00, 10, 7, DATE_SUB(NOW(), INTERVAL 12 DAY)),
-(@anna_id, 8, 88.00, 10, 8, DATE_SUB(NOW(), INTERVAL 8 DAY)),
-(@sophia_id, 2, 82.00, 10, 8, DATE_SUB(NOW(), INTERVAL 18 DAY)),
-(@william_id, 5, 95.00, 10, 9, DATE_SUB(NOW(), INTERVAL 25 DAY)),
-(@michael_id, 6, 78.00, 10, 7, DATE_SUB(NOW(), INTERVAL 26 DAY));
-
--- =============================================================
 --  SAMPLE TUTORIAL PROGRESS DATA
 -- =============================================================
 
