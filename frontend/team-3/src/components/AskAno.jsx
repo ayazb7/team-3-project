@@ -138,7 +138,7 @@ const AskAno = () => {
 
   return (
     <div
-      className={`fixed w-screen h-screen  right-0 flex flex-col gap-5 justify-end p-10 items-end pointer-events-none  ${
+      className={`fixed w-screen h-screen  right-0 flex flex-col gap-5 justify-end p-5 lg:p-10 items-end pointer-events-none  ${
         isOpen ? "z-999 !p-0 lg:!p-10" : ""
       }`}
     >
