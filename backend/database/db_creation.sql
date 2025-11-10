@@ -229,16 +229,3 @@ create table admin_logs (
     created_at datetime default current_timestamp,
     foreign key (user_id) references users(id)
 );
-
--- =============================================================
---  TABLE: WEB_TRAFFIC
--- =============================================================
-
-create table web_traffic (
-    id int primary key auto_increment,
-    user_id int not null,
-    page_url varchar(255) not null,
-    interaction_type varchar(100) not null,
-    created_at datetime default current_timestamp,
-    foreign key (user_id) references users(id)
-);

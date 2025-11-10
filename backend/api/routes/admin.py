@@ -42,11 +42,18 @@ def get_admin_dashboard_stats():
         cursor.execute('SELECT COUNT(*) FROM users')
         total_users = cursor.fetchone()[0]
 
-        # Active users (logged in within last 7 days)
+        # Active users (users with any activity in last 7 days)
         cursor.execute('''
-            SELECT COUNT(DISTINCT user_id)
-            FROM web_traffic
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            SELECT COUNT(DISTINCT user_id) FROM (
+                SELECT DISTINCT user_id FROM user_course_progress
+                WHERE last_updated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                UNION
+                SELECT DISTINCT user_id FROM user_quiz_results
+                WHERE submitted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                UNION
+                SELECT DISTINCT user_id FROM user_tutorial_progress
+                WHERE updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ) AS active_users_union
         ''')
         active_users = cursor.fetchone()[0]
 
@@ -211,13 +218,24 @@ def get_user_details(user_id):
         result = cursor.fetchone()
         avg_quiz_score = round(result[0], 2) if result[0] else 0
 
-        # Weekly activity
+        # Weekly activity (from course progress, quizzes, and tutorials)
         cursor.execute('''
-            SELECT DAYNAME(created_at) as day, COUNT(*) as count
-            FROM web_traffic
-            WHERE user_id = %s AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY DAYNAME(created_at)
-        ''', (user_id,))
+            SELECT DAYNAME(activity_date) as day, COUNT(*) as count
+            FROM (
+                SELECT DATE(last_updated) as activity_date
+                FROM user_course_progress
+                WHERE user_id = %s AND last_updated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                UNION ALL
+                SELECT DATE(submitted_at) as activity_date
+                FROM user_quiz_results
+                WHERE user_id = %s AND submitted_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                UNION ALL
+                SELECT DATE(updated_at) as activity_date
+                FROM user_tutorial_progress
+                WHERE user_id = %s AND updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ) AS all_activity
+            GROUP BY DAYNAME(activity_date)
+        ''', (user_id, user_id, user_id))
         weekly_activity = {row[0]: row[1] for row in cursor.fetchall()}
 
         # Course progress details
