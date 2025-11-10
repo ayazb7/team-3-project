@@ -96,6 +96,7 @@ export default function CourseView() {
       })
       .then((res) => {
         // Filter out the current course from similar courses
+        console.log(res.data);
         setSimilarCourses(res.data);
       })
       .catch((e) => {

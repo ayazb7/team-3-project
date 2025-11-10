@@ -20,7 +20,7 @@ def embed_all_courses():
     app.mysql.connection.commit()
 
     courses = get_public_courses()
-
+    print("embedding")
     embed_courses(courses)
     
 
@@ -65,18 +65,19 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
 
 
     # Get all courses from the embedding database the the user hasn't completed
-    query = "SELECT ce.course_id, ce.embedding from course_embedding ce join user_course_progress up on ce.course_id = up.course_id"
+    query = "SELECT ce.course_id, ce.embedding from course_embedding ce left join user_course_progress up on ce.course_id = up.course_id"
     values = []
     if ids:
         placeholders = ["%s" for c in ids]
         placeholders = ",".join(placeholders)
 
-        query += f" WHERE ce.course_id NOT IN ({placeholders}) and up.progress_percentage < 100 " 
+        query += f" WHERE ce.course_id NOT IN ({placeholders}) and up.progress_percentage < 100 or up.course_id is NULL" 
         values += ids
     
     print(query, values, ids)
     cursor.execute(query, values)
     embedded_courses = cursor.fetchall()
+    
 
     if len(embedded_courses) < 1:
         return "No similar courses found", 404
@@ -103,6 +104,7 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
     for id, _ in similarities: 
             course_ids.append(id)
 
+
     # if len(course_ids) < 1:
     #     return jsonfiy("Could not find similar courses"), 404
 
@@ -112,7 +114,7 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
     cursor.execute(f"SELECT * from courses where id in ({placeholders}) order by field(id, {placeholders}) ", query_values)
 
     courses = cursor.fetchall()
-    return courses
+    return courses, 200
 
 def get_recommended_courses_based_on_user_details(user_id):
 

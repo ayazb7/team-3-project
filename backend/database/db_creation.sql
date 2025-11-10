@@ -20,20 +20,24 @@ DROP TABLE IF EXISTS tutorials;
 DROP TABLE IF EXISTS course_requirements;
 DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS user_preferences;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS course_embedding;
 
 -- =============================================================
 --  TABLE: USERS
 -- =============================================================
 
-create table users (
-	id int primary key auto_increment,
-    username varchar(100) not null,
-    email varchar(100) unique not null,
-    password_hash varchar(255) not null,
-    language_preference varchar(50) default 'English',
-    created_at datetime default current_timestamp
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user',
+    language_preference VARCHAR(50) DEFAULT 'English',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- =============================================================
 --  TABLE: TUTORIALS

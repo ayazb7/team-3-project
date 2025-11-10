@@ -19,10 +19,13 @@ def handle_embed_request():
 
     if course_id is None:
         
-        data = utils.get_courses_from_embedding(text=text) 
+        data, code = utils.get_courses_from_embedding(text=text) 
+
+        return jsonify(data), code
     else:
-        data = utils.get_courses_from_embedding(text=text, ids=[course_id]) 
-    return jsonify(data), 200
+        data, code = utils.get_courses_from_embedding(text=text, ids=[course_id]) 
+
+        return jsonify(data), code
 
 @bp.route('recommended', methods=['GET'])
 @jwt_required()
@@ -30,3 +33,10 @@ def get_recommended_courses_based_on_user_details():
     user_id = get_jwt_identity()
     data, code =  utils.get_recommended_courses_based_on_user_details(user_id)
     return jsonify(data), code
+
+
+@bp.route('embed-all', methods=['GET'])
+@jwt_required()
+def embed_all_courses():
+    utils.embed_all_courses()
+    return jsonify("embedded"),200

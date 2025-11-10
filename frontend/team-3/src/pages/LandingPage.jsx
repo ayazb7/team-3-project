@@ -13,7 +13,7 @@ const LandingPage = () => {
 
     const getCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/courses/public");
+        const res = await axios.get(`${API_URL}/courses/public`);
         setCourses(res.data.slice(0, 3));
       } catch (err) {
         console.log(err);

@@ -5,6 +5,69 @@ import utils.courses_routes_utils as utils
 bp = Blueprint('courses', __name__, url_prefix='/courses')
 
 
+def calculate_course_progress(cursor, course_id, user_id):
+    """
+    Calculates user's progress for a course based on completed tutorials and passed quizzes (score >= 80%).
+
+    Progress formula: (completed_tutorials + passed_quizzes) / (total_tutorials + total_quizzes) * 100
+
+    Returns:
+        float: Progress percentage (0-100), or 0 if no tutorials/quizzes exist
+    """
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM course_tutorials
+        WHERE course_id = %s
+    """, (course_id,))
+    total_tutorials_result = cursor.fetchone()
+    total_tutorials = total_tutorials_result['count'] if total_tutorials_result else 0
+    
+    cursor.execute("""
+        SELECT COUNT(DISTINCT q.id) as count
+        FROM quizzes q
+        INNER JOIN tutorials t ON q.tutorial_id = t.id
+        INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
+        WHERE ct.course_id = %s
+    """, (course_id,))
+    total_quizzes_result = cursor.fetchone()
+    total_quizzes = total_quizzes_result['count'] if total_quizzes_result else 0
+    
+    if total_tutorials == 0 and total_quizzes == 0:
+        return 0.0
+    
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM user_tutorial_progress utp
+        INNER JOIN course_tutorials ct ON utp.tutorial_id = ct.tutorial_id
+        WHERE ct.course_id = %s 
+        AND utp.user_id = %s 
+        AND utp.completed = TRUE
+    """, (course_id, user_id))
+    completed_tutorials_result = cursor.fetchone()
+    completed_tutorials = completed_tutorials_result['count'] if completed_tutorials_result else 0
+    
+    # Get user's passed quizzes for tutorials in this course (score >= 80%)
+    cursor.execute("""
+        SELECT COUNT(DISTINCT uqr.quiz_id) as count
+        FROM user_quiz_results uqr
+        INNER JOIN quizzes q ON uqr.quiz_id = q.id
+        INNER JOIN tutorials t ON q.tutorial_id = t.id
+        INNER JOIN course_tutorials ct ON t.id = ct.tutorial_id
+        WHERE ct.course_id = %s
+        AND uqr.user_id = %s
+        AND uqr.score >= 80
+    """, (course_id, user_id))
+    passed_quizzes_result = cursor.fetchone()
+    passed_quizzes = passed_quizzes_result['count'] if passed_quizzes_result else 0
+    
+    total_items = total_tutorials + total_quizzes
+    completed_items = completed_tutorials + passed_quizzes
+    
+    if total_items == 0:
+        return 0.0
+    
+    progress = (completed_items / total_items) * 100
+    return round(progress, 2)
 
 @bp.route('/public', methods=['GET'])
 def get_public_courses():

@@ -6,12 +6,14 @@ const BotRender = () => {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const socketRef = useRef(null);
+  const API_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5003";
+
   const handleChange = (e) => {
     setPrompt(e.target.value);
   };
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:5000/chat", {
+    socketRef.current = io(`${API_URL}/chat`, {
       transports: ["websocket"],
     });
 

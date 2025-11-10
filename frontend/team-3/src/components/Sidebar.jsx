@@ -14,7 +14,6 @@ import { useAuth } from "../context/AuthContext";
 import { IoBookOutline } from "react-icons/io5";
 import logo from "../assets/logo.png";
 
-
 const MenuItem = ({ item, isCollapsed, location, navigate, onClick }) => {
   const IconComponent = item.icon;
   const isActive = location.pathname === item.to;
@@ -67,12 +66,6 @@ export default function Sidebar() {
       to: "/dashboard/courses",
     },
     {
-      id: "local-events",
-      label: "Find Local Events",
-      icon: MapPinned,
-      to: "/dashboard/find-local-events",
-    },
-    {
       id: "activity",
       label: "Activity",
       icon: History,
@@ -87,17 +80,18 @@ export default function Sidebar() {
   ];
 
   // Add admin item if user is admin
-  const menuItems = role === 'admin'
-    ? [
-        ...baseMenuItems,
-        {
-          id: "admin",
-          label: "Admin Panel",
-          icon: Shield,
-          to: "/admin",
-        },
-      ]
-    : baseMenuItems;
+  const menuItems =
+    role === "admin"
+      ? [
+          ...baseMenuItems,
+          {
+            id: "admin",
+            label: "Admin Panel",
+            icon: Shield,
+            to: "/admin",
+          },
+        ]
+      : baseMenuItems;
 
   const toggleDesktopSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
@@ -181,9 +175,15 @@ export default function Sidebar() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* <button className="flex items-center justify-center w-full h-8 text-sm rounded-md border border-sidebar-ring hover:bg-sidebar-accent hover:border-sidebar-accent-foreground transition-colors">
-                        Settings
-                    </button> */}
+          <button
+            className="flex items-center justify-center w-full h-9 text-sm rounded-md border border-sidebar-primary/40 bg-sidebar-primary/10 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground hover:border-sidebar-primary transition-all cursor-pointer"
+            onClick={() => {
+              navigate("/dashboard/settings");
+              onItemClick?.();
+            }}
+          >
+            Settings
+          </button>
           <button
             className="flex items-center justify-center w-full h-9 text-sm rounded-md border border-sidebar-primary/40 bg-sidebar-primary/10 hover:bg-sidebar-primary hover:text-sidebar-primary-foreground hover:border-sidebar-primary transition-all cursor-pointer"
             onClick={handleLogout}

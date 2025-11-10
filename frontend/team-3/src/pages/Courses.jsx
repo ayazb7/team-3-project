@@ -43,6 +43,8 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const { accessToken, fetchUserDetails } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const API_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5003";
+
   const [searchedCourses, setSearchedCourses] = useState(null);
   const [recCourses, setRecCourses] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -80,7 +82,7 @@ const Courses = () => {
         setIsLoggedIn(true && accessToken);
 
         try {
-          const res = await axios.get("http://localhost:5000/courses", {
+          const res = await axios.get(`${API_URL}/courses`, {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
 
@@ -93,9 +95,7 @@ const Courses = () => {
         console.log("Error fetching user details using public route....", err);
 
         try {
-          const publicRes = await axios.get(
-            "http://localhost:5000/courses/public"
-          );
+          const publicRes = await axios.get(`${API_URL}/courses/public`);
           console.log("successfully requested public data", publicRes.data);
           setCourses(publicRes.data);
         } catch (publicErr) {

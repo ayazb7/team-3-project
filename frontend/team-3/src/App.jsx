@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CourseManagement from "./pages/CourseManagement.jsx";
 import UserMetrics from "./pages/UserMetrics.jsx";
 import ContactForm from "./components/ContactForm.jsx";
+import Settings from "./pages/Settings.jsx";
 
 function App() {
   return (
@@ -31,9 +32,9 @@ function App() {
       </Route>
       <Route path="/dashboard" element={<MainLayout />}>
         <Route index element={<Dashboard />} />
-        <Route path="find-local-events" element={<div />} />
         <Route path="activity" element={<div />} />
         <Route path="support" element={<ContactForm />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="course/:id" element={<CourseView />} />
         <Route path="courses" element={<Courses />} />
         <Route
