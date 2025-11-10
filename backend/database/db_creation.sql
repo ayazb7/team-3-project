@@ -239,3 +239,15 @@ create table web_traffic (
     created_at datetime default current_timestamp,
     foreign key (user_id) references users(id)
 );
+
+
+-- =============================================================
+--  TABLE: COURSE_EMBEDDING
+-- =============================================================
+
+create table course_embedding (
+	id int primary key auto_increment,
+    course_id int,
+    embed_text text,
+    embedding JSON
+)
