@@ -99,8 +99,13 @@ def create_app(testing: bool = False) -> Flask:
 
     if not testing:
         import routes.bot as bot
-        with app.app_context():
-           bot.init() 
+        @app.before_first_request
+        def init_bot_once():
+            try:
+                with app.app_context():
+                    bot.init()
+            except Exception as e:
+                app.logger.warning(f"Bot initialization failed: {e}")
     return app
 
 if __name__ == '__main__':

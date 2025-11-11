@@ -21,10 +21,11 @@ services:
       - ./backend/database/insert_everyday_computing_course.sql:/docker-entrypoint-initdb.d/07-everyday-computing.sql
       - ./backend/database/insert_sample_users.sql:/docker-entrypoint-initdb.d/08-sample-users.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       timeout: 20s
-      retries: 10
-      interval: 10s
+      retries: 20
+      interval: 5s
+      start_period: 30s
     networks:
       - team-3-network
 
