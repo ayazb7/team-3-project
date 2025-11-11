@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import utils.courses_routes_utils as utils
 
 bp = Blueprint('courses', __name__, url_prefix='/courses')
@@ -78,6 +78,13 @@ def get_public_courses():
 @jwt_required()
 def get_courses():
     return utils.get_courses()
+
+@bp.route('/unenrolled-courses', methods=['GET'])
+@jwt_required()
+def get_unenrolled_courses():
+    user_id = get_jwt_identity()
+    data, code = utils.get_unenrolled_courses(user_id)
+    return jsonify(data), code
 
 @bp.route('/<int:course_id>', methods=['GET'])
 @jwt_required()
