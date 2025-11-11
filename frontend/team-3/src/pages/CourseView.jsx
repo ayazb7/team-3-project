@@ -81,22 +81,28 @@ export default function CourseView() {
         console.error(e);
       });
 
-    api
-      .get(`/courses`)
-      .then((res) => {
-        if (!isMounted) return;
-        // Filter out the current course from similar courses
-        const similar = res.data.filter((course) => course.id !== parseInt(id));
-        setSimilarCourses(similar);
-      })
-      .catch((e) => {
-        if (!isMounted) return;
-        console.error(e);
-      });
     return () => {
       isMounted = false;
     };
   }, [id, api]);
+
+  useEffect(() => {
+    if (!course) return;
+
+    api
+      .post(`/embedding/course`, {
+        text: course?.name + " " + course?.description,
+        id: course?.id,
+      })
+      .then((res) => {
+        // Filter out the current course from similar courses
+        console.log(res.data);
+        setSimilarCourses(res.data);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [course]);
 
   const startCourse = async () => {
     if (tutorials.length === 0) {
@@ -346,7 +352,7 @@ export default function CourseView() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {similarCourses.map((c, idx) => (
                   <CourseCard
-                    // key={idx}
+                    key={idx}
                     // name={c.title}
                     // rating={c.rating}
                     // id={c.id || idx + 1}

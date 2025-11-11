@@ -8,10 +8,9 @@ USE skywise_db;
 -- =============================================================
 --  COURSE DETAILS - CAREER LAUNCH
 -- =============================================================
-INSERT INTO courses (id, name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives, thumbnail_url)
+INSERT INTO courses ( name, description, difficulty, duration_min_minutes, duration_max_minutes, summary, learning_objectives, thumbnail_url)
 VALUES
 (
-  3,
   'Career Launch',
   'Get ready to take the first steps toward your professional future! Learn how to create a standout CV and build an impressive LinkedIn profile that opens doors to career opportunities.',
   'Beginner',
@@ -44,10 +43,9 @@ VALUES
 -- =============================================================
 --  LINKEDIN TUTORIAL
 -- =============================================================
-INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
+INSERT INTO tutorials ( title, description, video_provider, video_url, category)
 VALUES
 (
- 4,
  'Building Your Professional LinkedIn Profile',
  'Discover how to create a standout LinkedIn profile that showcases your professional skills and experience. This tutorial walks you through setting up your profile, choosing the right photo, writing an engaging headline and summary, and keeping your profile updated to attract career opportunities.',
  'synthesia',

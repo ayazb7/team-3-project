@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Volume2, ChevronLeft, CheckCircle2, XCircle, Flag, Trophy, Home } from "lucide-react";
+import {
+  Volume2,
+  ChevronLeft,
+  CheckCircle2,
+  XCircle,
+  Flag,
+  Trophy,
+  Home,
+} from "lucide-react";
 
 const SkeletonLoader = () => {
   return (
@@ -35,12 +43,14 @@ export default function Quiz() {
     const fetchData = async () => {
       try {
         const quizRes = await api.get(`/quizzes/${quizId}/full`);
-        const tutorialRes = await api.get(`/courses/${courseId}/tutorials/${tutorialId}`);
+        const tutorialRes = await api.get(
+          `/courses/${courseId}/tutorials/${tutorialId}`
+        );
         const courseRes = await api.get(`/courses/${courseId}`);
         const tutorialsRes = await api.get(`/courses/${courseId}/tutorials`);
 
         const clonedQuizData = JSON.parse(JSON.stringify(quizRes.data));
-        
+
         clonedQuizData.questions.forEach((question) => {
           question.options = question.options.map((option, index) => ({
             ...option,
@@ -119,9 +129,11 @@ export default function Quiz() {
   const handleFinishQuiz = async () => {
     const totalQuestions = quizData?.questions?.length || 0;
     const answeredCount = Object.keys(questionAnswers).length;
-    
+
     if (answeredCount < totalQuestions) {
-      alert(`Please answer all ${totalQuestions} questions before finishing the quiz.`);
+      alert(
+        `Please answer all ${totalQuestions} questions before finishing the quiz.`
+      );
       return;
     }
 
@@ -149,7 +161,9 @@ export default function Quiz() {
   };
 
   const getNextTutorial = () => {
-    const currentIndex = courseTutorials.findIndex((t) => t.id === parseInt(tutorialId));
+    const currentIndex = courseTutorials.findIndex(
+      (t) => t.id === parseInt(tutorialId)
+    );
     if (currentIndex < courseTutorials.length - 1) {
       return courseTutorials[currentIndex + 1];
     }
@@ -163,11 +177,15 @@ export default function Quiz() {
 
       console.log("Next step after quiz:", nextStep);
 
-      if (nextStep.type === 'tutorial') {
-        navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}`);
-      } else if (nextStep.type === 'quiz') {
-        navigate(`/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}/quiz/${nextStep.quiz_id}`);
-      } else if (nextStep.type === 'completed') {
+      if (nextStep.type === "tutorial") {
+        navigate(
+          `/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}`
+        );
+      } else if (nextStep.type === "quiz") {
+        navigate(
+          `/dashboard/course/${courseId}/learning/${nextStep.tutorial_id}/quiz/${nextStep.quiz_id}`
+        );
+      } else if (nextStep.type === "completed") {
         navigate(`/dashboard/course/${courseId}`);
       }
     } catch (error) {
@@ -197,16 +215,16 @@ export default function Quiz() {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    
+
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
-    
+
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(
-      (voice) => voice.lang.includes('en') && voice.localService
-    ) || voices.find((voice) => voice.lang.includes('en'));
-    
+    const preferredVoice =
+      voices.find((voice) => voice.lang.includes("en") && voice.localService) ||
+      voices.find((voice) => voice.lang.includes("en"));
+
     if (preferredVoice) {
       utterance.voice = preferredVoice;
     }
@@ -236,7 +254,7 @@ export default function Quiz() {
 
   const handleSpeakerClick = (e, text) => {
     e.stopPropagation();
-    
+
     if (speakingText === text) {
       stopSpeaking();
     } else {
@@ -248,7 +266,7 @@ export default function Quiz() {
     const loadVoices = () => {
       window.speechSynthesis.getVoices();
     };
-    
+
     loadVoices();
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -271,30 +289,39 @@ export default function Quiz() {
     const totalQuestions = quizResults.total_questions;
     const percentage = Math.round(score);
     const nextTutorial = getNextTutorial();
-    const isPassing = score >= 70; 
+    const isPassing = score >= 70;
 
     return (
       <div className="relative flex flex-col justify-center items-center h-full w-full p-4 sm:p-6 md:p-10 gap-4 sm:gap-5 text-foreground !text-start overflow-scroll bg-gray-50">
         {/* Results Card */}
         <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 sm:p-8 flex flex-col items-center gap-4 sm:gap-6">
-          <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center ${
-            isPassing ? "bg-green-100" : "bg-orange-100"
-          }`}>
-            <Trophy className={`w-10 h-10 sm:w-12 sm:h-12 ${
-              isPassing ? "text-green-600" : "text-orange-600"
-            }`} />
+          <div
+            className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center ${
+              isPassing ? "bg-green-100" : "bg-orange-100"
+            }`}
+          >
+            <Trophy
+              className={`w-10 h-10 sm:w-12 sm:h-12 ${
+                isPassing ? "text-green-600" : "text-orange-600"
+              }`}
+            />
           </div>
 
           {/* Score Display */}
           <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Quiz Complete!</h2>
-            <div className={`text-5xl sm:text-6xl font-bold mb-2 ${
-              isPassing ? "text-green-600" : "text-orange-600"
-            }`}>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Quiz Complete!
+            </h2>
+            <div
+              className={`text-5xl sm:text-6xl font-bold mb-2 ${
+                isPassing ? "text-green-600" : "text-orange-600"
+              }`}
+            >
               {percentage}%
             </div>
             <p className="text-base sm:text-lg text-gray-600 px-2">
-              You scored {correctAnswers} out of {totalQuestions} questions correctly
+              You scored {correctAnswers} out of {totalQuestions} questions
+              correctly
             </p>
           </div>
 
@@ -311,16 +338,20 @@ export default function Quiz() {
           </div>
 
           {/* Result Message */}
-          <div className={`p-3 sm:p-4 rounded-lg w-full text-center ${
-            isPassing 
-              ? "bg-green-50 border border-green-200" 
-              : "bg-orange-50 border border-orange-200"
-          }`}>
-            <p className={`text-sm sm:text-base font-medium ${
-              isPassing ? "text-green-800" : "text-orange-800"
-            }`}>
-              {isPassing 
-                ? "Congratulations! You passed the quiz!" 
+          <div
+            className={`p-3 sm:p-4 rounded-lg w-full text-center ${
+              isPassing
+                ? "bg-green-50 border border-green-200"
+                : "bg-orange-50 border border-orange-200"
+            }`}
+          >
+            <p
+              className={`text-sm sm:text-base font-medium ${
+                isPassing ? "text-green-800" : "text-orange-800"
+              }`}
+            >
+              {isPassing
+                ? "Congratulations! You passed the quiz!"
                 : "Good effort! Review the material and try again."}
             </p>
           </div>
@@ -334,7 +365,7 @@ export default function Quiz() {
               <Home className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Back to Dashboard</span>
             </button>
-            
+
             {nextTutorial ? (
               <button
                 onClick={handleNextTutorial}
@@ -365,17 +396,19 @@ export default function Quiz() {
   return (
     <div className="relative flex flex-col justify-start items-start h-full w-full p-4 sm:p-6 md:p-10 gap-2 sm:gap-3 text-foreground !text-start overflow-scroll bg-gray-50">
       {/* Breadcrumb Navigation */}
-      <nav 
-        className="flex flex-row gap-1 sm:gap-2 text-gray-700 text-xs sm:text-base overflow-x-auto w-full scrollbar-hide pb-1 -mx-4 sm:-mx-6 md:-mx-10 px-4 sm:px-6 md:px-10" 
+      <nav
+        className="flex flex-row gap-1 sm:gap-2 text-gray-700 text-xs sm:text-base overflow-x-auto w-full scrollbar-hide pb-1 -mx-4 sm:-mx-6 md:-mx-10 px-4 sm:px-6 md:px-10"
         aria-label="Breadcrumb"
       >
-        <Link 
-          to="/dashboard" 
+        <Link
+          to="/dashboard"
           className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded whitespace-nowrap flex-shrink-0"
         >
           Dashboard
         </Link>
-        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">/</span>
+        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">
+          /
+        </span>
         <Link
           to={`/dashboard/course/${courseData?.id}`}
           className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded truncate max-w-[100px] sm:max-w-none"
@@ -383,7 +416,9 @@ export default function Quiz() {
         >
           {courseData?.name || "Course"}
         </Link>
-        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">/</span>
+        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">
+          /
+        </span>
         <Link
           to={`/dashboard/course/${courseId}/learning/${tutorialId}`}
           className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded truncate max-w-[80px] sm:max-w-none"
@@ -391,8 +426,14 @@ export default function Quiz() {
         >
           {tutorialData?.category || "Tutorial"}
         </Link>
-        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">/</span>
-        <span className="text-gray-900 truncate max-w-[120px] sm:max-w-none" aria-current="page" title={quizData?.title || "Quiz"}>
+        <span className="text-gray-500 flex-shrink-0" aria-hidden="true">
+          /
+        </span>
+        <span
+          className="text-gray-900 truncate max-w-[120px] sm:max-w-none"
+          aria-current="page"
+          title={quizData?.title || "Quiz"}
+        >
           {quizData?.title || "Quiz"}
         </span>
       </nav>
@@ -400,116 +441,171 @@ export default function Quiz() {
       {/* Quiz Content */}
       <div className="w-full flex-grow flex flex-col bg-white rounded-lg shadow-sm p-4 sm:p-6 md:p-8 max-w-4xl">
         {/* Question Number */}
-        <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4" aria-live="polite">
+        <div
+          className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4"
+          aria-live="polite"
+        >
           Question {currentQuestionIndex + 1} of {totalQuestions}
         </div>
 
         {/* Question Text */}
         <div className="flex items-start gap-2 sm:gap-3 mb-6 sm:mb-8">
-          <h2 id="question-text" className="flex-1 text-lg sm:text-xl font-semibold text-gray-900 leading-relaxed">
+          <h2
+            id="question-text"
+            className="flex-1 text-lg sm:text-xl font-semibold text-gray-900 leading-relaxed"
+          >
             {currentQuestion?.question_text}
           </h2>
           {/* TTS Button for Question */}
           <button
             type="button"
-            onClick={(e) => handleSpeakerClick(e, currentQuestion?.question_text)}
+            onClick={(e) =>
+              handleSpeakerClick(e, currentQuestion?.question_text)
+            }
             className={`p-2 sm:p-2.5 rounded-md transition-colors flex-shrink-0 touch-manipulation ${
               speakingText === currentQuestion?.question_text
                 ? "bg-blue-200 hover:bg-blue-300 active:bg-blue-400"
                 : "hover:bg-gray-200 active:bg-gray-300"
             } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
             aria-label="Read question aloud"
-            title={speakingText === currentQuestion?.question_text ? "Stop reading" : "Read aloud"}
-          >
-            <Volume2 className={`w-5 h-5 sm:w-5 sm:h-5 ${
+            title={
               speakingText === currentQuestion?.question_text
-                ? "text-blue-600"
-                : "text-gray-600"
-            }`} />
+                ? "Stop reading"
+                : "Read aloud"
+            }
+          >
+            <Volume2
+              className={`w-5 h-5 sm:w-5 sm:h-5 ${
+                speakingText === currentQuestion?.question_text
+                  ? "text-blue-600"
+                  : "text-gray-600"
+              }`}
+            />
           </button>
         </div>
 
         {/* Answer Options */}
-        <div className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8" role="radiogroup" aria-labelledby="question-text">
+        <div
+          className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8"
+          role="radiogroup"
+          aria-labelledby="question-text"
+        >
           {currentQuestion?.options
-            ?.slice() 
+            ?.slice()
             .sort((a, b) => {
-              if (a._originalIndex !== undefined && b._originalIndex !== undefined) {
+              if (
+                a._originalIndex !== undefined &&
+                b._originalIndex !== undefined
+              ) {
                 return a._originalIndex - b._originalIndex;
               }
               return a.id - b.id;
             })
             .map((option, index) => {
-            const optionLabel = getOptionLabel(index);
-            const isSelected = selectedOptionId === option.id;
-            const isCorrect = hasFeedback && answerFeedback.correctOptionId === option.id;
-            const isIncorrect = hasFeedback && isSelected && !answerFeedback.isCorrect;
+              const optionLabel = getOptionLabel(index);
+              const isSelected = selectedOptionId === option.id;
+              const isCorrect =
+                hasFeedback && answerFeedback.correctOptionId === option.id;
+              const isIncorrect =
+                hasFeedback && isSelected && !answerFeedback.isCorrect;
 
-            return (
-              <div
-                key={option.id}
-                className={`
+              return (
+                <div
+                  key={option.id}
+                  className={`
                   relative flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 rounded-lg border-2 transition-all touch-manipulation
-                  ${isSelected && !hasFeedback ? "border-blue-500 bg-blue-50" : ""}
-                  ${isCorrect && hasFeedback ? "border-green-500 bg-green-50" : ""}
+                  ${
+                    isSelected && !hasFeedback
+                      ? "border-blue-500 bg-blue-50"
+                      : ""
+                  }
+                  ${
+                    isCorrect && hasFeedback
+                      ? "border-green-500 bg-green-50"
+                      : ""
+                  }
                   ${isIncorrect ? "border-red-500 bg-red-50" : ""}
-                  ${!hasFeedback && !isSelected ? "border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100" : ""}
-                  ${hasFeedback && !isSelected && !isCorrect ? "border-gray-200 bg-white" : ""}
+                  ${
+                    !hasFeedback && !isSelected
+                      ? "border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100"
+                      : ""
+                  }
+                  ${
+                    hasFeedback && !isSelected && !isCorrect
+                      ? "border-gray-200 bg-white"
+                      : ""
+                  }
                 `}
-              >
-                <input
-                  type="radio"
-                  id={`option-${option.id}`}
-                  name="quiz-option"
-                  value={option.id}
-                  checked={isSelected}
-                  onChange={() => !hasFeedback && setSelectedOptionId(option.id)}
-                  disabled={hasFeedback}
-                  className="w-5 h-5 sm:w-5 sm:h-5 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer disabled:cursor-not-allowed flex-shrink-0"
-                  aria-label={`Option ${optionLabel}: ${option.text}`}
-                />
-
-                {/* Option Label */}
-                <label
-                  htmlFor={`option-${option.id}`}
-                  className="flex-1 text-sm sm:text-base text-gray-900 cursor-pointer select-none font-medium pr-2"
                 >
-                  <span className="font-semibold mr-1 sm:mr-2">{optionLabel}.</span>
-                  {option.text}
-                </label>
+                  <input
+                    type="radio"
+                    id={`option-${option.id}`}
+                    name="quiz-option"
+                    value={option.id}
+                    checked={isSelected}
+                    onChange={() =>
+                      !hasFeedback && setSelectedOptionId(option.id)
+                    }
+                    disabled={hasFeedback}
+                    className="w-5 h-5 sm:w-5 sm:h-5 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer disabled:cursor-not-allowed flex-shrink-0"
+                    aria-label={`Option ${optionLabel}: ${option.text}`}
+                  />
 
-                {hasFeedback && (
-                  <div className="flex items-center flex-shrink-0">
-                    {isCorrect && (
-                      <CheckCircle2 className="w-5 h-5 text-green-600" aria-label="Correct answer" />
-                    )}
-                    {isIncorrect && (
-                      <XCircle className="w-5 h-5 text-red-600" aria-label="Incorrect answer" />
-                    )}
-                  </div>
-                )}
+                  {/* Option Label */}
+                  <label
+                    htmlFor={`option-${option.id}`}
+                    className="flex-1 text-sm sm:text-base text-gray-900 cursor-pointer select-none font-medium pr-2"
+                  >
+                    <span className="font-semibold mr-1 sm:mr-2">
+                      {optionLabel}.
+                    </span>
+                    {option.text}
+                  </label>
 
-                {/* TTS Audio Button */}
-                <button
-                  type="button"
-                  onClick={(e) => handleSpeakerClick(e, option.text)}
-                  className={`p-2 rounded-md transition-colors flex-shrink-0 touch-manipulation ${
-                    speakingText === option.text
-                      ? "bg-blue-200 hover:bg-blue-300 active:bg-blue-400"
-                      : "hover:bg-gray-200 active:bg-gray-300"
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
-                  aria-label={`Read option ${optionLabel} aloud`}
-                  title={speakingText === option.text ? "Stop reading" : "Read aloud"}
-                >
-                  <Volume2 className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                    speakingText === option.text
-                      ? "text-blue-600"
-                      : "text-gray-600"
-                  }`} />
-                </button>
-              </div>
-            );
-          })}
+                  {hasFeedback && (
+                    <div className="flex items-center flex-shrink-0">
+                      {isCorrect && (
+                        <CheckCircle2
+                          className="w-5 h-5 text-green-600"
+                          aria-label="Correct answer"
+                        />
+                      )}
+                      {isIncorrect && (
+                        <XCircle
+                          className="w-5 h-5 text-red-600"
+                          aria-label="Incorrect answer"
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* TTS Audio Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleSpeakerClick(e, option.text)}
+                    className={`p-2 rounded-md transition-colors flex-shrink-0 touch-manipulation ${
+                      speakingText === option.text
+                        ? "bg-blue-200 hover:bg-blue-300 active:bg-blue-400"
+                        : "hover:bg-gray-200 active:bg-gray-300"
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+                    aria-label={`Read option ${optionLabel} aloud`}
+                    title={
+                      speakingText === option.text
+                        ? "Stop reading"
+                        : "Read aloud"
+                    }
+                  >
+                    <Volume2
+                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                        speakingText === option.text
+                          ? "text-blue-600"
+                          : "text-gray-600"
+                      }`}
+                    />
+                  </button>
+                </div>
+              );
+            })}
         </div>
 
         {/* Feedback Message */}
@@ -578,7 +674,11 @@ export default function Quiz() {
                 className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-2 text-sm sm:text-base bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 active:from-purple-700 active:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md touch-manipulation"
                 aria-label={isLastQuestion ? "Finish quiz" : "Next question"}
               >
-                {isSubmittingQuiz ? "Submitting..." : isLastQuestion ? "Finish Quiz" : "Next"}
+                {isSubmittingQuiz
+                  ? "Submitting..."
+                  : isLastQuestion
+                  ? "Finish Quiz"
+                  : "Next"}
               </button>
             )}
           </div>

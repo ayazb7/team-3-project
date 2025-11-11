@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import StatCard from "../components/StatCard";
 import CourseCard from "../components/CourseCard";
 import WeekProgress from "../components/WeekProgress.jsx";
+import { useNavigate } from "react-router";
 
 const Carousel = ({ items, renderItem, className }) => {
   const containerRef = useRef(null);
@@ -138,6 +139,26 @@ export default function Dashboard() {
   const [weeklyActivity, setWeeklyActivity] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const events = [
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
+    {
+      title: "Sky Showcase",
+      location: "Sky Central - Osterley Campus",
+      date: "Thursday 13th November 2025",
+    },
+  ];
 
   const [scrolling, setScrolling] = useState(false);
 
@@ -341,7 +362,7 @@ export default function Dashboard() {
             )}
 
             {/* All Courses Section */}
-            <div className="AllCourses">
+            {/* <div className="AllCourses">
               <SectionHeader
                 title="All Courses"
                 subtitle="Explore all available learning paths."
@@ -363,7 +384,25 @@ export default function Dashboard() {
                   No courses available at the moment.
                 </div>
               )}
-            </div>
+            </div> */}
+            {continueCourses.length > 0 ? (
+              ""
+            ) : (
+              <div className="AllCourses">
+                <SectionHeader
+                  title="All Courses"
+                  subtitle="Explore all available learning paths."
+                />
+                <div className=" w-full flex flex-col justify-center items-center gap-5">
+                  <button
+                    className="bg-blue-700 rounded-lg w-65 h-10 text-white "
+                    onClick={() => navigate("/dashboard/courses")}
+                  >
+                    Browse Courses
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

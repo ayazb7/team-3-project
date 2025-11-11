@@ -7,7 +7,9 @@ const CourseCard = (props) => {
   return (
     <a
       href={"/dashboard/course/" + props.id}
-      className="block overflow-hidden transform transition-colors hover:bg-gray-300  rounded-lg py-4 px-2 w-full"
+      className={`block overflow-hidden transform transition-colors hover:bg-gray-300  rounded-lg py-4 px-2 w-full ${
+        props.background || ""
+      }`}
     >
       <div className=" bg-gray-200 overflow-hidden rounded-xl aspect-video">
         <img

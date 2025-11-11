@@ -4,7 +4,7 @@ import random
 import pymysql
 
 import app
-from .courses import calculate_course_progress
+from utils.courses_routes_utils import calculate_course_progress
 
 bp = Blueprint('quizzes', __name__, url_prefix='')
 

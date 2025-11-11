@@ -13,3 +13,4 @@ markdown
 flask-socketio
 eventlet
 openai
+numpy

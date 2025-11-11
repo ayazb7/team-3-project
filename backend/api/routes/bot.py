@@ -1,48 +1,72 @@
 from socket_wrapper import socketio
 from openai import OpenAI, pydantic_function_tool
 import json
+from flask import jsonify
 import pydantic
+from utils.courses_routes_utils import get_public_courses
+from flask_jwt_extended import jwt_required
+
+client = None
+courses = None
+system_prompt = ""
+conversation = []
+tools = []
 
 
-client = OpenAI()
 
-system_prompt = """
+def init():
+    global client, courses, system_prompt, conversation, tools
 
-SYSTEM PROMPT
+    client = OpenAI()
 
-You are a helpful assistant called Ano that helps users with their questions about the learning platform called Sky Wise.
-Formatting re-enabled — please use Markdown bold, italics, and header tags to improve the readability of your responses.
-
-Answer professionally, only answer questions about the learning platform itself, never answer about anything else.
-
-Here are the routes available on the website.
-
-DASHBOARD - This is where the user can find all the courses they're currently enrolled in and is in progress, it also shows all similar courses. Dashboard also shows all statistics about their studies such as quizzes taken and videos watched
+    courses = json.dumps(get_public_courses())
 
 
-LEARNING PAGE - The user can navigate to the learning page of a course by clicking on the course which they can find from the dashboard. This page is where they can consume the content of each tutorial
+    system_prompt = f"""
+
+    SYSTEM PROMPT
+
+    You are a helpful assistant called Ano that helps users with their questions about the learning platform called Sky Wise.
+    Formatting re-enabled — please use Markdown bold, italics, and header tags to improve the readability of your responses but don't include code speech marks such as ```markdown
+
+    Answer professionally, only answer questions about the learning platform itself, never answer about anything else.
+
+    Here are the routes available on the website.
+
+    DASHBOARD - This is where the user can find all the courses they're currently enrolled in and is in progress, it also shows all similar courses. Dashboard also shows all statistics about their studies such as quizzes taken and videos watched
 
 
-COURSES - The user can navigate to the courses page by click on the courses section from the dashboard. This is where they can find ALL courses available on the platform.
-
-Should the user ever wnat to log out, tell them to navigate to the sidebar, or if they're on a mobile phone tell them to check in the menu button on the top right. There will be a log out button.
-"""
+    LEARNING PAGE - The user can navigate to the learning page of a course by clicking on the course which they can find from the dashboard. This page is where they can consume the content of each tutorial
 
 
-# class redirectInput(pydantic.BaseModel):
-#     location: str
+    COURSES - The user can navigate to the courses page by click on the courses section from the dashboard. This is where they can find ALL courses available on the platform.
+
+    Should the user ever wnat to log out, tell them to navigate to the sidebar, or if they're on a mobile phone tell them to check in the menu button on the top right. There will be a log out button.
+
+    Here is the list of all available courses in json format. Reference this list of courses when the user asks about courses. NEVER RETURN RAW JSON.
+
+    {courses}
+
+    Whenever you talk about a specific course, make sure you make the tool call to show the course. Do not tell them how to navigate to it. Just use the tool.
+    However, when you're talking about multiple courses you DO NOT have to use the tool call and may send back markdown.
+
+    If the user asks what ANO stands for, jokingly say "Awesomely Nice Overlord"
+
+    """
 
 
-# def redirect(location: str) -> str:
-#     print(location)
-#     socketio.emit("redirect", {"data": location}, namespace='/chat')
     
-# tool = pydantic_function_tool(redirectInput)
+    tools = [pydantic_function_tool(courseInput)]
 
+    conversation = [{
+        "role" : "system", "content" : system_prompt,
+    }]
 
-conversation = [{
-    "role" : "system", "content" : system_prompt,
-}]
+class courseInput(pydantic.BaseModel):
+    courseJson: str
+
+def sendCourseDetails(course: dict) -> dict:
+    socketio.emit("renderCoursesInChat", {"data": course}, namespace='/chat')
 
 def trim_conversation(conversation, max_length=10):
     system_prompts = [{"role": "system", "content": m["content"]} for m in conversation if m["role"] == "system"]
@@ -52,31 +76,15 @@ def trim_conversation(conversation, max_length=10):
         return bridged_conversation
     return conversation
 
-
-@socketio.on('connect' , namespace='/chat')
-def handle_connect():
-    print('Client connected to /chat namespace')
-    socketio.emit('my response', {'data': 'Connected'})
-
-@socketio.on('disconnect', namespace='/chat')
-def handle_disconnect():
-    print('Client disconnected from /chat namespace')
-
-@socketio.on('message', namespace='/chat')
-def handle_message(message):
-    global conversation
-    print('Received message:', message)
-
-    # Trim conversation to last 10 messages
-    conversation = trim_conversation(conversation, max_length=10)
-
-    conversation.append({"role": "user", "content": message})
+def call_model(conversation):
     
 
+    print(conversation)
     with client.responses.stream(
         model="gpt-4.1-nano",
         input=conversation,
-        # tools=[tool]
+        tools=tools,
+        tool_choice="auto",
     ) as stream: 
         tool_calls = {}
         for event in stream:
@@ -93,7 +101,6 @@ def handle_message(message):
                 
             elif event.type == "response.output_tool_call.delta":
                 delta = event.delta
-                # Each delta will look like {'index': 0, 'name': '...', 'arguments': '{...'}
                 idx = delta.get("index", 0)
                 if idx not in tool_calls:
                     tool_calls[idx] = {"name": "", "arguments": ""}
@@ -103,18 +110,63 @@ def handle_message(message):
                     tool_calls[idx]["arguments"] += delta["arguments"]
 
 
-        final_response = stream.get_final_response()
+        return stream.get_final_response()
 
-        output = final_response.output 
-        if hasattr(output[0], "parsed_arguments"):
-            if output[0].name == "redirectInput":
 
-                location = json.loads(output[0].arguments)["location"]
-                redirect(location)
+@socketio.on('connect' , namespace='/chat')
+def handle_connect():
+    print('Client connected to /chat namespace')
+    socketio.emit('my response', {'data': 'Connected'})
+
+@socketio.on('disconnect', namespace='/chat')
+def handle_disconnect():
+    print('Client disconnected from /chat namespace')
+
+@socketio.on('message', namespace='/chat')
+def handle_message(message):
+    global conversation
+    conversation = trim_conversation(conversation, max_length=10)
+    conversation.append({"role": "user", "content": message})
+    print('Received message:', message)
+
+    final_response = call_model(conversation)
+
+    output = final_response.output 
+    if hasattr(output[0], "parsed_arguments"):
+        if output[0].name == "courseInput":
+            courseJson = json.loads(output[0].arguments, strict=False)["courseJson"]
+
+            explain_prompt = {
+                    "role": "user",
+                    "content": f"Now briefly explain this course: {json.dumps(courseJson)} DO NOT MAKE A TOOL CALL"
+                    }
+
+            conversation.append(explain_prompt)
+            explanation_res = call_model(conversation)
+
+            ex_text = explanation_res.output_text
+            print(explanation_res.output)
+            print(ex_text)
+            conversation.append({"role": "assistant", "content": ex_text})
+            print(courseJson)
+            sendCourseDetails(json.loads(courseJson, strict=False))
+
+
+            # courseName = courseJson["name"]
+
+            # conversation.append({"role": "assistant", "content": f"tool call executed {courseName}"})
+
+
+    else:
         conversation.append({"role": "assistant", "content": final_response.output_text})
-    
 
 
 
-    
+
+
+
+
+
+
+
 
