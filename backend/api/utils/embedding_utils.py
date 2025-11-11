@@ -75,7 +75,7 @@ def get_embedding(text: str):
     return client.embeddings.create(input=[text], model="text-embedding-3-small").data[0].embedding
     
 
-def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = None, n=3):
+def get_courses_from_embedding(user_id, text = None, embedding = None, ids: list[int] = None, n=3):
     """
     Get relevant courses from embedding
     """
@@ -91,16 +91,17 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
         
         embedded_text = get_embedding(text) if text else ""
 
-        # Get all courses from the embedding database
-        query = "SELECT ce.course_id, ce.embedding FROM course_embedding ce"
-        values = []
+        # Get all courses from the embedding database the the user hasn't completed
+        query = "SELECT ce.course_id, ce.embedding from course_embedding ce left join user_course_progress up on ce.course_id = up.course_id and up.user_id = %s"
+        values = [user_id]
         if ids:
             placeholders = ["%s" for _ in ids]
             placeholders = ",".join(placeholders)
-            query += f" WHERE ce.course_id NOT IN ({placeholders})" 
+
+            query += f" WHERE ce.course_id NOT IN ({placeholders}) and (up.progress_percentage < 100 or up.course_id is NULL)" 
             values += ids
+
         
-        print(query, values, ids)
         cursor.execute(query, values)
         embedded_courses = cursor.fetchall()
         
@@ -191,7 +192,7 @@ def get_recommended_courses_based_on_user_details(user_id):
 
         cursor.close()
         
-        data, code = get_courses_from_embedding(embedding=combined_embeddings, ids=course_ids)
+        data, code = get_courses_from_embedding(user_id=user_id, embedding=combined_embeddings, ids=course_ids)
         return data, code
     except Exception as e:
         print(f"Error in get_recommended_courses_based_on_user_details: {str(e)}")

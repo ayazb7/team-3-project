@@ -44,7 +44,7 @@ def get_admin_dashboard_stats():
 
         # Active users (users with any activity in last 7 days)
         cursor.execute('''
-            SELECT COUNT(DISTINCT user_id) FROM (
+            SELECT COUNT(DISTINCT user_id) as count FROM (
                 SELECT DISTINCT user_id FROM user_course_progress
                 WHERE last_updated >= DATE_SUB(NOW(), INTERVAL 7 DAY)
                 UNION
@@ -129,7 +129,7 @@ def get_admin_dashboard_stats():
 def get_all_users():
     """Get all users with their statistics"""
     cursor = app.mysql.connection.cursor()
-
+ 
     try:
         cursor.execute('''
             SELECT
@@ -139,15 +139,14 @@ def get_all_users():
                 u.role,
                 u.created_at,
                 COUNT(DISTINCT ucp.course_id) as courses_enrolled,
-                COUNT(DISTINCT utp.tutorial_id) as tutorials_watched,
-                COALESCE(SUM(ucp.progress_percentage), 0) / NULLIF(COUNT(DISTINCT ucp.course_id), 0) as avg_progress
+                (SELECT COUNT(DISTINCT tutorial_id) FROM user_tutorial_progress WHERE user_id = u.id AND completed = TRUE) as tutorials_watched,
+                (SELECT AVG(progress_percentage) FROM user_course_progress WHERE user_id = u.id) as avg_progress
             FROM users u
             LEFT JOIN user_course_progress ucp ON u.id = ucp.user_id
-            LEFT JOIN user_tutorial_progress utp ON u.id = utp.user_id AND utp.completed = TRUE
             GROUP BY u.id, u.username, u.email, u.role, u.created_at
             ORDER BY u.created_at DESC
         ''')
-
+ 
         users = [{
             'id': row['id'],
             'username': row['username'],
@@ -158,9 +157,9 @@ def get_all_users():
             'tutorials_watched': row['tutorials_watched'] or 0,
             'avg_progress': round(row['avg_progress'], 2) if row['avg_progress'] else 0
         } for row in cursor.fetchall()]
-
+ 
         return jsonify(users), 200
-
+ 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:

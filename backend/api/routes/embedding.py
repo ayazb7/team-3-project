@@ -7,6 +7,7 @@ bp = Blueprint('embedding', __name__, url_prefix='/embedding')
 @bp.route('course', methods=['POST'])
 @jwt_required()
 def handle_embed_request():
+    user_id = get_jwt_identity()
     req = request.get_json()
     text = ""
     course_id = None
@@ -19,11 +20,11 @@ def handle_embed_request():
 
     if course_id is None:
         
-        data, code = utils.get_courses_from_embedding(text=text) 
+        data, code = utils.get_courses_from_embedding(text=text, user_id=user_id) 
 
         return jsonify(data), code
     else:
-        data, code = utils.get_courses_from_embedding(text=text, ids=[course_id]) 
+        data, code = utils.get_courses_from_embedding(text=text, ids=[course_id], user_id=user_id) 
 
         return jsonify(data), code
 
