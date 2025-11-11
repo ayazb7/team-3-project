@@ -19,6 +19,7 @@ services:
       - ./backend/database/insert_smartphone_starter_course.sql:/docker-entrypoint-initdb.d/05-smartphone-starter.sql
       - ./backend/database/insert_working_in_the_cloud_course.sql:/docker-entrypoint-initdb.d/06-working-in-cloud.sql
       - ./backend/database/insert_everyday_computing_course.sql:/docker-entrypoint-initdb.d/07-everyday-computing.sql
+      - ./backend/database/insert_sample_users.sql:/docker-entrypoint-initdb.d/08-sample-users.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -66,12 +67,12 @@ services:
       context: ./frontend/team-3
       dockerfile: Dockerfile
       args:
-        - BACKEND_API_URL=${BACKEND_API_URL:-http://localhost:5003}
+        - VITE_BACKEND_API_URL=${BACKEND_API_URL:-http://localhost:5003}
     container_name: team-3-frontend
     ports:
       - "83:83"
     environment:
-      BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:5003}
+      VITE_BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:5003}
     depends_on:
       - api
     networks:
