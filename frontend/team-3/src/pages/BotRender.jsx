@@ -6,7 +6,7 @@ const BotRender = () => {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState([]);
   const socketRef = useRef(null);
-  const API_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5003";
+  const API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5003";
 
   const handleChange = (e) => {
     setPrompt(e.target.value);

@@ -3,9 +3,9 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Accept build argument for API URL
-ARG BACKEND_API_URL=http://localhost:5003
-ENV BACKEND_API_URL=$BACKEND_API_URL
+# Accept build argument for API URL - MUST be VITE_ prefix for Vite to pick it up
+ARG VITE_BACKEND_API_URL=http://localhost:5003
+ENV VITE_BACKEND_API_URL=$VITE_BACKEND_API_URL
 
 # Copy package files
 COPY package*.json ./
@@ -16,8 +16,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application with API URL
+RUN VITE_BACKEND_API_URL=$VITE_BACKEND_API_URL npm run build
 
 # Production stage
 FROM node:24-alpine

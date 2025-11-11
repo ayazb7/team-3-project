@@ -99,8 +99,18 @@ def create_app(testing: bool = False) -> Flask:
 
     if not testing:
         import routes.bot as bot
-        with app.app_context():
-           bot.init() 
+        app.bot_module = bot
+        app._bot_initialized = False
+        
+        @app.before_request
+        def init_bot_once():
+            if not app._bot_initialized:
+                try:
+                    with app.app_context():
+                        app.bot_module.init()
+                    app._bot_initialized = True
+                except Exception as e:
+                    app.logger.warning(f"Bot initialization deferred: {e}")
     return app
 
 if __name__ == '__main__':

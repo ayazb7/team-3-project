@@ -43,7 +43,7 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const { accessToken, fetchUserDetails } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const API_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5003";
+  const API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5003";
 
   const [searchedCourses, setSearchedCourses] = useState(null);
   const [recCourses, setRecCourses] = useState(null);
