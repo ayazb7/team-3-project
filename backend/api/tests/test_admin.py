@@ -6,16 +6,17 @@ def test_admin_dashboard_stats_no_token(client):
     """Test that admin endpoint requires authentication"""
     response = client.get('/admin/dashboard/stats')
     assert response.status_code == 401
-    assert 'error' in response.get_json()
+    data = response.get_json()
+    assert 'msg' in data or 'error' in data
 
 
 def test_admin_dashboard_stats_non_admin_user(client, mock_mysql):
     """Test that non-admin users cannot access admin endpoints"""
     cursor = mock_mysql.connection.cursor.return_value
-    cursor.fetchone.return_value = ('user',)  # role = 'user'
+    cursor.fetchone.return_value = {'role': 'user'}
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get('/admin/dashboard/stats', headers=headers)
@@ -28,20 +29,24 @@ def test_admin_dashboard_stats_success(client, mock_mysql):
     """Test admin can access dashboard stats"""
     cursor = mock_mysql.connection.cursor.return_value
 
-    # Mock role check
+    # Mock role check and counts
     cursor.fetchone.side_effect = [
-        ('admin',),  # role check
-        (100,),      # total_users
-        (50,),       # active_users
-        (10,),       # total_courses
-        (150,),      # total_tutorials
-        (75.5,),     # avg_completion
-        [],          # user_growth
-        []           # course_stats
+        {'role': 'admin'},      # role check
+        {'count': 100},         # total_users
+        {'count': 50},          # active_users
+        {'count': 10},          # total_courses
+        {'count': 150},         # total_tutorials
+        {'avg_progress': 75.5}, # avg_completion
+    ]
+    
+    # Mock fetchall for user_growth and course_stats
+    cursor.fetchall.side_effect = [
+        [],  # user_growth
+        []   # course_stats
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get('/admin/dashboard/stats', headers=headers)
@@ -57,11 +62,11 @@ def test_admin_dashboard_stats_success(client, mock_mysql):
 def test_create_course_success(client, mock_mysql):
     """Test admin can create a new course"""
     cursor = mock_mysql.connection.cursor.return_value
-    cursor.fetchone.return_value = ('admin',)  # role check
+    cursor.fetchone.return_value = {'role': 'admin'}
     cursor.lastrowid = 123
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     course_data = {
@@ -83,10 +88,10 @@ def test_create_course_success(client, mock_mysql):
 def test_create_course_missing_name(client, mock_mysql):
     """Test course creation fails without name"""
     cursor = mock_mysql.connection.cursor.return_value
-    cursor.fetchone.return_value = ('admin',)
+    cursor.fetchone.return_value = {'role': 'admin'}
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.post('/admin/courses', json={}, headers=headers)
@@ -99,12 +104,12 @@ def test_update_course_success(client, mock_mysql):
     """Test admin can update a course"""
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
-        ('admin',),          # role check
-        ('Python Basics',)   # course exists
+        {'role': 'admin'},
+        {'name': 'Python Basics'}
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     update_data = {'name': 'Advanced Python'}
@@ -119,12 +124,12 @@ def test_update_course_not_found(client, mock_mysql):
     """Test updating non-existent course returns 404"""
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
-        ('admin',),  # role check
-        None         # course doesn't exist
+        {'role': 'admin'},
+        None
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.put('/admin/courses/999', json={'name': 'Test'}, headers=headers)
@@ -136,12 +141,12 @@ def test_delete_course_success(client, mock_mysql):
     """Test admin can delete a course"""
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
-        ('admin',),          # role check
-        ('Python Basics',)   # course exists
+        {'role': 'admin'},
+        {'name': 'Python Basics'}
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.delete('/admin/courses/1', headers=headers)
@@ -154,14 +159,22 @@ def test_delete_course_success(client, mock_mysql):
 def test_get_all_users_success(client, mock_mysql):
     """Test admin can retrieve all users with stats"""
     cursor = mock_mysql.connection.cursor.return_value
-    cursor.fetchone.return_value = ('admin',)  # role check
+    cursor.fetchone.return_value = {'role': 'admin'}
     cursor.fetchall.return_value = [
-        (1, 'alice', 'alice@example.com', 'user', '2024-01-01', 3, 15, 75.5),
-        (2, 'bob', 'bob@example.com', 'user', '2024-01-02', 2, 10, 50.0)
+        {
+            'id': 1, 'username': 'alice', 'email': 'alice@example.com', 
+            'role': 'user', 'created_at': '2024-01-01', 'courses_enrolled': 3, 
+            'tutorials_watched': 15, 'avg_progress': 75.5
+        },
+        {
+            'id': 2, 'username': 'bob', 'email': 'bob@example.com', 
+            'role': 'user', 'created_at': '2024-01-02', 'courses_enrolled': 2, 
+            'tutorials_watched': 10, 'avg_progress': 50.0
+        }
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get('/admin/users', headers=headers)
@@ -177,13 +190,16 @@ def test_get_user_details_success(client, mock_mysql):
     """Test admin can get detailed user stats"""
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
-        ('admin',),  # role check
-        (1, 'alice', 'alice@example.com', 'user', 'English', '2024-01-01'),  # user info
-        (3,),   # courses_enrolled
-        (2,),   # courses_completed
-        (15,),  # tutorials_watched
-        (10,),  # quizzes_submitted
-        (85.5,) # avg_quiz_score
+        {'role': 'admin'},  # role check
+        {
+            'id': 1, 'username': 'alice', 'email': 'alice@example.com', 
+            'role': 'user', 'language_preference': 'English', 'created_at': '2024-01-01'
+        },  # user info
+        {'count': 3},   # courses_enrolled
+        {'count': 2},   # courses_completed
+        {'count': 15},  # tutorials_watched
+        {'count': 10},  # quizzes_submitted
+        {'avg_score': 85.5} # avg_quiz_score
     ]
     cursor.fetchall.side_effect = [
         [],  # weekly_activity
@@ -191,7 +207,7 @@ def test_get_user_details_success(client, mock_mysql):
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get('/admin/users/1', headers=headers)
@@ -207,12 +223,12 @@ def test_get_user_details_not_found(client, mock_mysql):
     """Test getting details for non-existent user returns 404"""
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
-        ('admin',),  # role check
-        None         # user doesn't exist
+        {'role': 'admin'},
+        None
     ]
 
     with client.application.app_context():
-        token = create_access_token(identity=1)
+        token = create_access_token(identity='1')
 
     headers = {"Authorization": f"Bearer {token}"}
     response = client.get('/admin/users/999', headers=headers)

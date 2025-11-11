@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 import app
@@ -14,7 +13,7 @@ def get_tutorials():
     """
     Returns all tutorials with summary data.
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("""
         SELECT 
             id,
@@ -48,7 +47,7 @@ def complete_tutorial(tutorial_id):
         data = request.get_json() or {}
         feedback = data.get("feedback")
 
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
 
         # 1. Check if this tutorial is already completed by the user
         cursor.execute("""
@@ -164,7 +163,7 @@ def submit_feedback(tutorial_id):
         if feedback_type not in ['positive', 'negative']:
             return jsonify({"error": "Invalid feedback type. Must be 'positive' or 'negative'"}), 400
 
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
 
         # Insert or update feedback (keep completion status unchanged)
         # This allows feedback without completion

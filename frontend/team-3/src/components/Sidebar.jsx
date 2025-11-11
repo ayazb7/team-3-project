@@ -65,12 +65,12 @@ export default function Sidebar() {
       icon: IoBookOutline,
       to: "/dashboard/courses",
     },
-    {
-      id: "activity",
-      label: "Activity",
-      icon: History,
-      to: "/dashboard/activity",
-    },
+    // {
+    //   id: "activity",
+    //   label: "Activity",
+    //   icon: History,
+    //   to: "/dashboard/activity",
+    // },
     {
       id: "support",
       label: "Support",

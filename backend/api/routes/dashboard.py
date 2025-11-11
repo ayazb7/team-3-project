@@ -1,6 +1,5 @@
 # routes/dashboard.py
 from flask import Blueprint, jsonify
-import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import app
 
@@ -18,7 +17,7 @@ def get_dashboard_stats():
     """
     try:
         user_id = get_jwt_identity()
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
 
         # ---------------------------
         # Courses Completed

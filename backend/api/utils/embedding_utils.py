@@ -1,5 +1,4 @@
 import json
-import MySQLdb.cursors
 from utils.courses_routes_utils import get_public_courses
 from openai import OpenAI
 import app
@@ -15,7 +14,7 @@ def embed_all_courses():
     """
     Function to embed ALL courses present. Ideally only used once.
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("TRUNCATE TABLE course_embedding")
     app.mysql.connection.commit()
 
@@ -28,7 +27,7 @@ def embed_courses(courses: list[str]):
     """
     Function to embed any number of courses
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     course_names_and_descriptions = [course["name"] + " " + course["description"] for course in courses]
     response = client.embeddings.create(
             model="text-embedding-3-small",
@@ -59,10 +58,8 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
     """
     Get relevant courses from embedding
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     embedded_text = get_embedding(text) if text  else ""
-
-
 
     # Get all courses from the embedding database the the user hasn't completed
     query = "SELECT ce.course_id, ce.embedding from course_embedding ce left join user_course_progress up on ce.course_id = up.course_id"
@@ -121,7 +118,7 @@ def get_recommended_courses_based_on_user_details(user_id):
 
     # Get courses that the user has progress in 
     print(user_id)
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
 
     cursor.execute("SELECT course_id FROM user_course_progress WHERE user_id = %s", (user_id,))
 

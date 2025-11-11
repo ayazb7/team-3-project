@@ -1,44 +1,22 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+__pycache__
+*.pyc
+*.pyo
+*.pyd
 .Python
-.venv/
-venv/
-ENV/
 env/
-
-# Testing
-.pytest_cache/
+venv/
+.venv
+*.egg-info/
+.pytest_cache
 .coverage
-htmlcov/
-*.cover
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
+htmlcov
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.md
 .DS_Store
-Thumbs.db
-
-# Environment variables (should be provided at runtime)
-.env
+node_modules
 .env.local
 .env.*.local
-
-# Git
-.git/
-.gitignore
-
-# Documentation
-README.md
-*.md
-
-# Logs
-*.log
-

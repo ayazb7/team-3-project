@@ -316,7 +316,12 @@ def test_submit_quiz_all_correct(client, mock_mysql, auth_headers):
     cursor.lastrowid = 100
     cursor.fetchone.side_effect = [
         {"tutorial_id": 1},
-        None,  # No existing progress
+        None, 
+        {"course_id": 1},
+        {"count": 10}, 
+        {"count": 5},  
+        {"count": 2},  
+        {"count": 1},  
     ]
 
     payload = {
@@ -374,7 +379,12 @@ def test_submit_quiz_creates_tutorial_progress(client, mock_mysql, auth_headers)
     cursor.lastrowid = 200
     cursor.fetchone.side_effect = [
         {"tutorial_id": 10},  
-        None,  
+        None,
+        {"course_id": 10},
+        {"count": 10}, 
+        {"count": 5},   
+        {"count": 2},  
+        {"count": 1},  
     ]
 
     payload = {

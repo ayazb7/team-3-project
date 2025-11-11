@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 
@@ -17,7 +16,7 @@ def get_preferences():
         { "preferences": { ... } } or empty dict if no preferences set
     """
     user_id = int(get_jwt_identity())
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     
     try:
         cursor.execute(
@@ -61,7 +60,7 @@ def save_preferences():
     preferences = data['preferences']
     preferences_json = json.dumps(preferences)
     
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     
     try:
         # Check if preferences already exist
@@ -108,7 +107,7 @@ def reset_preferences():
         { "message": "Preferences reset successfully" }
     """
     user_id = int(get_jwt_identity())
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     
     try:
         cursor.execute(
