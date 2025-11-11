@@ -80,10 +80,11 @@ def test_complete_tutorial_success(client, mock_mysql, auth_headers):
     cursor = mock_mysql.connection.cursor.return_value
     
     cursor.fetchone.side_effect = [
-        None, 
+        None,  
+        None,  
         {'course_id': 1}, 
         {'count': 5}, 
-        {'count': 5}, 
+        {'count': 5},  
         {'count': 1},  
         {'count': 0},  
     ]
@@ -125,8 +126,9 @@ def test_complete_tutorial_no_course_associated(client, mock_mysql, auth_headers
     """
     cursor = mock_mysql.connection.cursor.return_value
     cursor.fetchone.side_effect = [
+        None,  
         None, 
-        None, 
+        None,  
     ]
 
     response = client.post('/tutorials/1/complete', 
@@ -146,12 +148,13 @@ def test_complete_tutorial_negative_feedback(client, mock_mysql, auth_headers):
     cursor = mock_mysql.connection.cursor.return_value
     
     cursor.fetchone.side_effect = [
-        None,
-        {'course_id': 1}, 
-        {'count': 3}, 
+        None,  
+        None,  
+        {'course_id': 1},  
         {'count': 3},  
-        {'count': 2},  
-        {'count': 1},  
+        {'count': 3},  
+        {'count': 2}, 
+        {'count': 1}, 
     ]
 
     response = client.post('/tutorials/1/complete', 
@@ -172,11 +175,12 @@ def test_complete_tutorial_no_feedback(client, mock_mysql, auth_headers):
     
     cursor.fetchone.side_effect = [
         None,  
+        None,  
         {'course_id': 1}, 
         {'count': 2}, 
-        {'count': 2},  
-        {'count': 1}, 
-        {'count': 1}, 
+        {'count': 2}, 
+        {'count': 1},  
+        {'count': 1},
     ]
 
     response = client.post('/tutorials/1/complete', 
@@ -204,12 +208,13 @@ def test_complete_tutorial_update_existing_incomplete(client, mock_mysql, auth_h
     cursor = mock_mysql.connection.cursor.return_value
 
     cursor.fetchone.side_effect = [
-        {'completed': False},
-        {'course_id': 1},
-        {'count': 4},
-        {'count': 4},
-        {'count': 3},
-        {'count': 2},
+        {'completed': False},  
+        None,
+        {'course_id': 1}, 
+        {'count': 4}, 
+        {'count': 4}, 
+        {'count': 3},  
+        {'count': 2}, 
     ]
 
     response = client.post('/tutorials/1/complete',

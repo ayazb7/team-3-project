@@ -5,7 +5,7 @@ services:
     container_name: team-3-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
-      MYSQL_DATABASE: ${MYSQL_DB:-team_3_db}
+      MYSQL_DATABASE: ${MYSQL_DB:-skywise_db}
       MYSQL_USER: ${MYSQL_USER:-team3_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
     ports:
@@ -13,6 +13,12 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/database/db_creation.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./backend/database/insert_digital_kickstart_course.sql:/docker-entrypoint-initdb.d/02-digital-kickstart.sql
+      - ./backend/database/insert_teams_unlocked_course.sql:/docker-entrypoint-initdb.d/03-teams-unlocked.sql
+      - ./backend/database/insert_career_launch_course.sql:/docker-entrypoint-initdb.d/04-career-launch.sql
+      - ./backend/database/insert_smartphone_starter_course.sql:/docker-entrypoint-initdb.d/05-smartphone-starter.sql
+      - ./backend/database/insert_working_in_the_cloud_course.sql:/docker-entrypoint-initdb.d/06-working-in-cloud.sql
+      - ./backend/database/insert_everyday_computing_course.sql:/docker-entrypoint-initdb.d/07-everyday-computing.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -37,7 +43,7 @@ services:
       MYSQL_HOST: ${MYSQL_HOST:-mysql}
       MYSQL_USER: ${MYSQL_USER:-team3_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
-      MYSQL_DB: ${MYSQL_DB:-team_3_db}
+      MYSQL_DB: ${MYSQL_DB:-skywise_db}
       # JWT & CORS
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:83,http://localhost:5173}
@@ -59,6 +65,8 @@ services:
     build:
       context: ./frontend/team-3
       dockerfile: Dockerfile
+      args:
+        - BACKEND_API_URL=${BACKEND_API_URL:-http://localhost:5003}
     container_name: team-3-frontend
     ports:
       - "83:83"

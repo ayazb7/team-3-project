@@ -3,6 +3,10 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
+# Accept build argument for API URL
+ARG BACKEND_API_URL=http://localhost:5003
+ENV BACKEND_API_URL=$BACKEND_API_URL
+
 # Copy package files
 COPY package*.json ./
 

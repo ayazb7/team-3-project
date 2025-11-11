@@ -19,7 +19,7 @@ def admin_required(f):
         result = cursor.fetchone()
         cursor.close()
 
-        if not result or result[0] != 'admin':
+        if not result or result['role'] != 'admin':
             return jsonify({'error': 'Admin access required'}), 403
 
         return f(*args, **kwargs)
@@ -39,32 +39,32 @@ def get_admin_dashboard_stats():
 
     try:
         # Total users
-        cursor.execute('SELECT COUNT(*) FROM users')
-        total_users = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) as count FROM users')
+        total_users = cursor.fetchone()['count']
 
         # Active users (logged in within last 7 days)
         cursor.execute('''
-            SELECT COUNT(DISTINCT user_id)
+            SELECT COUNT(DISTINCT user_id) as count
             FROM web_traffic
             WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
         ''')
-        active_users = cursor.fetchone()[0]
+        active_users = cursor.fetchone()['count']
 
         # Total courses
-        cursor.execute('SELECT COUNT(*) FROM courses')
-        total_courses = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) as count FROM courses')
+        total_courses = cursor.fetchone()['count']
 
         # Total tutorials
-        cursor.execute('SELECT COUNT(*) FROM tutorials')
-        total_tutorials = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) as count FROM tutorials')
+        total_tutorials = cursor.fetchone()['count']
 
         # Average course completion rate
         cursor.execute('''
-            SELECT AVG(progress_percentage)
+            SELECT AVG(progress_percentage) as avg_progress
             FROM user_course_progress
         ''')
         result = cursor.fetchone()
-        avg_completion = round(result[0], 2) if result[0] else 0
+        avg_completion = round(result['avg_progress'], 2) if result['avg_progress'] else 0
 
         # User growth (last 30 days)
         cursor.execute('''
@@ -74,7 +74,7 @@ def get_admin_dashboard_stats():
             GROUP BY DATE(created_at)
             ORDER BY date ASC
         ''')
-        user_growth = [{'date': str(row[0]), 'count': row[1]} for row in cursor.fetchall()]
+        user_growth = [{'date': str(row['date']), 'count': row['count']} for row in cursor.fetchall()]
 
         # Course completion stats
         cursor.execute('''
@@ -90,11 +90,11 @@ def get_admin_dashboard_stats():
             ORDER BY enrolled DESC
         ''')
         course_stats = [{
-            'id': row[0],
-            'name': row[1],
-            'enrolled': row[2] or 0,
-            'completed': row[3] or 0,
-            'avg_progress': round(row[4], 2) if row[4] else 0
+            'id': row['id'],
+            'name': row['name'],
+            'enrolled': row['enrolled'] or 0,
+            'completed': row['completed'] or 0,
+            'avg_progress': round(row['avg_progress'], 2) if row['avg_progress'] else 0
         } for row in cursor.fetchall()]
 
         return jsonify({
@@ -142,14 +142,14 @@ def get_all_users():
         ''')
 
         users = [{
-            'id': row[0],
-            'username': row[1],
-            'email': row[2],
-            'role': row[3],
-            'created_at': str(row[4]),
-            'courses_enrolled': row[5] or 0,
-            'tutorials_watched': row[6] or 0,
-            'avg_progress': round(row[7], 2) if row[7] else 0
+            'id': row['id'],
+            'username': row['username'],
+            'email': row['email'],
+            'role': row['role'],
+            'created_at': str(row['created_at']),
+            'courses_enrolled': row['courses_enrolled'] or 0,
+            'tutorials_watched': row['tutorials_watched'] or 0,
+            'avg_progress': round(row['avg_progress'], 2) if row['avg_progress'] else 0
         } for row in cursor.fetchall()]
 
         return jsonify(users), 200
@@ -180,36 +180,36 @@ def get_user_details(user_id):
 
         # Courses enrolled
         cursor.execute('''
-            SELECT COUNT(*) FROM user_course_progress WHERE user_id = %s
+            SELECT COUNT(*) as count FROM user_course_progress WHERE user_id = %s
         ''', (user_id,))
-        courses_enrolled = cursor.fetchone()[0]
+        courses_enrolled = cursor.fetchone()['count']
 
         # Courses completed
         cursor.execute('''
-            SELECT COUNT(*) FROM user_course_progress
+            SELECT COUNT(*) as count FROM user_course_progress
             WHERE user_id = %s AND progress_percentage = 100
         ''', (user_id,))
-        courses_completed = cursor.fetchone()[0]
+        courses_completed = cursor.fetchone()['count']
 
         # Tutorials watched
         cursor.execute('''
-            SELECT COUNT(*) FROM user_tutorial_progress
+            SELECT COUNT(*) as count FROM user_tutorial_progress
             WHERE user_id = %s AND completed = TRUE
         ''', (user_id,))
-        tutorials_watched = cursor.fetchone()[0]
+        tutorials_watched = cursor.fetchone()['count']
 
         # Quizzes submitted
         cursor.execute('''
-            SELECT COUNT(*) FROM user_quiz_results WHERE user_id = %s
+            SELECT COUNT(*) as count FROM user_quiz_results WHERE user_id = %s
         ''', (user_id,))
-        quizzes_submitted = cursor.fetchone()[0]
+        quizzes_submitted = cursor.fetchone()['count']
 
         # Average quiz score
         cursor.execute('''
-            SELECT AVG(score) FROM user_quiz_results WHERE user_id = %s
+            SELECT AVG(score) as avg_score FROM user_quiz_results WHERE user_id = %s
         ''', (user_id,))
         result = cursor.fetchone()
-        avg_quiz_score = round(result[0], 2) if result[0] else 0
+        avg_quiz_score = round(result['avg_score'], 2) if result['avg_score'] else 0
 
         # Weekly activity
         cursor.execute('''
@@ -218,7 +218,7 @@ def get_user_details(user_id):
             WHERE user_id = %s AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
             GROUP BY DAYNAME(created_at)
         ''', (user_id,))
-        weekly_activity = {row[0]: row[1] for row in cursor.fetchall()}
+        weekly_activity = {row['day']: row['count'] for row in cursor.fetchall()}
 
         # Course progress details
         cursor.execute('''
@@ -233,20 +233,20 @@ def get_user_details(user_id):
             ORDER BY ucp.last_updated DESC
         ''', (user_id,))
         course_progress = [{
-            'course_id': row[0],
-            'course_name': row[1],
-            'progress': row[2],
-            'last_updated': str(row[3])
+            'course_id': row['id'],
+            'course_name': row['name'],
+            'progress': row['progress_percentage'],
+            'last_updated': str(row['last_updated'])
         } for row in cursor.fetchall()]
 
         return jsonify({
             'user': {
-                'id': user[0],
-                'username': user[1],
-                'email': user[2],
-                'role': user[3],
-                'language_preference': user[4],
-                'created_at': str(user[5])
+                'id': user['id'],
+                'username': user['username'],
+                'email': user['email'],
+                'role': user['role'],
+                'language_preference': user['language_preference'],
+                'created_at': str(user['created_at'])
             },
             'stats': {
                 'courses_enrolled': courses_enrolled,
@@ -387,7 +387,7 @@ def delete_course(course_id):
             cursor.close()
             return jsonify({'error': 'Course not found'}), 404
 
-        course_name = course[0]
+        course_name = course['name']
 
         # Delete related records (due to foreign key constraints)
         cursor.execute('DELETE FROM user_course_progress WHERE course_id = %s', (course_id,))
@@ -445,18 +445,18 @@ def get_all_courses_admin():
         ''')
 
         courses = [{
-            'id': row[0],
-            'name': row[1],
-            'description': row[2],
-            'difficulty': row[3],
-            'summary': row[4],
-            'learning_objectives': row[5],
-            'duration_min_minutes': row[6],
-            'duration_max_minutes': row[7],
-            'thumbnail_url': row[8],
-            'created_at': str(row[9]),
-            'tutorial_count': row[10],
-            'enrolled_count': row[11]
+            'id': row['id'],
+            'name': row['name'],
+            'description': row['description'],
+            'difficulty': row['difficulty'],
+            'summary': row['summary'],
+            'learning_objectives': row['learning_objectives'],
+            'duration_min_minutes': row['duration_min_minutes'],
+            'duration_max_minutes': row['duration_max_minutes'],
+            'thumbnail_url': row['thumbnail_url'],
+            'created_at': str(row['created_at']),
+            'tutorial_count': row['tutorial_count'],
+            'enrolled_count': row['enrolled_count']
         } for row in cursor.fetchall()]
 
         return jsonify(courses), 200

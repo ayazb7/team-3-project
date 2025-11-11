@@ -1,7 +1,8 @@
 python-dotenv
 flask
 Flask-CORS
-flask-mysqldb
+pymysql
+cryptography
 pytest
 pytest-mock
 flask-jwt-extended

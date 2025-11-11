@@ -2,16 +2,55 @@ import sys
 import os
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask
+from flask import Flask, g, current_app
 from flask_cors import CORS
-from flask_mysqldb import MySQL
+import pymysql
 from flask_jwt_extended import JWTManager
 from config import Config
 from socket_wrapper import socketio
 
 cors = CORS()
-mysql = MySQL()
 jwt = JWTManager()
+
+class MySQL:
+    def __init__(self, app=None):
+        self.app = app
+        if app is not None:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        self.app = app
+        app.mysql = self 
+        app.teardown_appcontext(self.teardown)
+    
+    def connect(self):
+        return pymysql.connect(
+            host=current_app.config['MYSQL_HOST'],
+            user=current_app.config['MYSQL_USER'],
+            password=current_app.config['MYSQL_PASSWORD'],
+            database=current_app.config['MYSQL_DB'],
+            charset='utf8mb4',
+            cursorclass=pymysql.cursors.DictCursor,
+            autocommit=False
+        )
+    
+    def teardown(self, exception):
+        ctx = g.pop('_mysql_connection', None)
+        if ctx is not None:
+            try:
+                if exception:
+                    ctx.rollback()
+                ctx.close()
+            except Exception:
+                pass
+    
+    @property
+    def connection(self):
+        if '_mysql_connection' not in g:
+            g._mysql_connection = self.connect()
+        return g._mysql_connection
+
+mysql = MySQL()
 
 def init_extensions(app):
     cors.init_app(
