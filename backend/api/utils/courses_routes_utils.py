@@ -8,6 +8,20 @@ import app
 HANDLING COURSES FUNCTIONS
 """
 
+def get_unenrolled_courses(user_id):
+    """
+    Retrieves courses that the user has not enrolled in yet
+    """
+    cursor = app.mysql.connection.cursor()
+    cursor.execute("SELECT c.* FROM courses c LEFT JOIN user_course_progress up ON c.id = up.course_id AND up.user_id = %s  WHERE up.course_id IS NULL", (user_id,))
+    
+    courses = cursor.fetchall()
+
+    return courses, 200 
+
+
+    
+
 def calculate_course_progress(cursor, course_id, user_id):
     """
         Calculates user's progress for a course based on completed tutorials and passed quizzes (score >= 80%).

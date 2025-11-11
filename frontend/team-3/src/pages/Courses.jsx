@@ -82,7 +82,7 @@ const Courses = () => {
         setIsLoggedIn(true && accessToken);
 
         try {
-          const res = await axios.get(`${API_URL}/courses`, {
+          const res = await axios.get(`${API_URL}/courses/unenrolled-courses`, {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
 
