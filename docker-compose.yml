@@ -1,85 +1,87 @@
-version: '3.8'
-
 services:
   # MySQL Database
-  db:
+  mysql:
     image: mysql:8.0
-    container_name: skywise-db
-    restart: unless-stopped
+    container_name: team-3-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
       MYSQL_DATABASE: ${MYSQL_DB:-skywise_db}
-      MYSQL_USER: ${MYSQL_USER:-skywise}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_USER: ${MYSQL_USER:-team3_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
     ports:
-      - "3306:3306"
+      - "3303:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./backend/database/db_creation.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./backend/database/insert_goated_user.sql:/docker-entrypoint-initdb.d/02-data.sql
-    networks:
-      - skywise-network
+      - ./backend/database/db_creation.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./backend/database/insert_digital_kickstart_course.sql:/docker-entrypoint-initdb.d/02-digital-kickstart.sql
+      - ./backend/database/insert_teams_unlocked_course.sql:/docker-entrypoint-initdb.d/03-teams-unlocked.sql
+      - ./backend/database/insert_career_launch_course.sql:/docker-entrypoint-initdb.d/04-career-launch.sql
+      - ./backend/database/insert_smartphone_starter_course.sql:/docker-entrypoint-initdb.d/05-smartphone-starter.sql
+      - ./backend/database/insert_working_in_the_cloud_course.sql:/docker-entrypoint-initdb.d/06-working-in-cloud.sql
+      - ./backend/database/insert_everyday_computing_course.sql:/docker-entrypoint-initdb.d/07-everyday-computing.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  # Backend API
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: skywise-backend
-    restart: unless-stopped
-    environment:
-      MYSQL_HOST: db
-      MYSQL_USER: ${MYSQL_USER:-skywise}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
-      MYSQL_DB: ${MYSQL_DB:-skywise_db}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-this}
-      FLASK_ENV: ${FLASK_ENV:-production}
-    ports:
-      - "5000:5000"
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
-      - skywise-network
+      - team-3-network
+
+  # Flask API Backend
+  api:
+    build:
+      context: ./backend/api
+      dockerfile: Dockerfile
+    container_name: team-3-api
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_DEBUG: ${FLASK_DEBUG:-True}
+      PORT: 5003
+      HOST: 0.0.0.0
+      # Database
+      MYSQL_HOST: ${MYSQL_HOST:-mysql}
+      MYSQL_USER: ${MYSQL_USER:-team3_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-team3_password}
+      MYSQL_DB: ${MYSQL_DB:-skywise_db}
+      # JWT & CORS
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:83,http://localhost:5173}
+      # APIs
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "5003:5003"
     volumes:
       - ./backend/api:/app
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - team-3-network
+    command: python app.py
 
-  # Frontend
+  # React Frontend
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend/team-3
       dockerfile: Dockerfile
-    container_name: skywise-frontend
-    restart: unless-stopped
+      args:
+        - BACKEND_API_URL=${BACKEND_API_URL:-http://localhost:5003}
+    container_name: team-3-frontend
     ports:
-      - "80:80"
+      - "83:83"
+    environment:
+      BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:5003}
     depends_on:
-      - backend
+      - api
     networks:
-      - skywise-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
-
-networks:
-  skywise-network:
-    driver: bridge
+      - team-3-network
 
 volumes:
   mysql_data:
     driver: local
+
+networks:
+  team-3-network:
+    driver: bridge
+

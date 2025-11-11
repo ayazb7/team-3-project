@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 import bcrypt
-import MySQLdb.cursors
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -84,7 +83,7 @@ def login():
     email = data['email']
     password = data['password']
 
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
     cursor.close()

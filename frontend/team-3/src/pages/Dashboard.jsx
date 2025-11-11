@@ -127,7 +127,7 @@ export default function Dashboard() {
     {
       label: "Time Spent",
       value: "0",
-      subtext: "this week",
+      subtext: "hours today",
       icon: Clock,
       color: "bg-red-50",
     },
@@ -207,7 +207,7 @@ export default function Dashboard() {
           {
             label: "Time Spent",
             value: data.time_spent_hours.toString(),
-            subtext: "this week",
+            subtext: "hours today",
             icon: Clock,
             color: "bg-red-50",
           },

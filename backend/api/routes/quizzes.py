@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import random
+import pymysql
 
 import app
 from utils.courses_routes_utils import calculate_course_progress
@@ -19,7 +19,7 @@ def get_tutorial_quizzes(tutorial_id):
             { "id": number, "title": string }
         ]
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute(
         """
         SELECT id, title 
@@ -45,7 +45,7 @@ def get_quiz_questions(quiz_id):
             { "id": number, "question_order": number, "question_text": string },
         ]
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute(
         """
         SELECT id, question_text, question_order
@@ -74,7 +74,7 @@ def get_question_options(quiz_id, question_id):
             { "id": number, "option_text": string },
         ]
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute(
         """
         SELECT o.id, o.option_text
@@ -119,7 +119,7 @@ def get_full_quiz(quiz_id):
             ]
         }
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute(
         """
         SELECT 
@@ -195,7 +195,7 @@ def answer_question(quiz_id, question_id):
     selected_option_id = data['selected_option_id']
 
     try:
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
         cursor.execute(
             """
             SELECT id, is_correct
@@ -222,7 +222,7 @@ def answer_question(quiz_id, question_id):
             'correct_option_id': correct_option['id']
         }), 200
 
-    except MySQLdb.Error as e:
+    except pymysql.Error as e:
         return jsonify({'error': 'A database error occurred', 'details': str(e)}), 500
 
 
@@ -264,7 +264,7 @@ def submit_quiz(quiz_id):
         return jsonify({'error': '"answers" list cannot be empty.'}), 400
     
     try:
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
         cursor.execute("""
             SELECT
                 qo.question_id,
@@ -373,7 +373,7 @@ def submit_quiz(quiz_id):
             "passing_score": 80
         }), 201
     
-    except MySQLdb.Error as e:
+    except pymysql.Error as e:
         if app.mysql.connection:
             app.mysql.connection.rollback()
         return jsonify({'error': 'A database error occurred', 'details': str(e)}), 500

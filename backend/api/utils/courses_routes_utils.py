@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-import MySQLdb.cursors
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 import app
@@ -79,7 +78,7 @@ def get_public_courses():
     Returns all courses without authentication for landing page display.
     Returns basic course information: name, difficulty, durations, and thumbnail.
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("""
                     SELECT
                         c.id,
@@ -103,7 +102,7 @@ def get_courses():
     Includes progress percentage for each course based on user's completed tutorials and submitted quizzes.
     """
     user_id = get_jwt_identity()
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("""
                     SELECT
                         c.id,
@@ -146,7 +145,7 @@ def get_course(course_id):
             ]
         }
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
 
     # Fetch the main course details
     cursor.execute("""
@@ -197,7 +196,7 @@ def get_course_tutorials(course_id):
     """
     Returns all tutorials for a specific course
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute(
         """
         SELECT
@@ -224,7 +223,7 @@ def get_tutorial(course_id, tutorial_id):
     Returns a specific tutorial for a specific course, including quiz completion status
     """
     user_id = get_jwt_identity()
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
 
     # Get tutorial details
     cursor.execute(
@@ -288,7 +287,7 @@ def update_course_progress(course_id):
         data = request.get_json()
         progress_percentage = data.get('progress_percentage', 1)
         
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
         
         # Check if progress record exists
         cursor.execute("""
@@ -329,7 +328,7 @@ def get_course_progress(course_id):
     """
     try:
         user_id = get_jwt_identity()
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
 
         cursor.execute("""
             SELECT progress_percentage 
@@ -370,7 +369,7 @@ def get_next_step(course_id):
     """
     try:
         user_id = get_jwt_identity()
-        cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = app.mysql.connection.cursor()
         
         cursor.execute("""
             SELECT t.id
