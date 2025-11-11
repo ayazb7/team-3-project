@@ -44,9 +44,10 @@ VALUES
 -- =============================================================
 --  LINKEDIN TUTORIAL
 -- =============================================================
-INSERT INTO tutorials ( title, description, video_provider, video_url, category)
+INSERT INTO tutorials (id, title, description, video_provider, video_url, category)
 VALUES
 (
+ 4,
  'Building Your Professional LinkedIn Profile',
  'Discover how to create a standout LinkedIn profile that showcases your professional skills and experience. This tutorial walks you through setting up your profile, choosing the right photo, writing an engaging headline and summary, and keeping your profile updated to attract career opportunities.',
  'synthesia',

@@ -110,7 +110,13 @@ INSERT INTO user_course_progress (user_id, course_id, progress_percentage, last_
 --  SAMPLE TUTORIAL PROGRESS DATA
 -- =============================================================
 
--- Note: Tutorial IDs depend on your database. Assuming tutorials exist with IDs 1-20
+-- Tutorial IDs 1-11 based on course structure:
+-- Tutorials 1-2: Digital Kickstart
+-- Tutorial 3: Teams Unlocked
+-- Tutorials 4-5: Career Launch
+-- Tutorials 6-7: Smartphone Starter
+-- Tutorials 8-9: Working in the Cloud
+-- Tutorials 10-11: Everyday Computing
 -- Active users with recent tutorial completions
 INSERT INTO user_tutorial_progress (user_id, tutorial_id, completed, completed_at, feedback) VALUES
 -- Recent completions (last 7 days)
@@ -132,34 +138,34 @@ INSERT INTO user_tutorial_progress (user_id, tutorial_id, completed, completed_a
 -- Older completions
 (@maria_id, 4, TRUE, DATE_SUB(NOW(), INTERVAL 15 DAY), 'positive'),
 (@robert_id, 5, TRUE, DATE_SUB(NOW(), INTERVAL 12 DAY), NULL),
-(@anna_id, 12, TRUE, DATE_SUB(NOW(), INTERVAL 8 DAY), 'positive'),
-(@anna_id, 13, TRUE, DATE_SUB(NOW(), INTERVAL 9 DAY), 'positive'),
+(@anna_id, 10, TRUE, DATE_SUB(NOW(), INTERVAL 8 DAY), 'positive'),
+(@anna_id, 11, TRUE, DATE_SUB(NOW(), INTERVAL 9 DAY), 'positive'),
 (@sophia_id, 6, TRUE, DATE_SUB(NOW(), INTERVAL 18 DAY), 'positive'),
 (@william_id, 7, TRUE, DATE_SUB(NOW(), INTERVAL 25 DAY), 'positive'),
 (@olivia_id, 8, TRUE, DATE_SUB(NOW(), INTERVAL 28 DAY), NULL),
 (@michael_id, 9, TRUE, DATE_SUB(NOW(), INTERVAL 26 DAY), 'positive'),
-(@emily_id, 10, TRUE, DATE_SUB(NOW(), INTERVAL 29 DAY), 'positive');
+(@emily_id, 1, TRUE, DATE_SUB(NOW(), INTERVAL 29 DAY), 'positive');
 
 -- =============================================================
 --  SAMPLE USER PREFERENCES
 -- =============================================================
 
-INSERT INTO user_preferences (user_id, language, accessibility_mode, theme) VALUES
-(@sarah_id, 'English', 'standard', 'light'),
-(@mike_id, 'English', 'standard', 'dark'),
-(@emma_id, 'English', 'high-contrast', 'light'),
-(@david_id, 'English', 'standard', 'light'),
-(@lisa_id, 'English', 'standard', 'dark'),
-(@james_id, 'English', 'standard', 'light'),
-(@maria_id, 'English', 'standard', 'light'),
-(@robert_id, 'English', 'standard', 'dark'),
-(@anna_id, 'English', 'high-contrast', 'light'),
-(@john_id, 'English', 'standard', 'light'),
-(@sophia_id, 'English', 'standard', 'dark'),
-(@william_id, 'English', 'standard', 'light'),
-(@olivia_id, 'English', 'standard', 'light'),
-(@michael_id, 'English', 'standard', 'dark'),
-(@emily_id, 'English', 'high-contrast', 'light');
+INSERT INTO user_preferences (user_id, preferences) VALUES
+(@sarah_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@mike_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'dark')),
+(@emma_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'high-contrast', 'theme', 'light')),
+(@david_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@lisa_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'dark')),
+(@james_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@maria_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@robert_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'dark')),
+(@anna_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'high-contrast', 'theme', 'light')),
+(@john_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@sophia_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'dark')),
+(@william_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@olivia_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'light')),
+(@michael_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'standard', 'theme', 'dark')),
+(@emily_id, JSON_OBJECT('language', 'English', 'accessibility_mode', 'high-contrast', 'theme', 'light'));
 
 -- Display summary
 SELECT
