@@ -97,9 +97,10 @@ def create_app(testing: bool = False) -> Flask:
     app.register_blueprint(embedding_bp)
     # app.register_blueprint(bot_bp)
 
-    import routes.bot as bot
-    with app.app_context():
-       bot.init() 
+    if not testing:
+        import routes.bot as bot
+        with app.app_context():
+           bot.init() 
     return app
 
 if __name__ == '__main__':

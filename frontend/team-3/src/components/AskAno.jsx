@@ -49,7 +49,6 @@ const AskAno = () => {
   const [partialResponse, setPartialResponse] = useState("");
   const partialResponseRef = useRef("");
   const API_URL = import.meta.env.BACKEND_API_URL || "http://localhost:5003";
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5003";
   const [coursesInChat, setCoursesInChat] = useState([]);
 
   let navigate = useNavigate();
