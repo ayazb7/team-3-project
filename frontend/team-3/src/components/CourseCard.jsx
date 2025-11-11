@@ -1,13 +1,26 @@
 import { FaGraduationCap } from "react-icons/fa";
 import { FaClock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import catImg from "../../public/cato.jpg";
 import { courseDifficultyColorMap } from "./utils";
 
 const CourseCard = (props) => {
+  const navigate = useNavigate();
+  const { accessToken } = useAuth();
+
+  const handleCardClick = () => {
+    if (!accessToken) {
+      navigate("/login");
+    } else {
+      navigate(`/dashboard/course/${props.id}`);
+    }
+  };
+
   return (
-    <a
-      href={"/dashboard/course/" + props.id}
-      className={`block overflow-hidden transform transition-colors hover:bg-gray-300  rounded-lg py-4 px-2 w-full ${
+    <button
+      onClick={handleCardClick}
+      className={`block overflow-hidden transform transition-colors hover:bg-gray-300 rounded-lg py-4 px-2 w-full text-left border-0 bg-transparent cursor-pointer ${
         props.background || ""
       }`}
     >
@@ -66,7 +79,7 @@ const CourseCard = (props) => {
           </div>
         </div>
       </div>
-    </a>
+    </button>
   );
 };
 

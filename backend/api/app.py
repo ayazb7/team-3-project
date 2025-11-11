@@ -64,6 +64,13 @@ def init_extensions(app):
     socketio.init_app(app, cors_allowed_origins=app.config.get('CORS_ORIGINS', ['http://localhost:5173']))
     if not app.config.get('TESTING'):
         mysql.init_app(app)
+    
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Frame-Options'] = 'ALLOWALL'
+        response.headers['Cross-Origin-Embedder-Policy'] = 'unsafe-none'
+        response.headers['Cross-Origin-Opener-Policy'] = 'unsafe-none'
+        return response
 
 def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
@@ -84,7 +91,6 @@ def create_app(testing: bool = False) -> Flask:
     from routes.admin import bp as admin_bp
     from routes.preferences import bp as preferences_bp
     from routes.embedding import bp as embedding_bp
-    # from routes.bot import bp as bot_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)
@@ -95,23 +101,58 @@ def create_app(testing: bool = False) -> Flask:
     app.register_blueprint(admin_bp)
     app.register_blueprint(preferences_bp)
     app.register_blueprint(embedding_bp)
-    # app.register_blueprint(bot_bp)
+
+    @app.route('/health', methods=['GET'])
+    def health_check():
+        return {'status': 'healthy', 'service': 'skywise-api'}, 200
 
     if not testing:
-        import routes.bot as bot
-        app.bot_module = bot
-        app._bot_initialized = False
-        
-        @app.before_request
-        def init_bot_once():
-            if not app._bot_initialized:
-                try:
-                    with app.app_context():
-                        app.bot_module.init()
-                    app._bot_initialized = True
-                except Exception as e:
-                    app.logger.warning(f"Bot initialization deferred: {e}")
+        _init_background_tasks(app)
+    
     return app
+
+
+def _init_background_tasks(app):
+    """Initialize background tasks like bot and embeddings"""
+    import routes.bot as bot
+    import threading
+    from utils.embedding_utils import ensure_courses_embedded
+    
+    app.bot_module = bot
+    app._bot_initialized = False
+    app._embeddings_initialized = False
+    
+    def init_embeddings_background():
+        """Initialize course embeddings in background on startup"""
+        try:
+            with app.app_context():
+                ensure_courses_embedded()
+                app._embeddings_initialized = True
+                app.logger.info("Course embeddings initialized successfully")
+        except Exception as e:
+            app.logger.warning(f"Embeddings initialization error: {e}")
+    
+    @app.before_request
+    def init_bot_once():
+        """Initialize bot module once on first request"""
+        if not app._bot_initialized:
+            try:
+                with app.app_context():
+                    app.bot_module.init()
+                app._bot_initialized = True
+            except Exception as e:
+                app.logger.warning(f"Bot initialization deferred: {e}")
+    
+    @app.before_request
+    def init_embeddings_once():
+        """Initialize course embeddings in background thread on first request"""
+        if not app._embeddings_initialized:
+            try:
+                thread = threading.Thread(target=init_embeddings_background, daemon=True)
+                thread.start()
+                app._embeddings_initialized = True
+            except Exception as e:
+                app.logger.warning(f"Failed to start embeddings thread: {e}")
 
 if __name__ == '__main__':
     app = create_app()

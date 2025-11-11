@@ -6,9 +6,32 @@ import numpy as np
 from utils.embeddings_utils import cosine_similarity
 import json
 
-
+COUNT_EMBEDDINGS_QUERY = "SELECT COUNT(*) as count FROM course_embedding"
 
 client = OpenAI()
+
+def ensure_courses_embedded():
+    """
+    Check if courses are embedded, and if not, embed them automatically.
+    This is called on app startup to ensure embeddings are ready.
+    """
+    cursor = app.mysql.connection.cursor()
+    cursor.execute(COUNT_EMBEDDINGS_QUERY)
+    result = cursor.fetchone()
+    embedding_count = result['count'] if result else 0
+    
+    cursor.execute("SELECT COUNT(*) as count FROM courses")
+    result = cursor.fetchone()
+    course_count = result['count'] if result else 0
+    
+    print(f"Found {embedding_count} embeddings and {course_count} courses")
+    
+    if course_count > 0 and embedding_count != course_count:
+        print(f"Embedding {course_count} courses (found {embedding_count} existing embeddings)...")
+        embed_all_courses()
+    else:
+        print("Courses already embedded, skipping embedding initialization")
+
 
 def embed_all_courses():
     """
@@ -44,8 +67,6 @@ def embed_courses(courses: list[str]):
 
     app.mysql.connection.commit()
 
-    
-
 
 def get_embedding(text: str):
     """
@@ -58,96 +79,122 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
     """
     Get relevant courses from embedding
     """
-    cursor = app.mysql.connection.cursor()
-    embedded_text = get_embedding(text) if text  else ""
+    try:
+        cursor = app.mysql.connection.cursor()
+        
+        # First check if embeddings exist
+        cursor.execute(COUNT_EMBEDDINGS_QUERY)
+        result = cursor.fetchone()
+        if not result or result['count'] == 0:
+            cursor.close()
+            return {"error": "Embeddings are being initialized. Please try again in a moment."}, 503
+        
+        embedded_text = get_embedding(text) if text else ""
 
-    # Get all courses from the embedding database the the user hasn't completed
-    query = "SELECT ce.course_id, ce.embedding from course_embedding ce left join user_course_progress up on ce.course_id = up.course_id"
-    values = []
-    if ids:
-        placeholders = ["%s" for c in ids]
-        placeholders = ",".join(placeholders)
+        # Get all courses from the embedding database
+        query = "SELECT ce.course_id, ce.embedding FROM course_embedding ce"
+        values = []
+        if ids:
+            placeholders = ["%s" for _ in ids]
+            placeholders = ",".join(placeholders)
+            query += f" WHERE ce.course_id NOT IN ({placeholders})" 
+            values += ids
+        
+        print(query, values, ids)
+        cursor.execute(query, values)
+        embedded_courses = cursor.fetchall()
+        
 
-        query += f" WHERE ce.course_id NOT IN ({placeholders}) and (up.progress_percentage < 100 or up.course_id is NULL)" 
-        values += ids
-    
-    print(query, values, ids)
-    cursor.execute(query, values)
-    embedded_courses = cursor.fetchall()
-    
+        if len(embedded_courses) < 1:
+            cursor.close()
+            return {"error": "No similar courses found"}, 404
 
-    if len(embedded_courses) < 1:
-        return "No similar courses found", 404
+        similarities = []
 
-    similarities = []
+        for obj in embedded_courses:
+            cid = obj["course_id"]
+            emb_json = obj["embedding"]
+            emb = np.array(json.loads(emb_json))
 
-    for obj in embedded_courses:
-        cid = obj["course_id"]
-        emb_json = obj["embedding"]
-        emb = np.array(json.loads(emb_json))
+            if embedding is not None and embedding.all():
+                embedded_text = embedding
 
-        if embedding is not None and embedding.all():
-            embedded_text = embedding
+            similarity = cosine_similarity(embedded_text, emb)
+            similarities.append((cid, similarity))
+        
+        
+        similarities.sort(key=lambda x: x[1], reverse=True)
 
-        similarity = cosine_similarity(embedded_text, emb)
-        similarities.append((cid, similarity))
+        # Only get top n
+        similarities = similarities[:n]
+        # extract ids after sorting
+        course_ids = []
+        for id, _ in similarities: 
+                course_ids.append(id)
 
-    similarities.sort(key=lambda x: x[1], reverse=True)
+        print(course_ids)
 
-    # Only get top n
-    similarities = similarities[:n]
-    # extract ids after sorting
-    course_ids = []
-    for id, _ in similarities: 
-            course_ids.append(id)
+        placeholders = ",".join(["%s"] * len(course_ids))
+        
+        query_values = course_ids + course_ids
+        cursor.execute(f"SELECT * from courses where id in ({placeholders}) order by field(id, {placeholders}) ", query_values)
 
-    print(course_ids)
-
-    # if len(course_ids) < 1:
-    #     return jsonfiy("Could not find similar courses"), 404
-
-    placeholders = ",".join(["%s"] * len(course_ids))
-    
-    query_values = course_ids + course_ids
-    cursor.execute(f"SELECT * from courses where id in ({placeholders}) order by field(id, {placeholders}) ", query_values)
-
-    courses = cursor.fetchall()
-    return courses, 200
+        courses = cursor.fetchall()
+        cursor.close()
+        return courses, 200
+    except Exception as e:
+        print(f"Error in get_courses_from_embedding: {str(e)}")
+        if 'cursor' in locals():
+            cursor.close()
+        return {"error": "Failed to search courses. Please try again."}, 500
 
 def get_recommended_courses_based_on_user_details(user_id):
+    """
+    Get recommended courses based on user's enrolled courses
+    """
+    try:
+        print(user_id)
+        cursor = app.mysql.connection.cursor()
 
-    # Get courses that the user has progress in 
-    print(user_id)
-    cursor = app.mysql.connection.cursor()
+        cursor.execute(COUNT_EMBEDDINGS_QUERY)
+        result = cursor.fetchone()
+        if not result or result['count'] == 0:
+            cursor.close()
+            return {"error": "Embeddings are being initialized. Please try again in a moment."}, 503
 
-    cursor.execute("SELECT course_id FROM user_course_progress WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT course_id FROM user_course_progress WHERE user_id = %s", (user_id,))
+        enrolled_courses_ids = cursor.fetchall()
 
-    enrolled_courses_ids = cursor.fetchall()
+        if len(enrolled_courses_ids) < 1:
+            cursor.close()
+            return {"error": "Enroll in courses to get personalized recommendations"}, 404
 
-    if len(enrolled_courses_ids) < 1:
-        return "Can not recommend courses as user is not enrolled in any courses", 404
+        # Get embedding of the courses
+        placeholders = []
+        course_ids = []
 
+        for course in enrolled_courses_ids:
+            placeholders.append("%s")
+            course_ids.append(course["course_id"])
 
-    # Get embedding of the courses
-    placeholders = []
-    course_ids = []
+        placeholders = ",".join(placeholders)
+        cursor.execute(f"SELECT embedding FROM course_embedding WHERE course_id IN ({placeholders})", course_ids)
 
+        embeddings = cursor.fetchall()
+        
+        if not embeddings:
+            cursor.close()
+            return {"error": "Unable to generate recommendations at this time"}, 404
+        
+        np_embeddings = [np.array(json.loads(e["embedding"])) for e in embeddings]
+        combined_embeddings = np.mean(np_embeddings, axis=0)
 
-    for course in enrolled_courses_ids:
-        placeholders.append("%s")
-        course_ids.append(course["course_id"])
-
-
-    placeholders = ",".join(placeholders)
-    cursor.execute(f"SELECT embedding FROM course_embedding WHERE course_id IN ({placeholders})", course_ids)
-
-    # Combine embedding wth average
-    embeddings = cursor.fetchall()
-    np_embeddings = [np.array(json.loads(e["embedding"])) for e in embeddings]
-
-
-    combined_embeddings = np.mean(np_embeddings, axis=0)
-
-
-    data, code = get_courses_from_embedding(embedding=combined_embeddings, ids = course_ids)
-    return data, code
+        cursor.close()
+        
+        data, code = get_courses_from_embedding(embedding=combined_embeddings, ids=course_ids)
+        return data, code
+    except Exception as e:
+        print(f"Error in get_recommended_courses_based_on_user_details: {str(e)}")
+        if 'cursor' in locals():
+            cursor.close()
+        return {"error": "Failed to get recommendations. Please try again."}, 500

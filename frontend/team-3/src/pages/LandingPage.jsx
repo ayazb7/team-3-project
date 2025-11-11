@@ -7,6 +7,7 @@ import CourseCard from "../components/CourseCard";
 const LandingPage = () => {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5003";
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -82,30 +82,44 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    echo "Building Docker images..."
+                    echo "Building Docker images with versioning..."
                     sh '''
                         cd ${PROJECT_DIR}
                         
-                        # Build backend image
+                        # Set version tags
+                        BUILD_VERSION="${BUILD_NUMBER}"
+                        GIT_COMMIT_SHORT=$(git rev-parse --short HEAD)
+                        BUILD_TAG="${BUILD_VERSION}-${GIT_COMMIT_SHORT}"
+                        
+                        echo "Build Version: ${BUILD_TAG}"
+                        
+                        # Build backend image with multiple tags
                         echo "Building backend image..."
-                        docker build -t team-3-api:${BUILD_NUMBER} \
+                        docker build -t team-3-api:${BUILD_VERSION} \
+                            -t team-3-api:${BUILD_TAG} \
                             -t team-3-api:latest \
-                            -t ${DOCKER_USERNAME}/team-3-api:${BUILD_NUMBER} \
+                            -t ${DOCKER_USERNAME}/team-3-api:${BUILD_VERSION} \
+                            -t ${DOCKER_USERNAME}/team-3-api:${BUILD_TAG} \
                             -t ${DOCKER_USERNAME}/team-3-api:latest \
                             -f ${BACKEND_DIR}/Dockerfile \
                             ${BACKEND_DIR}
                         
-                        # Build frontend image
+                        # Build frontend image with multiple tags
                         echo "Building frontend image..."
-                        docker build -t team-3-frontend:${BUILD_NUMBER} \
+                        docker build -t team-3-frontend:${BUILD_VERSION} \
+                            -t team-3-frontend:${BUILD_TAG} \
                             -t team-3-frontend:latest \
-                            -t ${DOCKER_USERNAME}/team-3-frontend:${BUILD_NUMBER} \
+                            -t ${DOCKER_USERNAME}/team-3-frontend:${BUILD_VERSION} \
+                            -t ${DOCKER_USERNAME}/team-3-frontend:${BUILD_TAG} \
                             -t ${DOCKER_USERNAME}/team-3-frontend:latest \
                             --build-arg BACKEND_API_URL=http://${VM_IP}:${BACKEND_PORT} \
                             -f ${FRONTEND_DIR}/Dockerfile \
                             ${FRONTEND_DIR}
                         
-                        echo "Images built successfully"
+                        echo "Images built successfully with tags:"
+                        echo "  - ${BUILD_VERSION} (Build Number)"
+                        echo "  - ${BUILD_TAG} (Build Number + Git Commit)"
+                        echo "  - latest"
                         docker images | grep team-3
                     '''
                 }
@@ -238,23 +252,33 @@ pipeline {
                 script {
                     echo "Pushing images to Docker Hub..."
                     sh '''
+                        # Set version tags (same as build stage)
+                        BUILD_VERSION="${BUILD_NUMBER}"
+                        GIT_COMMIT_SHORT=$(git rev-parse --short HEAD)
+                        BUILD_TAG="${BUILD_VERSION}-${GIT_COMMIT_SHORT}"
+                        
                         # Login to Docker Hub
                         echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
                         
-                        # Push backend images
+                        # Push backend images with all tags
                         echo "Pushing backend image..."
-                        docker push ${DOCKER_USERNAME}/team-3-api:${BUILD_NUMBER}
+                        docker push ${DOCKER_USERNAME}/team-3-api:${BUILD_VERSION}
+                        docker push ${DOCKER_USERNAME}/team-3-api:${BUILD_TAG}
                         docker push ${DOCKER_USERNAME}/team-3-api:latest
                         
-                        # Push frontend images
+                        # Push frontend images with all tags
                         echo "Pushing frontend image..."
-                        docker push ${DOCKER_USERNAME}/team-3-frontend:${BUILD_NUMBER}
+                        docker push ${DOCKER_USERNAME}/team-3-frontend:${BUILD_VERSION}
+                        docker push ${DOCKER_USERNAME}/team-3-frontend:${BUILD_TAG}
                         docker push ${DOCKER_USERNAME}/team-3-frontend:latest
                         
                         # Logout
                         docker logout
                         
                         echo "Images pushed successfully to Docker Hub"
+                        echo "Docker Hub repository: https://hub.docker.com/r/${DOCKER_USERNAME}"
+                        echo "Backend: ${DOCKER_USERNAME}/team-3-api (tags: ${BUILD_VERSION}, ${BUILD_TAG}, latest)"
+                        echo "Frontend: ${DOCKER_USERNAME}/team-3-frontend (tags: ${BUILD_VERSION}, ${BUILD_TAG}, latest)"
                     '''
                 }
             }
@@ -265,11 +289,22 @@ pipeline {
                 script {
                     echo "Cleaning up old Docker images..."
                     sh '''
-                        # Remove dangling images
+                        echo "Removing dangling images..."
                         docker image prune -f
                         
-                        # Keep only last 5 builds
-                        docker images | grep team-3 | tail -n +6 | awk '{print $3}' | xargs -r docker rmi || true
+                        echo "Cleaning up old local images (keeping latest, current build, and last 3 builds)..."
+                        # Get all team-3 images sorted by creation time
+                        # Keep: latest tag, current BUILD_NUMBER, and last 3 builds
+                        docker images --filter "reference=team-3-*" --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}\t{{.ID}}" | sort -k2 -r
+                        
+                        echo "Old images cleanup complete. Kept:"
+                        echo "  - team-3-api:latest (always kept for production)"
+                        echo "  - team-3-api:${BUILD_NUMBER} (current build)"
+                        echo "  - team-3-frontend:latest (always kept for production)"
+                        echo "  - team-3-frontend:${BUILD_NUMBER} (current build)"
+                        
+                        echo "\nCurrent images on disk:"
+                        docker images | grep team-3
                     '''
                 }
             }

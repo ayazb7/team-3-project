@@ -136,6 +136,7 @@ export default function Dashboard() {
   const [continueCourses, setContinueCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
+  const [starterCourses, setStarterCourses] = useState([]);
   const [weeklyActivity, setWeeklyActivity] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -249,6 +250,11 @@ export default function Dashboard() {
         setContinueCourses(inProgressCourses);
         setCompletedCourses(completedCourses);
         setAllCourses(courses);
+        
+        const newUserCourses = courses
+          .filter((course) => course.progress === 0 || course.progress < 20)
+          .slice(0, 3);
+        setStarterCourses(newUserCourses);
       })
       .catch((e) => {
         if (!isMounted) return;
@@ -361,44 +367,39 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* All Courses Section */}
-            {/* <div className="AllCourses">
-              <SectionHeader
-                title="All Courses"
-                subtitle="Explore all available learning paths."
-              />
-              {loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            {!loading && continueCourses.length === 0 && (
+              <div className="GetStarted">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                    Ready to Start Your Learning Journey?
+                  </h2>
+                  <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
+                    Start with these popular choices or explore our full catalog.
+                  </p>
                 </div>
-              ) : allCourses.length > 0 ? (
-                <Carousel
-                  items={allCourses}
-                  renderItem={(course, idx) => (
-                    <CourseCard key={idx} {...course} id={course.id} />
-                  )}
-                  className="pb-6"
-                />
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  No courses available at the moment.
-                </div>
-              )}
-            </div> */}
-            {continueCourses.length > 0 ? (
-              ""
-            ) : (
-              <div className="AllCourses">
-                <SectionHeader
-                  title="All Courses"
-                  subtitle="Explore all available learning paths."
-                />
-                <div className=" w-full flex flex-col justify-center items-center gap-5">
+
+                {starterCourses.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+                    {starterCourses.map((course, idx) => (
+                      <div key={idx} className="transform transition-all duration-200 hover:scale-[1.02]">
+                        <CourseCard {...course} id={course.id} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                )}
+
+                {/* CTA Button */}
+                <div className="flex flex-col items-center gap-4 mt-8 mb-4">
                   <button
-                    className="bg-blue-700 rounded-lg w-65 h-10 text-white "
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-3 rounded-lg font-semibold text-base md:text-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center gap-2"
                     onClick={() => navigate("/dashboard/courses")}
                   >
-                    Browse Courses
+                    <GraduationCap className="w-5 h-5" />
+                    Explore All Courses
                   </button>
                 </div>
               </div>
