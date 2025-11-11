@@ -12,7 +12,7 @@ def get_unenrolled_courses(user_id):
     """
     Retrieves courses that the user has not enrolled in yet
     """
-    cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = app.mysql.connection.cursor()
     cursor.execute("SELECT c.* FROM courses c LEFT JOIN user_course_progress up ON c.id = up.course_id AND up.user_id = %s  WHERE up.course_id IS NULL", (user_id,))
     
     courses = cursor.fetchall()
