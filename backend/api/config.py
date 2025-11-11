@@ -21,7 +21,7 @@ class Config:
     # Option 2: Set FRONTEND_URL for a single origin: "https://your-deployed-frontend.com"
     # Default: http://localhost:83 (for local development)
     cors_origins_env = os.getenv('CORS_ORIGINS')
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:83')
+    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
     
     origins_string = cors_origins_env if cors_origins_env else frontend_url
     CORS_ORIGINS = [

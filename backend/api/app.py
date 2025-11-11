@@ -16,13 +16,13 @@ jwt = JWTManager()
 def init_extensions(app):
     cors.init_app(
         app,
-        origins=app.config.get('CORS_ORIGINS', ['http://localhost:83']),
+        origins=app.config.get('CORS_ORIGINS', ['http://localhost:5173']),
         supports_credentials=True,
         allow_headers=['Content-Type', 'Authorization'],
         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     )
     jwt.init_app(app)
-    socketio.init_app(app, cors_allowed_origins=app.config.get('CORS_ORIGINS', ['http://localhost:83']))
+    socketio.init_app(app, cors_allowed_origins=app.config.get('CORS_ORIGINS', ['http://localhost:5173']))
     if not app.config.get('TESTING'):
         mysql.init_app(app)
 

@@ -71,7 +71,7 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
         placeholders = ["%s" for c in ids]
         placeholders = ",".join(placeholders)
 
-        query += f" WHERE ce.course_id NOT IN ({placeholders}) and up.progress_percentage < 100 or up.course_id is NULL" 
+        query += f" WHERE ce.course_id NOT IN ({placeholders}) and (up.progress_percentage < 100 or up.course_id is NULL)" 
         values += ids
     
     print(query, values, ids)
@@ -104,6 +104,7 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
     for id, _ in similarities: 
             course_ids.append(id)
 
+    print(course_ids)
 
     # if len(course_ids) < 1:
     #     return jsonfiy("Could not find similar courses"), 404
@@ -119,9 +120,10 @@ def get_courses_from_embedding(text = None, embedding = None, ids: list[int] = N
 def get_recommended_courses_based_on_user_details(user_id):
 
     # Get courses that the user has progress in 
+    print(user_id)
     cursor = app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    cursor.execute("SELECT course_id FROM user_course_progress WHERE user_id = %s", user_id)
+    cursor.execute("SELECT course_id FROM user_course_progress WHERE user_id = %s", (user_id,))
 
     enrolled_courses_ids = cursor.fetchall()
 
