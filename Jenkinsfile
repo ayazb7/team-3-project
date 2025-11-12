@@ -20,8 +20,8 @@ pipeline {
         BACKEND_DIR = "${PROJECT_DIR}/backend/api"
         FRONTEND_DIR = "${PROJECT_DIR}/frontend/team-3"
         
-        // Get VM IP address
-        VM_IP = sh(script: 'hostname -I | awk \'{print $1}\'', returnStdout: true).trim()
+        // Get VM external IP address (for GCP)
+        VM_IP = sh(script: 'curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip || echo "35.210.202.5"', returnStdout: true).trim()
         
         // Docker Hub Registry
         DOCKER_REGISTRY = "docker.io"
