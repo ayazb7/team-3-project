@@ -1,12 +1,14 @@
 -- =============================================================
 --  SAMPLE USER DATA FOR TESTING
---  Creates 15 sample users with activity data
+--  Creates 1 admin user and 14 sample users with activity data
 -- =============================================================
  
 USE skywise_db;
  
 -- Insert sample users with varied creation dates (realistic distribution with peaks and valleys)
 INSERT INTO users (username, email, password_hash, role, language_preference, created_at) VALUES
+-- Admin user (created first, 30 days ago)
+('admin', 'admin@skywise.uk', '$2b$12$5MFsjRaeD/eE7WLrY6XqtO8BIDD90pGuxrYVzeJsOQg3koBEh8rxm', 'admin', 'English', DATE_SUB(NOW(), INTERVAL 30 DAY)),
 -- High activity day (1 day ago) - 5 users
 ('sarah_chen', 'sarah.chen@email.com', '$2b$12$5MFsjRaeD/eE7WLrY6XqtO8BIDD90pGuxrYVzeJsOQg3koBEh8rxm', 'user', 'English', DATE_SUB(NOW(), INTERVAL 1 DAY)),
 ('mike_rodriguez', 'mike.rodriguez@email.com', '$2b$12$5MFsjRaeD/eE7WLrY6XqtO8BIDD90pGuxrYVzeJsOQg3koBEh8rxm', 'user', 'English', DATE_SUB(NOW(), INTERVAL 1 DAY)),
