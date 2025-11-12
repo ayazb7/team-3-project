@@ -313,36 +313,42 @@ pipeline {
 
     post {
         success {
-            script {
-                echo "Build successful!"
-                sh '''
-                    echo "=== Deployment Summary ==="
-                    echo "Backend API: http://${VM_IP}:${BACKEND_PORT}"
-                    echo "Frontend: http://${VM_IP}:${FRONTEND_PORT}"
-                    echo "MySQL: ${VM_IP}:${MYSQL_PORT}"
-                    docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} ps
-                '''
+            node {
+                script {
+                    echo "Build successful!"
+                    sh '''
+                        echo "=== Deployment Summary ==="
+                        echo "Backend API: http://${VM_IP}:${BACKEND_PORT}"
+                        echo "Frontend: http://${VM_IP}:${FRONTEND_PORT}"
+                        echo "MySQL: ${VM_IP}:${MYSQL_PORT}"
+                        docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} ps
+                    '''
+                }
             }
         }
 
         failure {
-            script {
-                echo "Build failed!"
-                sh '''
-                    echo "=== Error Logs ==="
-                    docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} logs --tail=50
-                '''
+            node {
+                script {
+                    echo "Build failed!"
+                    sh '''
+                        echo "=== Error Logs ==="
+                        docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} logs --tail=50
+                    '''
+                }
             }
         }
 
         always {
-            script {
-                // Archive logs if needed
-                sh '''
-                    mkdir -p ${WORKSPACE}/logs
-                    docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} logs > ${WORKSPACE}/logs/deployment.log 2>&1 || true
-                '''
-                archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
+            node {
+                script {
+                    // Archive logs if needed
+                    sh '''
+                        mkdir -p ${WORKSPACE}/logs
+                        docker-compose -f ${PROJECT_DIR}/${DOCKER_COMPOSE_FILE} logs > ${WORKSPACE}/logs/deployment.log 2>&1 || true
+                    '''
+                    archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
+                }
             }
         }
     }
