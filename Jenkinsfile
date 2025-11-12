@@ -21,7 +21,7 @@ pipeline {
         FRONTEND_DIR = "${PROJECT_DIR}/frontend/team-3"
         
         // Get VM IP address
-        VM_IP = sh(script: "hostname -I | awk '{print \\$1}'", returnStdout: true).trim()
+        VM_IP = sh(script: 'hostname -I | awk \'{print $1}\'', returnStdout: true).trim()
         
         // Docker Hub Registry
         DOCKER_REGISTRY = "docker.io"
