@@ -173,7 +173,7 @@ pipeline {
                     echo "Performing health checks..."
                     sh '''
                         echo "Checking MySQL..."
-                        docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD} || exit 1
+                        docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -uteam3_user -p${MYSQL_PASSWORD} || exit 1
                         
                         echo "Checking API..."
                         for i in {1..30}; do
@@ -215,10 +215,10 @@ pipeline {
                         # Install dependencies if needed
                         if [ ! -d ".venv" ]; then
                             python3 -m venv .venv
-                            source .venv/bin/activate
+                            . .venv/bin/activate
                             pip install -r requirements.txt
                         else
-                            source .venv/bin/activate
+                            . .venv/bin/activate
                         fi
                         
                         # Run pytest
