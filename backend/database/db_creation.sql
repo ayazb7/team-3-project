@@ -3,7 +3,7 @@
 --  Project Group: Flow State (Team 3)
 -- =============================================================
 
-create schema if not exists skywise_db;
+create schema if not exists skywise_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 use skywise_db;
 
 DROP TABLE IF EXISTS web_traffic;

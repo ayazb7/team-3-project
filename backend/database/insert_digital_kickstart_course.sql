@@ -44,7 +44,7 @@ VALUES
 (
  1,
  'How to Create a Strong Password and Stay Safe Online',
- 'In this video, you’ll learn how to create strong, memorable passwords that help keep your online accounts secure. You’ll discover simple techniques for building passwords that are hard to guess but easy to remember, as well as tips for managing them safely using a password manager. By the end, you’ll understand how to protect your personal information and stay safer online.',
+ 'In this video, you''ll learn how to create strong, memorable passwords that help keep your online accounts secure. You''ll discover simple techniques for building passwords that are hard to guess but easy to remember, as well as tips for managing them safely using a password manager. By the end, you''ll understand how to protect your personal information and stay safer online.',
  'synthesia',
  'https://share.synthesia.io/embeds/videos/9e680982-8abe-4227-a96c-5906d2b71fbb',
  'Cybersecurity',

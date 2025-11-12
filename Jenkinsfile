@@ -133,16 +133,19 @@ pipeline {
                     sh '''
                         cd ${PROJECT_DIR}
                         
-                        # Stop and remove existing containers and networks
-                        docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
+                        # Stop and remove existing containers, networks, AND volumes
+                        docker-compose -f ${DOCKER_COMPOSE_FILE} down -v || true
                         
                         # Remove the specific containers if they still exist
                         docker rm -f ${MYSQL_CONTAINER} ${API_CONTAINER} ${FRONTEND_CONTAINER} 2>/dev/null || true
                         
+                        # Remove the MySQL volume to force fresh database initialization
+                        docker volume rm team-3-pipeline_mysql_data 2>/dev/null || true
+                        
                         # Give some time for cleanup
                         sleep 5
                         
-                        echo "Existing services stopped and removed"
+                        echo "Existing services stopped and removed (including volumes)"
                     '''
                 }
             }
