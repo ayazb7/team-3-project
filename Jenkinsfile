@@ -313,7 +313,7 @@ pipeline {
 
     post {
         success {
-            node {
+            node('any') {
                 script {
                     echo "Build successful!"
                     sh '''
@@ -328,7 +328,7 @@ pipeline {
         }
 
         failure {
-            node {
+            node('any') {
                 script {
                     echo "Build failed!"
                     sh '''
@@ -340,7 +340,7 @@ pipeline {
         }
 
         always {
-            node {
+            node('any') {
                 script {
                     // Archive logs if needed
                     sh '''
