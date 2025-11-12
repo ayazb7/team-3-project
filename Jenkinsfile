@@ -133,13 +133,16 @@ pipeline {
                     sh '''
                         cd ${PROJECT_DIR}
                         
-                        # Stop and remove existing containers
+                        # Stop and remove existing containers and networks
                         docker-compose -f ${DOCKER_COMPOSE_FILE} down || true
+                        
+                        # Remove the specific containers if they still exist
+                        docker rm -f ${MYSQL_CONTAINER} ${API_CONTAINER} ${FRONTEND_CONTAINER} 2>/dev/null || true
                         
                         # Give some time for cleanup
                         sleep 5
                         
-                        echo "Existing services stopped"
+                        echo "Existing services stopped and removed"
                     '''
                 }
             }
@@ -152,8 +155,8 @@ pipeline {
                     sh '''
                         cd ${PROJECT_DIR}
                         
-                        # Start services in detached mode
-                        docker-compose -f ${DOCKER_COMPOSE_FILE} up -d
+                        # Start services in detached mode with rebuild to ensure correct env vars
+                        docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --build
                         
                         # Wait for services to be healthy
                         echo "Waiting for services to be ready..."
