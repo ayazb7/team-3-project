@@ -84,7 +84,7 @@ VALUES (2, 1, 'What personal information should you avoid using in your password
 
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
-(2, 'Your pet’s name or birthday', TRUE),
+(2, 'Your pet''s name or birthday', TRUE), 
 (2, 'A mix of random letters and numbers', FALSE),
 (2, 'Unrelated words and symbols', FALSE),
 (2, 'None of these options', FALSE);
@@ -102,12 +102,12 @@ VALUES
 
 -- Question 4
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (4, 1, 'What’s the safest way to store your passwords?', 4);
+VALUES (4, 1, 'What''s the safest way to store your passwords?', 4);
 
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (4, 'Write them on a sticky note', FALSE),
-(4, 'Save them in your phone’s notes app', FALSE),
+(4, 'Save them in your phone''s notes app', FALSE),
 (4, 'Use a password manager', TRUE),
 (4, 'Use the same password for everything', FALSE);
 
@@ -131,7 +131,7 @@ VALUES
 (
  2,
  'Mastering Email: From Sign-Up to Send-Off',
- 'Getting started with email has never been easier! In this quick, beginner-friendly guide, you’ll learn how to set up your very first email account, add security details, log in, and send your first message. Perfect for anyone new to email or looking for a simple step-by-step refresher.',
+ 'Getting started with email has never been easier! In this quick, beginner-friendly guide, you''ll learn how to set up your very first email account, add security details, log in, and send your first message. Perfect for anyone new to email or looking for a simple step-by-step refresher.',
  'synthesia', 
  'https://share.synthesia.io/embeds/videos/796fe9dd-1eff-4e2b-af05-fc0db9625342',           
  'Email Basics'
@@ -177,14 +177,14 @@ VALUES
 
 -- Question 3
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (8, 2, 'What is the purpose of the ‘Subject’ line when composing an email?', 3);
+VALUES (8, 2, 'What is the purpose of the ''Subject'' line when composing an email?', 3);
 
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (8, 'To add your signature', FALSE),
 (8, 'To include attachments', FALSE),
 (8, 'To summarize the content of your email', TRUE),
-(8, 'To show the recipient’s name', FALSE);
+(8, 'To show the recipient''s name', FALSE);
 
 -- Question 4
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
@@ -199,11 +199,11 @@ VALUES
 
 -- Question 5 
 INSERT INTO quiz_questions (id, quiz_id, question_text, question_order)
-VALUES (10, 2, 'What should you do before clicking ‘Send’ on your first email?', 5);
+VALUES (10, 2, 'What should you do before clicking ''Send'' on your first email?', 5);
 
 INSERT INTO quiz_options (question_id, option_text, is_correct)
 VALUES
 (10, 'Delete the subject line', FALSE),
-(10, 'Double-check the recipient’s address and your message', TRUE),
+(10, 'Double-check the recipient''s address and your message', TRUE),
 (10, 'Close the browser', FALSE),
 (10, 'Log out of your account', FALSE);
